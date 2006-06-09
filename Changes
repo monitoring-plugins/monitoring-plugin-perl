@@ -1,4 +1,10 @@
-Revision history for Perl extension Nagios::Plugin.
+Revision history for Perl module Nagios::Plugin.
+
+0.11  ???
+  - Interface changed for parse_perfstring, returning empty 
+	array if not parseable
+  - Fixed problem when parsing nagiosgraph data (linefeed at end 
+	of perfdata)
 
 0.10  8th June 2006
 	First release to CPAN

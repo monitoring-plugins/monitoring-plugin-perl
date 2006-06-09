@@ -27,7 +27,7 @@ sub _parse {
 	my $class = shift;
 	my $string = shift;
 	my $p = $class->new;
-	$string =~ s/^([^=]+)=([\d\.]+)(\w*);?([\d\.]+)?;?([\d\.]+)?;?([\d\.]+)?;?([\d\.]+)? *//;
+	$string =~ s/^([^=]+)=([\d\.]+)(\w*);?([\d\.]+)?;?([\d\.]+)?;?([\d\.]+)?;?([\d\.]+)?\s*//;
 	return undef unless ($1 && $2);
 	$p->label($1);
 	$p->value($2+0);
@@ -44,10 +44,9 @@ sub parse_perfstring {
 	my $obj;
 	while ($perfstring) {
 		($obj, $perfstring) = $class->_parse($perfstring);
-		return undef unless $obj;
+		return () unless $obj;
 		push @perfs, $obj;
 	}
-	return undef unless @perfs;
 	return @perfs;
 }
 
@@ -63,9 +62,13 @@ Nagios::Plugin::Performance - Performance information in a perl object
   use Nagios::Plugin::Performance;
 
   @p = Nagios::Plugin::Performance->parse_perfstring("/=382MB;15264;15269;; /var=218MB;9443;9448");
-  print "1st label = ", $p[0]->label, $/;
-  print "1st uom   = ", $p[0]->uom, $/;
-  print "2nd crit  = ", $p[1]->threshold->critical, $/;
+  if (@p) {
+	print "1st label = ", $p[0]->label, $/;
+	print "1st uom   = ", $p[0]->uom, $/;
+	print "2nd crit  = ", $p[1]->threshold->critical, $/;
+  } else {
+	print "Cannot parse",$/;
+  }
 
 =head1 DESCRIPTION
 
@@ -83,7 +86,7 @@ Once the performance string has been parsed, you can query the label, value, uom
 =item Nagios::Plugin::Performance->parse_perfstring($string)
 
 Returns an array of Nagios::Plugin::Performance objects based on the string entered. 
-If there is an error parsing the string, undef is returned.
+If there is an error parsing the string, an empty array is returned.
 
 =head1 OBJECT METHODS
 

@@ -1,6 +1,6 @@
 
 use strict;
-use Test::More tests => 42;
+use Test::More tests => 43;
 BEGIN { use_ok('Nagios::Plugin::Performance') };
 
 use Nagios::Plugin::Base;
@@ -21,8 +21,9 @@ cmp_ok( $p[1]->uom, 'eq', "MB", "uom okay");
 cmp_ok( $p[1]->threshold->warning->end, "==", 9443, "warn okay");
 cmp_ok( $p[1]->threshold->critical->end, "==", 9448, "crit okay");
 
-ok( ! defined Nagios::Plugin::Performance->parse_perfstring("rubbish"), "Errors correctly");
-ok( ! defined Nagios::Plugin::Performance->parse_perfstring(""), "Errors on empty string");
+@p = Nagios::Plugin::Performance->parse_perfstring("rubbish");
+ok( ! @p, "Errors correctly");
+ok( ! Nagios::Plugin::Performance->parse_perfstring(""), "Errors on empty string");
 
 @p = Nagios::Plugin::Performance->parse_perfstring(
 	"time=0.001229s;0.000000;0.000000;0.000000;10.000000");
@@ -48,6 +49,9 @@ cmp_ok( $p[0]->value, "==", 4, "value okay");
 cmp_ok( $p[0]->uom, "eq", "", "uom empty");
 cmp_ok( $p[0]->threshold->warning, 'eq', "20", "warn okay");
 cmp_ok( $p[0]->threshold->critical, 'eq', "50", "crit okay");
+
+@p = Nagios::Plugin::Performance->parse_perfstring( "users=4;20;50;0\n" );
+    ok( @p, "parse correctly with linefeed at end (nagiosgraph)");
 
 @p = Nagios::Plugin::Performance->parse_perfstring( 
 	"time=0.215300s;5.000000;10.000000;0.000000 size=426B;;;0" );
