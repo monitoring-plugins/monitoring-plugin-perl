@@ -1,6 +1,6 @@
 Revision history for Perl module Nagios::Plugin.
 
-0.11  ???
+0.11  14th June 2006
   - Interface changed for parse_perfstring, returning empty 
 	array if not parseable
   - Fixed problem when parsing nagiosgraph data (linefeed at end 

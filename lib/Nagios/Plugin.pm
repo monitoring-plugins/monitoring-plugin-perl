@@ -23,7 +23,7 @@ use Exporter;
 our @ISA = qw(Exporter Nagios::__::Plugin);
 our @EXPORT_OK = qw(%ERRORS);
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 sub add_perfdata {
 	my ($self, %args) = @_;
