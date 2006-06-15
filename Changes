@@ -1,5 +1,10 @@
 Revision history for Perl module Nagios::Plugin.
 
+0.12  ??
+  - rrdlabel method available to get a performance label, 
+	converted to something rrd can use
+  - fixes to parse_perfstring routine if values are 0
+
 0.11  14th June 2006
   - Interface changed for parse_perfstring, returning empty 
 	array if not parseable

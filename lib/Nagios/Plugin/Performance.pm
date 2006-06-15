@@ -28,7 +28,7 @@ sub _parse {
 	my $string = shift;
 	my $p = $class->new;
 	$string =~ s/^([^=]+)=([\d\.]+)(\w*);?([\d\.]+)?;?([\d\.]+)?;?([\d\.]+)?;?([\d\.]+)?\s*//;
-	return undef unless ($1 && $2);
+	return undef unless ((defined $1 && $1 ne "") && (defined $2 && $2 ne ""));
 	$p->label($1);
 	$p->value($2+0);
 	$p->uom($3);
@@ -48,6 +48,21 @@ sub parse_perfstring {
 		push @perfs, $obj;
 	}
 	return @perfs;
+}
+
+sub rrdlabel {
+	my $self = shift;
+	my $name = $self->label;
+	if ($name eq "/") {
+		$name = "root";
+	# If filesystem name, remove initial / and convert subsequent "/" to "_"
+	} elsif ($name =~ s/^\///) {
+		$name =~ s/\//_/g;
+	}
+	# Convert bad chars
+	$name =~ s/\W/_/g;
+	# Shorten
+	return substr( $name, 0, 19 );
 }
 
 1;
@@ -93,6 +108,13 @@ If there is an error parsing the string, an empty array is returned.
 =item label, value, uom, min, max
 
 These all return scalars. min and max are not well supported yet.
+
+=item rrdlabel
+
+Returns a label that can be used for the dataset name of an RRD, ie, between 1-19
+characters long with characters [a-zA-Z0-9_].
+
+There is no guarantee that multiple N:P:Performance objects will have unique rrdlabels.
 
 =item threshold
 
