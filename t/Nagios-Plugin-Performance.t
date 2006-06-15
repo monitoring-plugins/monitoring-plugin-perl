@@ -1,6 +1,6 @@
 
 use strict;
-use Test::More tests => 43;
+use Test::More tests => 49;
 BEGIN { use_ok('Nagios::Plugin::Performance') };
 
 use Nagios::Plugin::Base;
@@ -65,12 +65,13 @@ cmp_ok( $p[0]->threshold->critical, 'eq', "10", "crit okay");
 cmp_ok( $p[1]->label, "eq", "size", "label okay");
 cmp_ok( $p[1]->value, "==", 426, "value okay");
 cmp_ok( $p[1]->uom, "eq", "B", "uom okay");
-    ok( ! defined $p[1]->threshold->warning, "warn okay");
-    ok( ! defined $p[1]->threshold->critical, "crit okay");
+    ok( ! $p[1]->threshold->warning->is_set, "warn okay");
+    ok( ! $p[1]->threshold->critical->is_set, "crit okay");
 
-# RRDlabel testing
-@p = Nagios::Plugin::Performance->parse_perfstring("/home/a-m=0 shared-folder:big=20 12345678901234567890=20");
+# Edge cases
+@p = Nagios::Plugin::Performance->parse_perfstring("/home/a-m=0;0;0 shared-folder:big=20 12345678901234567890=20");
 cmp_ok( $p[0]->rrdlabel, "eq", "home_a_m", "changing / to _");
+    ok( $p[0]->threshold->warning->is_set, "Warning range has been set");
 cmp_ok( $p[1]->rrdlabel, "eq", "shared_folder_big", "replacing bad characters");
 cmp_ok( $p[2]->rrdlabel, "eq", "1234567890123456789", "shortening rrd label");
 

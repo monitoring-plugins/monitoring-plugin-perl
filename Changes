@@ -4,6 +4,7 @@ Revision history for Perl module Nagios::Plugin.
   - rrdlabel method available to get a performance label, 
 	converted to something rrd can use
   - fixes to parse_perfstring routine if values are 0
+  - is_set method for range object to see if warning/critical range is set
 
 0.11  14th June 2006
   - Interface changed for parse_perfstring, returning empty 

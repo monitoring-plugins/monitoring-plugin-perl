@@ -16,7 +16,7 @@ struct "Nagios::Plugin::Threshold" => {
 
 sub set_thresholds {
 	my ($class, %args) = @_;
-	my $t = $class->new;
+	my $t = $class->new( warning => Nagios::Plugin::Range->new, critical => Nagios::Plugin::Range->new );
 	if (defined $args{warning}) {
 		my $r = Nagios::Plugin::Range->parse_range_string($args{warning});
 		if (defined $r) {
@@ -44,12 +44,12 @@ sub set_thresholds {
 
 sub get_status {
 	my ($self, $value) = @_;
-	if ($self->critical) {
+	if ($self->critical->is_set) {
 		if ($self->critical->check_range($value) == 1) {
 			return $ERRORS{CRITICAL};
 		}
 	}
-	if ($self->warning) {
+	if ($self->warning->is_set) {
 		if ($self->warning->check_range($value) == 1) {
 			return $ERRORS{WARNING};
 		}

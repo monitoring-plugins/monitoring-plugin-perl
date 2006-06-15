@@ -14,7 +14,7 @@ struct "Nagios::Plugin::Range" => {
 	end => '$',
 	start_infinity => '$',	# TRUE / FALSE
 	end_infinity => '$',	# TRUE / FALSE
-	alert_on => '$',	# OUTSIDE 0, INSIDE 1
+	alert_on => '$',	# OUTSIDE 0, INSIDE 1, not defined == range not set
 	};
 
 my $outside = 0;
@@ -22,9 +22,15 @@ my $inside = 1;
 
 sub stringify {
 	my $self = shift;
+	return "" unless $self->is_set;
 	return (($self->alert_on) ? "@" : "") .
 		(($self->start_infinity == 1) ? "~:" : (($self->start == 0)?"":$self->start.":")) . 
 		(($self->end_infinity == 1) ? "" : $self->end);
+}
+
+sub is_set {
+	my $self = shift;
+	(! defined $self->alert_on) ? 0 : 1;
 }
 
 sub set_range_start {
