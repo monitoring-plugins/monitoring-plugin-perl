@@ -23,7 +23,7 @@ use Exporter;
 our @ISA = qw(Exporter Nagios::__::Plugin);
 our @EXPORT_OK = qw(%ERRORS);
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 sub add_perfdata {
 	my ($self, %args) = @_;
@@ -59,7 +59,8 @@ Nagios::Plugin - Object oriented helper routines for your Nagios plugin
   use Nagios::Plugin qw(%ERRORS);
   $p = Nagios::Plugin->new( shortname => "PAGESIZE" );
 
-  $threshold = $p->set_thresholds( warning => "10:25", critical => "25:" );
+  $threshold = $p->set_thresholds( warning => "10:25", critical => "~:25" );
+  # Critical if outside -INF to 25, ie > 25. Warn if outside 10-25, ie < 10
 
   # ... collect current metric into $value
   if ($trouble_getting_metric) {
@@ -120,7 +121,7 @@ Initializes a new Nagios::Plugin object. Can specify the shortname here.
 
 =head1 OBJECT METHODS
 
-=item set_thresholds( warning => "10:25", critical => "25:" )
+=item set_thresholds( warning => "10:25", critical => "~:25" )
 
 Sets the thresholds, based on the range specification at 
 http://nagiosplug.sourceforge.net/developer-guidelines.html#THRESHOLDFORMAT. 
@@ -147,6 +148,8 @@ http://nagiosplug.sourceforge.net
 =head1 AUTHOR
 
 Ton Voon, E<lt>ton.voon@altinity.comE<gt>
+
+Thanks to Nathan Vonnahme for loads of extra tests and subsequent fixes.
 
 =head1 COPYRIGHT AND LICENSE
 

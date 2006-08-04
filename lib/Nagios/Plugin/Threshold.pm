@@ -7,6 +7,8 @@ use warnings;
 
 use Nagios::Plugin::Range;
 use Nagios::Plugin::Base;
+use Nagios::Plugin;
+our ($VERSION) = $Nagios::Plugin::VERSION;
 
 use Class::Struct;
 struct "Nagios::Plugin::Threshold" => {
@@ -44,6 +46,7 @@ sub set_thresholds {
 
 sub get_status {
 	my ($self, $value) = @_;
+
 	if ($self->critical->is_set) {
 		if ($self->critical->check_range($value) == 1) {
 			return $ERRORS{CRITICAL};
@@ -54,6 +57,7 @@ sub get_status {
 			return $ERRORS{WARNING};
 		}
 	}
+	return $ERRORS{OK};
 }
 		
 1;

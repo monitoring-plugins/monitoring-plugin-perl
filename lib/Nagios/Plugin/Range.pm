@@ -4,6 +4,10 @@ use 5.008004;
 
 use strict;
 use warnings;
+use Carp;
+
+use Nagios::Plugin;
+our ($VERSION) = $Nagios::Plugin::VERSION;
 
 use overload
         '""' => sub { shift->stringify };
@@ -17,8 +21,8 @@ struct "Nagios::Plugin::Range" => {
 	alert_on => '$',	# OUTSIDE 0, INSIDE 1, not defined == range not set
 	};
 
-my $outside = 0;
-my $inside = 1;
+use constant OUTSIDE => 0;
+use constant INSIDE => 1;
 
 sub stringify {
 	my $self = shift;
@@ -49,22 +53,32 @@ sub set_range_end {
 sub parse_range_string {
 	my ($class, $string) = @_;
 	my $valid = 0;
-	my $range = $class->new( start => 0, start_infinity => 0, end => 0, end_infinity => 1, alert_on => $outside);
+	my $range = $class->new( start => 0, start_infinity => 0, end => 0, end_infinity => 1, alert_on => OUTSIDE);
+
+	$string =~ s/\s//g;  # strip out any whitespace
+	# check for valid range definition
+	unless ( $string =~ /[\d~]/ && $string =~ m/^\@?(-?[\d.]+|~)?(:(-?[\d.]+)?)?$/ ) {
+	    carp "invalid range definition '$string'";
+	    return undef;
+	}
 
 	if ($string =~ s/^\@//) {
-		$range->alert_on($inside);
+	    $range->alert_on(INSIDE);
 	}
-	if ($string =~ s/^~//) {
-		$range->start_infinity(1);
+
+	if ($string =~ s/^~//) {  # '~:x'
+	    $range->start_infinity(1);
 	}
-	if (($_) = $string =~ /^([-\d\.]+)?:/) {
-		$range->set_range_start($_) if defined $_;
-		$string =~ s/^([-\d\.]+)?://;
-		$valid++
+	if ( $string =~ m/^([\d\.-]+)?:/ ) {     # '10:'
+		my $start = $1;
+	    $range->set_range_start($start) if defined $start;
+		$range->end_infinity(1);  # overridden below if there's an end specified
+	    $string =~ s/^([-\d\.]+)?://;
+	    $valid++;
 	}
-	if ($string =~ /^([-\d\.]+)$/) {
-		$range->set_range_end($string);
-		$valid++;
+	if ($string =~ /^([-\d\.]+)$/) {   # 'x:10' or '10'
+	    $range->set_range_end($string);
+	    $valid++;
 	}
 
 	if ($valid && ($range->start_infinity == 1 || $range->end_infinity == 1 || $range->start <= $range->end)) {
@@ -78,7 +92,7 @@ sub check_range {
 	my ($self, $value) = @_;
 	my $false = 0;
 	my $true = 1;
-	if ($self->alert_on == $inside) {
+	if ($self->alert_on == INSIDE) {
 		$false = 1;
 		$true = 0;
 	}
@@ -89,7 +103,7 @@ sub check_range {
 			return $true;
 		}
 	} elsif ($self->start_infinity == 0 && $self->end_infinity == 1) {
-		if ($self->start <= $value) {
+		if ( $value >= $self->start ) {
 			return $false;
 		} else {
 			return $true;

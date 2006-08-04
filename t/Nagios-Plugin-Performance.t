@@ -3,6 +3,8 @@ use strict;
 use Test::More tests => 49;
 BEGIN { use_ok('Nagios::Plugin::Performance') };
 
+diag "\nusing Nagios::Plugin::Performance revision ". $Nagios::Plugin::Performance::VERSION . "\n";
+
 use Nagios::Plugin::Base;
 Nagios::Plugin::Base->exit_on_die(0);
 
@@ -27,13 +29,16 @@ cmp_ok( $p[1]->threshold->critical->end, "==", 9448, "crit okay");
 ok( ! @p, "Errors correctly");
 ok( ! Nagios::Plugin::Performance->parse_perfstring(""), "Errors on empty string");
 
+
 @p = Nagios::Plugin::Performance->parse_perfstring(
 	"time=0.001229s;0.000000;0.000000;0.000000;10.000000");
 cmp_ok( $p[0]->label, "eq", "time", "label okay");
 cmp_ok( $p[0]->value, "==", 0.001229, "value okay");
 cmp_ok( $p[0]->uom,   "eq", "s", "uom okay");
-cmp_ok( $p[0]->threshold->warning, "eq", "0", "warn okay");
-cmp_ok( $p[0]->threshold->critical, "eq", "0", "crit okay");
+    ok( $p[0]->threshold->warning->is_set, "warn okay");
+    ok( $p[0]->threshold->critical->is_set, "crit okay");
+
+
 
 @p = Nagios::Plugin::Performance->parse_perfstring(
 	"load1=0.000;5.000;9.000;0; load5=0.000;5.000;9.000;0; load15=0.000;5.000;9.000;0;");

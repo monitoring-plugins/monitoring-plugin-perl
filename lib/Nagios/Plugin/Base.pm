@@ -5,6 +5,9 @@ package Nagios::Plugin::Base;
 use strict;
 use warnings;
 
+use Nagios::Plugin;
+our ($VERSION) = $Nagios::Plugin::VERSION;
+
 use Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(%ERRORS);
@@ -13,28 +16,38 @@ our %ERRORS=('OK'=>0,'WARNING'=>1,'CRITICAL'=>2,'UNKNOWN'=>3,'DEPENDENT'=>4);
 
 our %STATUS_TEXT = reverse %ERRORS;
 
+
 my $exit_on_die = 1;
 sub exit_on_die { shift; @_ ? $exit_on_die = shift : $exit_on_die };
 my $print_on_die = 1;
 sub print_on_die { shift; @_ ? $print_on_die = shift : $print_on_die };
 
 sub die {
-	my ($class, $args, $plugin) = @_;
-	my $return_code = $args->{return_code} || 3;
-	my $message = $args->{message} || "Internal error";
-	my $output = join(" ", $STATUS_TEXT{$return_code}, $message);
-	if ($plugin) {
-		$output = $plugin->shortname." $output" if $plugin->shortname;
-		$output .= " | ".$plugin->all_perfoutput if $plugin->perfdata;
-	}
-	if ($print_on_die) {
-		print $output, $/;
-	}
-	if ($exit_on_die) {
-		exit $return_code;
-	} else {
-		return $output;
-	}
+    my ($class, $args, $plugin) = @_;
+    my $return_code;
+
+    if (  exists $args->{return_code} 
+	  && exists $STATUS_TEXT{$args->{return_code}}  
+	) {
+	$return_code = $args->{return_code};
+    }
+    else {
+	$return_code = $ERRORS{UNKNOWN};
+    }
+    my $message = $args->{message} || "Internal error";
+    my $output = join(" ", $STATUS_TEXT{$return_code}, $message);
+    if ($plugin) {
+	$output = $plugin->shortname." $output" if $plugin->shortname;
+	$output .= " | ".$plugin->all_perfoutput if $plugin->perfdata;
+    }
+    if ($print_on_die) {
+	print $output, $/;
+    }
+    if ($exit_on_die) {
+	exit $return_code;
+    } else {
+	return $output;
+    }
 }
 
 1;
