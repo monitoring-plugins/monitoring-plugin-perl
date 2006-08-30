@@ -11,4 +11,5 @@ lib/Nagios/Plugin/Performance.pm
 lib/Nagios/Plugin/Range.pm
 lib/Nagios/Plugin/Threshold.pm
 lib/Nagios/Plugin/Base.pm
+lib/Nagios/Plugin/Getopt.pm
 META.yml                                 Module meta-data (added by MakeMaker)
