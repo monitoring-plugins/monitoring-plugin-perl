@@ -41,8 +41,8 @@ my @ARGS = ({
     help => "-t, --timeout=INTEGER\n   Seconds before plugin times out (default: %s)",
     default => $DEFAULT{timeout},
   }, {
-    spec => 'verbose|v',
-    help => "-v, --verbose\n   Show details for command-line debugging",
+    spec => 'verbose|v+',
+    help => "-v, --verbose\n   Show details for command-line debugging (can repeat up to 3 times)",
     default => $DEFAULT{verbose},
   },
 );
@@ -467,7 +467,7 @@ example:
    -t, --timeout=INTEGER
      Seconds before plugin times out (default: 15)
    -v, --verbose
-     Show details for command-line debugging
+     Show details for command-line debugging (can repeat up to 3 times)
 
 
 =head2 ARGUMENTS
@@ -506,7 +506,7 @@ and so on. The following are some examples:
 
 =item exclude|X=s@
 
-=item verbose|v
+=item verbose|v+
 
 =back
 

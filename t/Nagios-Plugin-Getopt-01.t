@@ -2,7 +2,7 @@
 
 use strict;
 
-use Test::More tests => 72;
+use Test::More tests => 76;
 BEGIN { use_ok('Nagios::Plugin::Getopt') };
 
 my %PARAM = (
@@ -44,6 +44,17 @@ $ng->getopts;
 is($ng->warning, 3, 'warning set to 3');
 is($ng->critical, 10, 'critical set to 10');
 is($ng->timeout, 12, 'timeout set to 12');
+
+# Check multiple verbose flags
+@ARGV = qw(-w 3 --critical 10 -v -v -v);
+$ng = setup;
+$ng->getopts;
+is ($ng->verbose, 3, "Verbose set to level 3");
+
+@ARGV = qw(-w 3 --critical 10 --verbose --verbose --verbose);
+$ng = setup;
+$ng->getopts;
+is ($ng->verbose, 3, "Verbose set to level 3 (longhand)");
 
 # Missing args
 @ARGV = qw();
