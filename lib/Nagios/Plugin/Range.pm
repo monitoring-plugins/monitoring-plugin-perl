@@ -6,8 +6,8 @@ use strict;
 use warnings;
 use Carp;
 
-use Nagios::Plugin;
-our ($VERSION) = $Nagios::Plugin::VERSION;
+use Nagios::Plugin::Base;
+our ($VERSION) = $Nagios::Plugin::Base::VERSION;
 
 use overload
         '""' => sub { shift->stringify };

@@ -5,8 +5,7 @@ package Nagios::Plugin::Base;
 use strict;
 use warnings;
 
-use Nagios::Plugin;
-our ($VERSION) = $Nagios::Plugin::VERSION;
+our $VERSION = "0.13";
 
 use Exporter;
 our @ISA = qw(Exporter);

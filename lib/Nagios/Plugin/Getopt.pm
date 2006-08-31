@@ -13,8 +13,9 @@ use Carp;
 use Params::Validate qw(:all);
 use base qw(Class::Accessor);
 
+use Nagios::Plugin::Base;
 use vars qw($VERSION);
-$VERSION = '0.02';
+$VERSION = $Nagios::Plugin::Base::VERSION;
 
 # Standard defaults
 my %DEFAULT = (

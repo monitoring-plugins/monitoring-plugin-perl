@@ -7,8 +7,8 @@ use warnings;
 
 use Carp;
 use Nagios::Plugin::Threshold;
-use Nagios::Plugin;
-our ($VERSION) = $Nagios::Plugin::VERSION;
+use Nagios::Plugin::Base;
+our ($VERSION) = $Nagios::Plugin::Base::VERSION;
 
 use Class::Struct;
 struct "Nagios::Plugin::Performance" => {
