@@ -86,6 +86,12 @@ This is the place for common routines when writing Nagios plugins. The idea is t
 easy as possible for developers to conform to the plugin guidelines 
 (http://nagiosplug.sourceforge.net/developer-guidelines.html).
 
+=head1 EXAMPLE SCRIPT
+
+"Enough talk!  Show me where to start!"
+
+See the file 'check_stuff.pl' in the 't' directory for a complete working example of a plugin script.
+
 =head1 DESIGN
 
 To facilitate object oriented classes, there are multiple perl modules, each reflecting a type of data
@@ -105,21 +111,29 @@ Only methods listed in the documentation for each module is public.
 These modules are experimental and so the interfaces may change up until Nagios::Plugin
 hits version 1.0, but every attempt will be made to make backwards compatible.
 
-=over 4
-
 =head1 STARTING
+
+=over 4
 
 =item use Nagios::Plugin qw(%ERRORS)
 
 Imports the %ERRORS hash. This is currently the only symbol that can be imported.
 
+=back
+
 =head1 CLASS METHODS
+
+=over 4
 
 =item Nagios::Plugin->new( shortname => $$ )
 
 Initializes a new Nagios::Plugin object. Can specify the shortname here.
 
+=back
+
 =head1 OBJECT METHODS
+
+=over 4
 
 =item set_thresholds( warning => "10:25", critical => "~:25" )
 
@@ -147,9 +161,13 @@ http://nagiosplug.sourceforge.net
 
 =head1 AUTHOR
 
-Ton Voon, E<lt>ton.voon@altinity.comE<gt>
+Maintained by the Nagios Plugin development team - http://nagiosplug.sourceforge.net
 
-Thanks to Nathan Vonnahme for loads of extra tests and subsequent fixes.
+Originally by Ton Voon, E<lt>ton.voon@altinity.comE<gt>
+
+Nathan Vonnahme added extra tests and subsequent fixes.
+
+Gavin Carr contributed the Nagios::Plugin::GetOpt module.
 
 =head1 COPYRIGHT AND LICENSE
 

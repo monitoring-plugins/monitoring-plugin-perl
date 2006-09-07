@@ -83,6 +83,8 @@ Returns the warning or critical range as a Nagios::Plugin::Range object.
 
 Given a value, will see if the value breeches the critical or the warning range. Returns the status code.
 
+=back
+
 =head1 AUTHOR
 
 Ton Voon, E<lt>ton.voon@altinity.comE<gt>

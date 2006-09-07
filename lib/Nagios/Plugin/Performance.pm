@@ -106,7 +106,11 @@ Once the performance string has been parsed, you can query the label, value, uom
 Returns an array of Nagios::Plugin::Performance objects based on the string entered. 
 If there is an error parsing the string, an empty array is returned.
 
+=back
+
 =head1 OBJECT METHODS
+
+=over 4
 
 =item label, value, uom, min, max
 

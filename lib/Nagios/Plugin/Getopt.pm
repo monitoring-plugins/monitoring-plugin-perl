@@ -296,9 +296,7 @@ __END__
 
 =head1 NAME
 
-Nagios::Plugin::Getopt - OO perl module providing standardised argument 
-processing for Nagios plugins
-
+Nagios::Plugin::Getopt - OO perl module providing standardised argument processing for Nagios plugins
 
 =head1 VERSION
 

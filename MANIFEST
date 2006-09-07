@@ -2,6 +2,8 @@ Changes
 Makefile.PL
 MANIFEST
 README
+t/check_stuff.pl
+t/check_stuff.t
 t/Nagios-Plugin.t
 t/Nagios-Plugin-Performance.t
 t/Nagios-Plugin-Range.t
