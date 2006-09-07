@@ -18,6 +18,15 @@ To install this module type the following:
    make test
    make install
 
+
+EXAMPLE SCRIPT
+
+"Enough talk!  Show me where to start!"
+
+See the file 'check_stuff.pl' in the 't' directory for a complete 
+working example of a plugin script.
+
+
 COPYRIGHT AND LICENCE
 
 Copyright (C) 2006 by Nagios Plugin Development Team
