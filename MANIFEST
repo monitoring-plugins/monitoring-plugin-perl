@@ -5,6 +5,9 @@ README
 t/check_stuff.pl
 t/check_stuff.t
 t/Nagios-Plugin.t
+t/Nagios-Plugin-Base.t
+t/Nagios-Plugin-Getopt-01.t
+t/Nagios-Plugin-Getopt-02.t
 t/Nagios-Plugin-Performance.t
 t/Nagios-Plugin-Range.t
 t/Nagios-Plugin-Threshold.t
@@ -14,4 +17,5 @@ lib/Nagios/Plugin/Range.pm
 lib/Nagios/Plugin/Threshold.pm
 lib/Nagios/Plugin/Base.pm
 lib/Nagios/Plugin/Getopt.pm
+lib/Nagios/Plugin/ExitResult.pm
 META.yml                                 Module meta-data (added by MakeMaker)

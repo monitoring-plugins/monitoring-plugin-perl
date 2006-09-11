@@ -5,8 +5,7 @@ use Test::More tests => 9;
 BEGIN { use_ok('Nagios::Plugin') };
 
 use Nagios::Plugin::Base;
-Nagios::Plugin::Base->exit_on_die(0);
-Nagios::Plugin::Base->print_on_die(0);
+Nagios::Plugin::Base::_fake_exit(1);
 
 diag "\nusing Nagios::Plugin revision ". $Nagios::Plugin::VERSION . "\n";
 

@@ -6,7 +6,7 @@ use strict;
 use warnings;
 
 use Nagios::Plugin::Range;
-use Nagios::Plugin::Base;
+use Nagios::Plugin::Base qw(:codes nagios_die);
 our ($VERSION) = $Nagios::Plugin::Base::VERSION;
 
 use Class::Struct;
@@ -23,10 +23,7 @@ sub set_thresholds {
 		if (defined $r) {
 			$t->warning($r);
 		} else {
-			Nagios::Plugin::Base->die( {
-				return_code => $ERRORS{UNKNOWN}, 
-				message => "Warning range incorrect: '$args{warning}'"
-				} );
+			nagios_die( "Warning range incorrect: '$args{warning}'" );
 		}
 	}
 	if (defined $args{critical}) {
@@ -34,10 +31,7 @@ sub set_thresholds {
 		if (defined $r) {
 			$t->critical($r);
 		} else {
-			Nagios::Plugin::Base->die( {
-				return_code => $ERRORS{UNKNOWN}, 
-				message => "Critical range incorrect: '$args{critical}'"
-				} );
+			nagios_die( "Critical range incorrect: '$args{critical}'" );
 		}
 	}
 	return $t;
@@ -48,15 +42,15 @@ sub get_status {
 
 	if ($self->critical->is_set) {
 		if ($self->critical->check_range($value) == 1) {
-			return $ERRORS{CRITICAL};
+			return CRITICAL;
 		}
 	}
 	if ($self->warning->is_set) {
 		if ($self->warning->check_range($value) == 1) {
-			return $ERRORS{WARNING};
+			return WARNING;
 		}
 	}
-	return $ERRORS{OK};
+	return OK;
 }
 		
 1;
@@ -81,7 +75,7 @@ Returns the warning or critical range as a Nagios::Plugin::Range object.
 
 =item get_status($value)
 
-Given a value, will see if the value breeches the critical or the warning range. Returns the status code.
+Given a value, will see if the value breaches the critical or the warning range. Returns the status code.
 
 =back
 

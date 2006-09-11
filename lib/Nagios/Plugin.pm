@@ -43,8 +43,7 @@ sub shortname { shift; @_ ? $shortname = shift : $shortname }
 
 sub die {
 	my $self = shift;
-	my %args = @_;
-	Nagios::Plugin::Base->die(\%args, $self);
+	Nagios::Plugin::Base::die(@_, { plugin => $self });
 }
 
 1;

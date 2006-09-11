@@ -5,7 +5,6 @@
 
 package Nagios::Plugin::Getopt;
 
-use 5.005003;
 use strict;
 use File::Basename;
 use Getopt::Long qw(:config no_ignore_case bundling);
@@ -21,7 +20,7 @@ $VERSION = $Nagios::Plugin::Base::VERSION;
 my %DEFAULT = (
   timeout => 15,
   verbose => 0,
-  licence =>
+  license =>
 "This nagios plugin is free software, and comes with ABSOLUTELY NO WARRANTY. 
 It may be used, redistributed and/or modified under the terms of the GNU 
 General Public Licence (see http://www.fsf.org/licensing/licenses/gpl.txt).",
@@ -265,7 +264,7 @@ sub _init
     plugin => { default => $plugin },
     blurb => 0,
     extra => 0,
-    license => { default => $DEFAULT{licence} },
+    license => { default => $DEFAULT{license} },
     timeout => { default => $DEFAULT{timeout} },
   });
 
@@ -400,7 +399,7 @@ Short plugin description, included in the longer --help output
 
 License text, included in the longer --help output (see below for an 
 example). By default, this is set to the standard nagios plugins
-GPL licence text:
+GPL license text:
 
   This nagios plugin is free software, and comes with ABSOLUTELY NO WARRANTY. 
   It may be used, redistributed and/or modified under the terms of the GNU 

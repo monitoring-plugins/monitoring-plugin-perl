@@ -2,13 +2,17 @@
 use strict;
 use Test::More tests => 71;
 #use Test::Exception;  # broken for now so we don't need this.
-BEGIN { use_ok('Nagios::Plugin::Threshold'); use_ok('Nagios::Plugin::Base') };
+BEGIN { 
+  use_ok('Nagios::Plugin::Threshold'); 
+  use_ok('Nagios::Plugin::Base', ':all' );
+  # Silence warnings unless TEST_VERBOSE is set
+  $SIG{__WARN__} = sub { warn $_[0] if $ENV{TEST_VERBOSE} };
+}
 
-diag "\nusing Nagios::Plugin::Threshold revision ". $Nagios::Plugin::Threshold::VERSION . "\n";
+diag "\nusing Nagios::Plugin::Threshold revision ". $Nagios::Plugin::Threshold::VERSION . "\n"
+  if $ENV{TEST_VERBOSE};
 
-Nagios::Plugin::Base->exit_on_die(0);
-Nagios::Plugin::Base->print_on_die(0);
-my %STATUS_TEXT = reverse %ERRORS;
+Nagios::Plugin::Base::_fake_exit(1);
 
 diag "threshold: critical if > 80" if $ENV{TEST_VERBOSE};
 my $t = Nagios::Plugin::Threshold->set_thresholds(critical => "80");
@@ -45,7 +49,7 @@ sub test_expected_statuses {
 test_expected_statuses( $t, $expected );
 
 diag "threshold: warn if less than 5 or more than 33." if $ENV{TEST_VERBOSE};
-$t = Nagios::Plugin::Threshold->set_thresholds(warning => "5:33", critical => "");
+eval { $t = Nagios::Plugin::Threshold->set_thresholds(warning => "5:33", critical => "") };
 ok( defined $t, "Threshold ('5:33', '') set");
 cmp_ok( $t->warning->start, '==', 5, "Warning start set");
 cmp_ok( $t->warning->end, '==',   33, "Warning end set");
