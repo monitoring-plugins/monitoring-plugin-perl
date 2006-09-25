@@ -6,6 +6,7 @@ use 5.008004;
 use Class::Struct;
 struct "Nagios::__::Plugin" => {
 	perfdata => '@',
+	shortname => '$',
 	};
 
 package Nagios::Plugin;
@@ -37,9 +38,6 @@ sub all_perfoutput {
 }
 
 sub set_thresholds { shift; Nagios::Plugin::Threshold->set_thresholds(@_); }
-
-my $shortname;
-sub shortname { shift; @_ ? $shortname = shift : $shortname }
 
 sub die {
 	my $self = shift;

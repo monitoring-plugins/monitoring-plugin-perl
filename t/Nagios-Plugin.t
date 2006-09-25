@@ -1,6 +1,6 @@
 
 use strict;
-use Test::More tests => 9;
+use Test::More tests => 12;
 
 BEGIN { use_ok('Nagios::Plugin') };
 
@@ -13,6 +13,13 @@ my $p = Nagios::Plugin->new;
 isa_ok( $p, "Nagios::Plugin");
 
 $p->shortname("PAGESIZE");
+is($p->shortname, "PAGESIZE", "shortname set correctly");
+
+$p = Nagios::Plugin->new;
+ok(! defined $p->shortname, "shortname should be unset on new");
+
+$p = Nagios::Plugin->new( shortname => "SIZE" );
+is($p->shortname, "SIZE", "shortname set correctly on new");
 
 diag "warn if < 10, critical if > 25 " if $ENV{TEST_VERBOSE};
 my $t = $p->set_thresholds( warning => "10:25", critical => "~:25" );
