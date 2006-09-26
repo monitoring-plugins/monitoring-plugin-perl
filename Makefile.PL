@@ -9,6 +9,7 @@ WriteMakefile(
         Class::Struct => 0,
         Params::Validate => 0.24,
 	Class::Accessor  => 0.22,
+	Test::More 	 => 0.62,
     }, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'lib/Nagios/Plugin.pm', # retrieve abstract from module
