@@ -93,7 +93,7 @@ sub check_messages {
         else {
             $args{$code} = $messages;
         }
-    
+    }
 
     Nagios::Plugin::Functions::check_messages(%args);
 }
