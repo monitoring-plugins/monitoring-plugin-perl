@@ -2,17 +2,17 @@
 use strict;
 use Test::More tests => 111;
 
-BEGIN { use_ok("Nagios::Plugin::Base", ":all"); }
-Nagios::Plugin::Base::_fake_exit(1);
+BEGIN { use_ok("Nagios::Plugin::Functions", ":all"); }
+Nagios::Plugin::Functions::_fake_exit(1);
 
-my $this_version=$Nagios::Plugin::Base::VERSION;
+my $this_version=$Nagios::Plugin::Functions::VERSION;
 foreach my $m ("", qw(::Threshold ::Getopt ::Performance ::Range)) {
 	my $mod = "Nagios::Plugin$m";
 	use_ok($mod);
 	# Lots of hackery below. Easier to say $mod->VERSION, but this is probably a recent perl thing
 	my $v = "$mod"."::VERSION";
 	my $a = eval "\$$v";
-	is($a, $this_version, "Version number for $mod the same as Base: $this_version");
+	is($a, $this_version, "Version number for $mod the same as Functions: $this_version");
 }
 
 # Hardcoded checks of constants

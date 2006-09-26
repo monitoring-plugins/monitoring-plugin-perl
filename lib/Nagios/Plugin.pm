@@ -11,7 +11,7 @@ struct "Nagios::__::Plugin" => {
 
 package Nagios::Plugin;
 
-use Nagios::Plugin::Base;
+use Nagios::Plugin::Functions;
 use Nagios::Plugin::Performance;
 use Nagios::Plugin::Threshold;
 
@@ -24,7 +24,7 @@ use Exporter;
 our @ISA = qw(Exporter Nagios::__::Plugin);
 our @EXPORT_OK = qw(%ERRORS);
 
-our $VERSION = $Nagios::Plugin::Base::VERSION;
+our $VERSION = $Nagios::Plugin::Functions::VERSION;
 
 sub add_perfdata {
 	my ($self, %args) = @_;
@@ -41,7 +41,7 @@ sub set_thresholds { shift; Nagios::Plugin::Threshold->set_thresholds(@_); }
 
 sub die {
 	my $self = shift;
-	Nagios::Plugin::Base::die(@_, { plugin => $self });
+	Nagios::Plugin::Functions::die(@_, { plugin => $self });
 }
 
 1;

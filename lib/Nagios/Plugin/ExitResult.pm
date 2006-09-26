@@ -30,10 +30,10 @@ return codes when testing.
 =head1 SYNOPSIS
 
     use Test::More;
-    use Nagios::Plugin::Base;
+    use Nagios::Plugin::Functions;
 
     # In a test file somewhere
-    Nagios::Plugin::Base::_fake_exit(1);
+    Nagios::Plugin::Functions::_fake_exit(1);
 
     # Later ...
     $e = nagios_exit( CRITICAL, 'aiiii ...' );
@@ -50,7 +50,7 @@ return codes when testing.
 Nagios::Plugin::ExitResult is a tiny helper class intended for use 
 when testing other Nagios::Plugin modules. A Nagios::Plugin::ExitResult 
 object is returned by nagios_exit() and friends when 
-Nagios::Plugin::Base::_fake_exit has been set, instead of doing a 
+Nagios::Plugin::Functions::_fake_exit has been set, instead of doing a 
 conventional print + exit.
 
 =head1 AUTHOR

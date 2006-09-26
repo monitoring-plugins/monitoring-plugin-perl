@@ -4,7 +4,7 @@ use Test::More tests => 71;
 #use Test::Exception;  # broken for now so we don't need this.
 BEGIN { 
   use_ok('Nagios::Plugin::Threshold'); 
-  use_ok('Nagios::Plugin::Base', ':all' );
+  use_ok('Nagios::Plugin::Functions', ':all' );
   # Silence warnings unless TEST_VERBOSE is set
   $SIG{__WARN__} = sub { warn $_[0] if $ENV{TEST_VERBOSE} };
 }
@@ -12,7 +12,7 @@ BEGIN {
 diag "\nusing Nagios::Plugin::Threshold revision ". $Nagios::Plugin::Threshold::VERSION . "\n"
   if $ENV{TEST_VERBOSE};
 
-Nagios::Plugin::Base::_fake_exit(1);
+Nagios::Plugin::Functions::_fake_exit(1);
 
 diag "threshold: critical if > 80" if $ENV{TEST_VERBOSE};
 my $t = Nagios::Plugin::Threshold->set_thresholds(critical => "80");
@@ -96,8 +96,8 @@ test_expected_statuses( $t, $expected );
 goto SKIP_DEATH;
 diag "threshold: test pure crap for arguments - default to OK." if $ENV{TEST_VERBOSE};
 diag "you should see one invalid range definition warning and an UNKNOWN line here:\n";
-Nagios::Plugin::Base->print_on_die(1);
-Nagios::Plugin::Base->exit_on_die(1);
+Nagios::Plugin::Functions->print_on_die(1);
+Nagios::Plugin::Functions->exit_on_die(1);
 
 dies_ok( sub {
 	$t = Nagios::Plugin::Threshold->set_thresholds(
@@ -106,8 +106,8 @@ dies_ok( sub {
 												   )
 	}, "bad thresholds cause death" 
 );
-Nagios::Plugin::Base->print_on_die(0);
-Nagios::Plugin::Base->exit_on_die(0);
+Nagios::Plugin::Functions->print_on_die(0);
+Nagios::Plugin::Functions->exit_on_die(0);
 SKIP_DEATH:
 
 

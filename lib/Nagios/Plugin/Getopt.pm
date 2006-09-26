@@ -12,9 +12,9 @@ use Carp;
 use Params::Validate qw(:all);
 use base qw(Class::Accessor);
 
-use Nagios::Plugin::Base;
+use Nagios::Plugin::Functions;
 use vars qw($VERSION);
-$VERSION = $Nagios::Plugin::Base::VERSION;
+$VERSION = $Nagios::Plugin::Functions::VERSION;
 
 # Standard defaults
 my %DEFAULT = (
@@ -586,7 +586,7 @@ Gavin Carr <gavin@openfusion.com.au>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2005-2006 Gavin Carr. All Rights Reserved.
+Copyright (C) 2006 by the Nagios Plugin Development Team.
 
 This module is free software. It may be used, redistributed
 and/or modified under either the terms of the Perl Artistic 

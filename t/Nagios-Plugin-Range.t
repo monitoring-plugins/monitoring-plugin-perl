@@ -2,13 +2,17 @@
 use strict;
 use Test::More qw(no_plan); #tests => 123;
 
-BEGIN { use_ok('Nagios::Plugin::Range') };
+BEGIN { 
+  use_ok('Nagios::Plugin::Range');
+  # Silence warnings unless TEST_VERBOSE is set
+  $SIG{__WARN__} = sub { warn $_[0] if $ENV{TEST_VERBOSE} };
+};
 
-diag "\nusing Nagios::Plugin::Range revision ". $Nagios::Plugin::Range::VERSION . "\n";
+diag "\nusing Nagios::Plugin::Range revision ". $Nagios::Plugin::Range::VERSION . "\n" if $ENV{TEST_VERBOSE};
 
 my $r;
 
-diag "'garbage in' checks -- you should see 7 invalid range definition warnings here:";
+diag "'garbage in' checks -- you should see 7 invalid range definition warnings here:" if $ENV{TEST_VERBOSE};
 
 foreach (qw(
 	    :

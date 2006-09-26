@@ -3,10 +3,10 @@ use strict;
 use Test::More tests => 49;
 BEGIN { use_ok('Nagios::Plugin::Performance') };
 
-diag "\nusing Nagios::Plugin::Performance revision ". $Nagios::Plugin::Performance::VERSION . "\n";
+diag "\nusing Nagios::Plugin::Performance revision ". $Nagios::Plugin::Performance::VERSION . "\n" if $ENV{TEST_VERBOSE};
 
-use Nagios::Plugin::Base;
-Nagios::Plugin::Base::_fake_exit(1);
+use Nagios::Plugin::Functions;
+Nagios::Plugin::Functions::_fake_exit(1);
 
 my @p = Nagios::Plugin::Performance->parse_perfstring("/=382MB;15264;15269;; /var=218MB;9443;9448");
 cmp_ok( $p[0]->label, 'eq', "/", "label okay");

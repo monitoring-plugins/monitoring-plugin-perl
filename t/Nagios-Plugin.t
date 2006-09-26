@@ -4,10 +4,11 @@ use Test::More tests => 12;
 
 BEGIN { use_ok('Nagios::Plugin') };
 
-use Nagios::Plugin::Base;
-Nagios::Plugin::Base::_fake_exit(1);
+use Nagios::Plugin::Functions;
+Nagios::Plugin::Functions::_fake_exit(1);
 
-diag "\nusing Nagios::Plugin revision ". $Nagios::Plugin::VERSION . "\n";
+diag "\nusing Nagios::Plugin revision ". $Nagios::Plugin::VERSION . "\n"
+  if $ENV{TEST_VERBOSE};
 
 my $p = Nagios::Plugin->new;
 isa_ok( $p, "Nagios::Plugin");

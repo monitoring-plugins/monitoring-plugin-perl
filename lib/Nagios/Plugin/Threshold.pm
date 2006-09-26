@@ -6,8 +6,8 @@ use strict;
 use warnings;
 
 use Nagios::Plugin::Range;
-use Nagios::Plugin::Base qw(:codes nagios_die);
-our ($VERSION) = $Nagios::Plugin::Base::VERSION;
+use Nagios::Plugin::Functions qw(:codes nagios_die);
+our ($VERSION) = $Nagios::Plugin::Functions::VERSION;
 
 use Class::Struct;
 struct "Nagios::Plugin::Threshold" => {
