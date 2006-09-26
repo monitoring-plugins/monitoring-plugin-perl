@@ -1,7 +1,7 @@
 # check_messages tests
 
 use strict;
-use Test::More tests => 33;
+use Test::More tests => 37;
 
 BEGIN { use_ok("Nagios::Plugin::Functions", ":all") }
 
@@ -159,4 +159,20 @@ is($message, $msg_all_wo, "join_all '$join_all' (critical, warning, \$ok) messag
 );
 is($code, WARNING, "(warning) code is $STATUS_TEXT{$code}");
 is($message, 'D E F', "join_all '$join_all' (critical, warning) message is $message");
+
+# -------------------------------------------------------------------------
+# Error cases
+
+# Test failures without required fields
+ok(! defined eval { ($code, $message) = check_messages() },
+    "check_messages dies without message args");
+
+ok(! defined eval { ($code, $message) = check_messages(warning => $arrays{warning}) },
+    "check_messages dies without 'critical' message");
+
+ok(! defined eval { ($code, $message) = check_messages(critical => $arrays{critical}) },
+    "check_messages dies without 'warning' message");
+
+ok(defined eval { ($code, $message) = check_messages(critical => $arrays{critical}, warning => $arrays{warning}) },
+    "check_messages ok with 'critical' and 'warning' messages");
 

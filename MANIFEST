@@ -4,7 +4,8 @@ MANIFEST
 README
 t/check_stuff.pl
 t/check_stuff.t
-t/Nagios-Plugin.t
+t/Nagios-Plugin-01.t
+t/Nagios-Plugin-02.t
 t/Nagios-Plugin-Functions-01.t
 t/Nagios-Plugin-Functions-02.t
 t/Nagios-Plugin-Getopt-01.t

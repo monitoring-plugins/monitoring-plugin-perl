@@ -14,7 +14,7 @@ our @STATUS_CODES = qw(OK WARNING CRITICAL UNKNOWN DEPENDENT);
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = (@STATUS_CODES, qw(nagios_exit nagios_die check_messages));
-our @EXPORT_OK = qw(%ERRORS %STATUS_TEXT);
+our @EXPORT_OK = qw(%ERRORS %STATUS_TEXT @STATUS_CODES);
 our %EXPORT_TAGS = (
     all => [ @EXPORT, @EXPORT_OK ],
     codes => [ @STATUS_CODES ],
@@ -28,7 +28,7 @@ use constant UNKNOWN    => 3;
 use constant DEPENDENT  => 4;
 
 our %ERRORS = (
-    'OK' => OK,
+    'OK'        => OK,
     'WARNING'   => WARNING,
     'CRITICAL'  => CRITICAL,
     'UNKNOWN'   => UNKNOWN,
@@ -84,7 +84,8 @@ sub nagios_exit {
     $output = "$shortname $output" if $shortname;
     if ($arg->{plugin}) {
         my $plugin = $arg->{plugin};
-        $output .= " | ". $plugin->all_perfoutput if $plugin->perfdata;
+        $output .= " | ". $plugin->all_perfoutput 
+            if $plugin->perfdata && $plugin->all_perfoutput;
     }
     $output .= "\n";
 
@@ -193,7 +194,7 @@ Nagios plugins.
     # Constants OK, WARNING, CRITICAL, and UNKNOWN exported by default
     use Nagios::Plugin::Functions;
 
-    # nagios_exit( ODE, $message ) - exit with error code CODE,
+    # nagios_exit( CODE, $message ) - exit with error code CODE,
     # and message "PLUGIN CODE - $message"
     nagios_exit( CRITICAL, $critical_error ) if $critical_error;
     nagios_exit( WARNING, $warning_error )   if $warning_error;
@@ -223,7 +224,7 @@ Nagios::Plugin. It is intended for those who prefer a simpler
 functional interface, and who do not need the additional 
 functionality of Nagios::Plugin.
 
-=head2 Exports
+=head2 EXPORTS
 
 Nagios status code constants are exported by default:
 
@@ -245,13 +246,13 @@ The following variables are exported only on request:
     %STATUS_TEXT
 
 
-=head2 Functions
+=head2 FUNCTIONS
 
 The following functions are supported:
 
 =over 4
 
-=item nagios_exit( CODE, $message )
+=item nagios_exit( <CODE>, $message )
 
 Exit with return code CODE, and a standard nagios message of the
 form "PLUGIN CODE - $message".

@@ -5,7 +5,10 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME              => 'Nagios::Plugin',
     VERSION_FROM      => 'lib/Nagios/Plugin/Functions.pm', # finds $VERSION
-    PREREQ_PM         => {Params::Validate => 0.24}, # e.g., Module::Name => 1.1
+    PREREQ_PM         => {
+        Class::Struct => 0,
+        Params::Validate => 0.24,
+    }, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'lib/Nagios/Plugin.pm', # retrieve abstract from module
        AUTHOR         => 'Nagios Plugin Development Team <nagiosplug-devel@lists.sourceforge.net>') : ()),
