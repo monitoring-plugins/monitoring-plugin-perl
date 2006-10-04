@@ -109,7 +109,8 @@ __END__
 
 =head1 NAME
 
-Nagios::Plugin - a family of perl modules to streamline writing Nagios plugins
+Nagios::Plugin - a family of perl modules to streamline writing Nagios 
+plugins
 
 
 =head1 SYNOPSIS
@@ -122,19 +123,24 @@ Nagios::Plugin - a family of perl modules to streamline writing Nagios plugins
     $np = Nagios::Plugin->new;            # OR
     $np = Nagios::Plugin->new( shortname => "PAGESIZE" );
 
-    # Exit methods - nagios_exit( CODE, MESSAGE ), nagios_die( MESSAGE, [CODE])
+    # Exit methods - nagios_exit( CODE, MESSAGE ), 
+    #                nagios_die( MESSAGE, [CODE])
     $page = retrieve_page($page1)
         or $np->nagios_exit( UNKNOWN, "Could not retrieve page" );
-        # Return code: 3; output: PAGESIZE UNKNOWN - Could not retrieve page
+        # Return code: 3; 
+        #   output: PAGESIZE UNKNOWN - Could not retrieve page 
     test_page($page)
         or $np->nagios_exit( CRITICAL, "Bad page found" );
 
-    # nagios_die() is just like nagios_exit(), but return code defaults to UNKNOWN
+    # nagios_die() is just like nagios_exit(), but return code defaults 
+    #   to UNKNOWN
     $page = retrieve_page($page2)
         or $np->nagios_die( "Could not retrieve page" );
-        # Return code: 3; output: PAGESIZE UNKNOWN - Could not retrieve page
+        # Return code: 3; 
+        #   output: PAGESIZE UNKNOWN - Could not retrieve page
 
-    # Threshold methods (NOT YET IMPLEMENTED - use Nagios::Plugin::Threshold for now)
+    # Threshold methods (NOT YET IMPLEMENTED - use 
+    #    Nagios::Plugin::Threshold for now)
     $code = $np->check_threshold(
         check => $value,
         warning => $warning_threshold,
@@ -153,8 +159,9 @@ Nagios::Plugin - a family of perl modules to streamline writing Nagios plugins
     }
     ($code, $message) = $np->check_message();
     nagios_exit( $code, $message );
-    # If any items in collection matched m/Error/, returns CRITICAL and the joined 
-    #   set of Error messages; otherwise returns OK and the joined set of ok messages
+    # If any items in collection matched m/Error/, returns CRITICAL and 
+    #   the joined set of Error messages; otherwise returns OK and the 
+    #   joined set of ok messages
 
     # Perfdata methods
     $np->add_perfdata( 
@@ -165,23 +172,26 @@ Nagios::Plugin - a family of perl modules to streamline writing Nagios plugins
     );
     $np->add_perfdata( label => "time", ... );
     $np->nagios_exit( OK, "page size at http://... was ${value}kB" );
-    # Return code: 0; output: 
-    #   PAGESIZE OK - page size at http://... was 36kB | size=36kB;10:25;25: time=...
+    # Return code: 0; 
+    #   output: PAGESIZE OK - page size at http://... was 36kB \
+    #   | size=36kB;10:25;25: time=...
 
-    # Option handling methods (NOT YET IMPLEMENTED - use Nagios::Plugin::Getopt for now)
+    # Option handling methods (NOT YET IMPLEMENTED - use 
+    #   Nagios::Plugin::Getopt for now)
     
 
 
 =head1 DESCRIPTION
 
-Nagios::Plugin and its associated Nagios::Plugin::* modules are a family of perl modules
-to streamline writing Nagios plugins. The main end user modules are Nagios::Plugin, 
-providing an object-oriented interface to the entire Nagios::Plugin::* collection, and 
-Nagios::Plugin::Functions, providing a simpler functional interface to a useful subset of 
-the available functionality.
+Nagios::Plugin and its associated Nagios::Plugin::* modules are a family of
+perl modules to streamline writing Nagios plugins. The main end user modules
+are Nagios::Plugin, providing an object-oriented interface to the entire
+Nagios::Plugin::* collection, and Nagios::Plugin::Functions, providing a
+simpler functional interface to a useful subset of the available
+functionality.
 
-The purpose of the collection is to make it as simple as possible for developers to 
-create plugins that conform the Nagios Plugin guidelines 
+The purpose of the collection is to make it as simple as possible for
+developers to create plugins that conform the Nagios Plugin guidelines
 (http://nagiosplug.sourceforge.net/developer-guidelines.html).
 
 
@@ -201,14 +211,14 @@ The following variables are also exported on request:
 
 =item %ERRORS
 
-A hash mapping error strings ("CRITICAL", "UNKNOWN", etc.) to the corresponding
-status code.
+A hash mapping error strings ("CRITICAL", "UNKNOWN", etc.) to the
+corresponding status code.
 
 =item %STATUS_TEXT
 
 A hash mapping status code constants (OK, WARNING, CRITICAL, etc.) to the
-corresponding error string ("OK", "WARNING, "CRITICAL", etc.) i.e. the reverse
-of %ERRORS.
+corresponding error string ("OK", "WARNING, "CRITICAL", etc.) i.e. the 
+reverse of %ERRORS.
 
 =back
 
@@ -219,14 +229,15 @@ of %ERRORS.
 
     Nagios::Plugin->new( shortname => 'PAGESIZE' );
 
-Instantiates a new Nagios::Plugin object. Accepts the following named arguments:
+Instantiates a new Nagios::Plugin object. Accepts the following named
+arguments:
 
 =over 4
 
 =item shortname
 
-The 'shortname' for this plugin, used as the first token in the plugin output
-by the various exit methods. Default: uc basename $0.
+The 'shortname' for this plugin, used as the first token in the plugin
+output by the various exit methods. Default: uc basename $0.
 
 =back
 
@@ -268,32 +279,33 @@ NOT YET IMPLEMENTED - use Nagios::Plugin::Threshold directly for now.
 EXPERIMENTAL AND SUBJECT TO CHANGE
 
 add_messages and check_messages are higher-level convenience methods to add
-and then check a set of messages, returning an appropriate return code and/or 
-result message.
+and then check a set of messages, returning an appropriate return code
+and/or result message.
 
 =over 4
 
 =item add_message( <CODE>, $message )
 
-Add a message with CODE status to the object. May be called multiple times. The messages
-added are checked by check_messages, following.
+Add a message with CODE status to the object. May be called multiple times.
+The messages added are checked by check_messages, following.
 
 Only CRITICAL, WARNING, and OK are accepted as valid codes.
 
 
 =item check_messages()
 
-Check the current set of messages and return an appropriate nagios return code and/or a
-result message. In scalar context, returns only a return code; in list context returns
-both a return code and an output message, suitable for passing directly to nagios_exit()
-e.g.
+Check the current set of messages and return an appropriate nagios return
+code and/or a result message. In scalar context, returns only a return
+code; in list context returns both a return code and an output message,
+suitable for passing directly to nagios_exit() e.g.
 
     $code = $np->check_messages;
     ($code, $message) = $np->check_messages;
 
-check_messages returns CRITICAL if any critical messages are found, WARNING if any 
-warning messages are found, and OK otherwise. The message returned in list context defaults
-to the joined set of error messages; this may be customised using the arguments below.
+check_messages returns CRITICAL if any critical messages are found, WARNING
+if any warning messages are found, and OK otherwise. The message returned
+in list context defaults to the joined set of error messages; this may be
+customised using the arguments below.
 
 check_messages accepts the following named arguments (none are required):
 
@@ -345,12 +357,14 @@ Additional ok messages to supplement any passed in via add_message().
 
 =item add_perfdata( label => "size", value => $value, uom => "kB", threshold => $threshold )
 
-Add a set of performance data to the object. May be called multiple times. The performance
-data is included in the standard plugin output messages by the various exit methods.
+Add a set of performance data to the object. May be called multiple times.
+The performance data is included in the standard plugin output messages by
+the various exit methods.
 
-See the Nagios::Plugin::Performance documentation for more information on performance data
-and the various field definitions, as well as the relevant section of the Nagios Plugin
-guidelines (http://nagiosplug.sourceforge.net/developer-guidelines.html#AEN202).
+See the Nagios::Plugin::Performance documentation for more information on
+performance data and the various field definitions, as well as the relevant
+section of the Nagios Plugin guidelines
+(http://nagiosplug.sourceforge.net/developer-guidelines.html#AEN202).
 
 =back
 
@@ -364,15 +378,16 @@ NOT YET IMPLEMENTED - use Nagios::Plugin::Getopt directly for now.
 
 "Enough talk!  Show me some examples!"
 
-See the file 'check_stuff.pl' in the 't' directory for a complete working example of a 
-plugin script.
+See the file 'check_stuff.pl' in the 't' directory for a complete working
+example of a plugin script.
 
 
 =head1 VERSIONING
 
-The Nagios::Plugin::* modules are currently experimental and so the interfaces may 
-change up until Nagios::Plugin hits version 1.0, although every attempt will be made to 
-keep them as backwards compatible as possible.
+The Nagios::Plugin::* modules are currently experimental and so the
+interfaces may change up until Nagios::Plugin hits version 1.0, although
+every attempt will be made to keep them as backwards compatible as
+possible.
 
 
 =head1 SEE ALSO
@@ -380,8 +395,9 @@ keep them as backwards compatible as possible.
 See Nagios::Plugin::Functions for a simple functional interface to a subset
 of the available Nagios::Plugin functionality.
 
-See also Nagios::Plugin::Getopt, Nagios::Plugin::Range, Nagios::Plugin::Performance, 
-Nagios::Plugin::Range, and Nagios::Plugin::Threshold.
+See also Nagios::Plugin::Getopt, Nagios::Plugin::Range,
+Nagios::Plugin::Performance, Nagios::Plugin::Range, and
+Nagios::Plugin::Threshold.
 
 The Nagios Plugin project page is at http://nagiosplug.sourceforge.net.
 
@@ -394,21 +410,20 @@ nagiosplug-devel@lists.sourceforge.net.
 
 =head1 AUTHOR
 
-Maintained by the Nagios Plugin development team - http://nagiosplug.sourceforge.net.
+Maintained by the Nagios Plugin development team -
+http://nagiosplug.sourceforge.net.
 
 Originally by Ton Voon, E<lt>ton.voon@altinity.comE<gt>.
 
 Nathan Vonnahme added extra tests and subsequent fixes.
 
 
-
 =head1 COPYRIGHT AND LICENSE
 
 Copyright (C) 2006 by Nagios Plugin Development Team
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.4 or,
-at your option, any later version of Perl 5 you may have available.
-
+This library is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself, either Perl version 5.8.4 or, at your
+option, any later version of Perl 5 you may have available.
 
 =cut

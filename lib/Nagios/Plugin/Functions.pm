@@ -75,7 +75,12 @@ sub nagios_exit {
     # Set defaults
     $code = UNKNOWN unless defined $code && exists $STATUS_TEXT{$code};
     $message = '' unless defined $message;
-    $message = join(' ', @$message) if ref $message eq 'ARRAY';
+    if (ref $message && ref $message eq 'ARRAY') {
+        $message = join(' ', map { chomp; $_ } @$message);
+    }
+    else {
+        chomp $message;
+    }
 
     # Setup output
     my $output = "$STATUS_TEXT{$code}";
