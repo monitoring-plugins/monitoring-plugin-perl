@@ -1,6 +1,6 @@
 package Nagios::Plugin::Performance;
 
-use 5.008004;
+use 5.006;
 
 use strict;
 use warnings;

@@ -1,3 +1,4 @@
+# Nagios::Plugin original test cases
 
 use strict;
 use Test::More tests => 12;
@@ -17,7 +18,7 @@ $p->shortname("PAGESIZE");
 is($p->shortname, "PAGESIZE", "shortname set correctly");
 
 $p = Nagios::Plugin->new;
-ok(! defined $p->shortname, "shortname should be unset on new");
+is($p->shortname, "NAGIOS-PLUGIN-01", "shortname should default on new");
 
 $p = Nagios::Plugin->new( shortname => "SIZE" );
 is($p->shortname, "SIZE", "shortname set correctly on new");

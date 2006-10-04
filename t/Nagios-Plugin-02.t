@@ -1,6 +1,7 @@
+# Nagios::Plugin test set 2, testing NP::Functions wrapping
 
 use strict;
-use Test::More tests => 101;
+use Test::More tests => 103;
 
 BEGIN { use_ok("Nagios::Plugin") }
 require Nagios::Plugin::Functions;
@@ -144,5 +145,17 @@ for (@ok) {
     like($r, qr/$_->[1]\b.*\b$_->[2]$/, 
         sprintf('nagios_die($msg, "%s") stringified matched "%s"', $_->[1], 
             $_->[1] . '.*' . $_->[2]));
+}
+
+
+# shortname testing
+SKIP: {
+    skip "requires File::Basename", 2 unless eval { require File::Basename };
+    $np = Nagios::Plugin->new;
+    $plugin = uc File::Basename::basename($0);
+    $plugin =~ s/\..*$//;
+    is($np->shortname, $plugin, "shortname() is '$plugin'");
+    $r = $np->nagios_exit(OK, "foobar");
+    like($r->message, qr/^$plugin OK/, "message begins with '$plugin OK'");
 }
 

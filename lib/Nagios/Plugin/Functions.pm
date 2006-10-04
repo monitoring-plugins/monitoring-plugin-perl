@@ -1,6 +1,9 @@
-# This module holds all exported variables
-# and base functions
+# Functional interface to basic Nagios::Plugin constants, exports, 
+# and functions
+
 package Nagios::Plugin::Functions;
+
+use 5.006;
 
 use strict;
 use warnings;
@@ -47,7 +50,8 @@ sub get_shortname {
     return $arg{plugin}->shortname if $arg{plugin};
 
     my $shortname = uc basename($ENV{NAGIOS_PLUGIN} || $0);
-    $shortname =~ s/^CHECK_//;
+    $shortname =~ s/^CHECK_//;     # Remove any leading CHECK_
+    $shortname =~ s/\..*$//;       # Remove any trailing suffix
     return $shortname;
 }
 

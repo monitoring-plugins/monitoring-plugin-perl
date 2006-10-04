@@ -12,8 +12,6 @@ struct "Nagios::__::Plugin" => {
 package Nagios::Plugin;
 
 use Nagios::Plugin::Functions qw(:codes %ERRORS %STATUS_TEXT @STATUS_CODES);
-use Nagios::Plugin::Performance;
-use Nagios::Plugin::Threshold;
 
 use strict;
 use warnings;
@@ -29,6 +27,7 @@ our $VERSION = $Nagios::Plugin::Functions::VERSION;
 
 sub add_perfdata {
     my ($self, %args) = @_;
+    require Nagios::Plugin::Performance;
     my $perf = Nagios::Plugin::Performance->new(%args);
     push @{$self->perfdata}, $perf;
 }
@@ -37,7 +36,11 @@ sub all_perfoutput {
     return join(" ", map {$_->perfoutput} (@{$self->perfdata}));
 }
 
-sub set_thresholds { shift; Nagios::Plugin::Threshold->set_thresholds(@_); }
+sub set_thresholds { 
+    shift; 
+    require Nagios::Plugin::Threshold;
+    Nagios::Plugin::Threshold->set_thresholds(@_); 
+}
 
 # NP::Functions wrappers
 sub nagios_exit {
@@ -51,6 +54,13 @@ sub nagios_die {
 sub die {
     my $self = shift;
     Nagios::Plugin::Functions::nagios_die(@_, { plugin => $self });
+}
+# Override default shortname accessor to add default
+sub shortname {
+    my $self = shift;
+    $self->{'Nagios::__::Plugin::shortname'} = shift if @_;
+    return $self->{'Nagios::__::Plugin::shortname'} || 
+           Nagios::Plugin::Functions::get_shortname();
 }
 
 # -------------------------------------------------------------------------
