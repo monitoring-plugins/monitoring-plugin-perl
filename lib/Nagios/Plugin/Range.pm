@@ -132,11 +132,11 @@ Handles common Nagios Plugin range data. See Nagios::Plugin for creation interfa
 
 =head1 AUTHOR
 
-Ton Voon, E<lt>ton.voon@altinity.comE<gt>
+This code is maintained by the Nagios Plugin Development Team: http://nagiosplug.sourceforge.net
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006 by Altinity Limited
+Copyright (C) 2006 Nagios Plugin Development Team
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.4 or,

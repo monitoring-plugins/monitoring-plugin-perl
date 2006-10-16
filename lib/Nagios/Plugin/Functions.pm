@@ -340,7 +340,7 @@ http://nagiosplug.sourceforge.net/developer-guidelines.html.
 
 =head1 AUTHORS
 
-Ton Voon, E<lt>ton.voon@altinity.comE<gt>
+This code is maintained by the Nagios Plugin Development Team: http://nagiosplug.sourceforge.net
 
 
 =head1 COPYRIGHT AND LICENSE
