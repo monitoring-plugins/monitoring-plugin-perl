@@ -23,7 +23,8 @@ our @ISA = qw(Exporter Nagios::__::Plugin);
 our @EXPORT = (@STATUS_CODES);
 our @EXPORT_OK = qw(%ERRORS);
 
-our $VERSION = $Nagios::Plugin::Functions::VERSION;
+# Remember to update Nagios::Plugin::Functions as well!
+our $VERSION = "0.14";
 
 sub add_perfdata {
     my ($self, %args) = @_;

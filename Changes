@@ -1,8 +1,11 @@
 Revision history for Perl module Nagios::Plugin.
 
-0.13  ???
+0.14  18th October 2006
+  - Fixed version number due to CPAN upload
+
+0.13  18th October 2006
   - Lots of extra tests and fixes from Nathan Vonnahme
-  - Nagios::Plugin::Getopt added by Gavin Carr
+  - Nagios::Plugin::Getopt, Functions and ExitResult added by Gavin Carr
 
 0.12  15th June 2006
   - rrdlabel method available to get a performance label, 
