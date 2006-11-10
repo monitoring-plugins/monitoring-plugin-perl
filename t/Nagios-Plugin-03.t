@@ -10,7 +10,7 @@ BEGIN {
 Nagios::Plugin::Functions::_fake_exit(1);
 
 my $plugin = 'NP_CHECK_MESSAGES_03';
-my $np = Nagios::Plugin->new( shortname => $plugin );
+my $np = Nagios::Plugin->new( shortname => $plugin, usage => "dummy usage" );
 is($np->shortname, $plugin, "shortname() is $plugin"); 
 
 my ($code, $message);
@@ -172,33 +172,33 @@ is($message, 'D E F', "join_all '$join_all' (critical, warning) message is $mess
 # add_messages
 
 # Constant codes
-$np = Nagios::Plugin->new;
+$np = Nagios::Plugin->new (usage => "dummy usage");
 $np->add_message( CRITICAL, "A B C" );
 $np->add_message( WARNING, "D E F" );
 ($code, $message) = $np->check_messages();
 is($code, CRITICAL, "(CRITICAL, WARNING) code is $STATUS_TEXT{$code}");
 is($message, $messages{critical}, "(CRITICAL, WARNING) message is $message");
 
-$np = Nagios::Plugin->new;
+$np = Nagios::Plugin->new (usage => "dummy usage");
 $np->add_message( CRITICAL, "A B C" );
 ($code, $message) = $np->check_messages();
 is($code, CRITICAL, "(CRITICAL) code is $STATUS_TEXT{$code}");
 is($message, $messages{critical}, "(CRITICAL) message is $message");
 
-$np = Nagios::Plugin->new;
+$np = Nagios::Plugin->new (usage => "dummy usage");
 $np->add_message( WARNING, "D E F" );
 ($code, $message) = $np->check_messages();
 is($code, WARNING, "(WARNING) code is $STATUS_TEXT{$code}");
 is($message, $messages{warning}, "(WARNING) message is $message");
 
-$np = Nagios::Plugin->new;
+$np = Nagios::Plugin->new (usage => "dummy usage");
 $np->add_message( WARNING, "D E F" );
 $np->add_message( OK, "G H I" );
 ($code, $message) = $np->check_messages();
 is($code, WARNING, "(WARNING, OK) code is $STATUS_TEXT{$code}");
 is($message, $messages{warning}, "(WARNING, OK) message is $message");
 
-$np = Nagios::Plugin->new;
+$np = Nagios::Plugin->new (usage => "dummy usage");
 $np->add_message( OK, "G H I" );
 ($code, $message) = $np->check_messages();
 is($code, OK, "(OK) code is $STATUS_TEXT{$code}");
@@ -206,33 +206,33 @@ is($message, $messages{ok}, "(OK) message is $message");
 
 
 # String codes
-$np = Nagios::Plugin->new;
+$np = Nagios::Plugin->new (usage => "dummy usage");
 $np->add_message( critical => "A B C" );
 $np->add_message( warning => "D E F" );
 ($code, $message) = $np->check_messages();
 is($code, CRITICAL, "(critical, warning) code is $STATUS_TEXT{$code}");
 is($message, $messages{critical}, "(critical, warning) message is $message");
 
-$np = Nagios::Plugin->new;
+$np = Nagios::Plugin->new (usage => "dummy usage");
 $np->add_message( critical => "A B C" );
 ($code, $message) = $np->check_messages();
 is($code, CRITICAL, "(critical) code is $STATUS_TEXT{$code}");
 is($message, $messages{critical}, "(critical) message is $message");
 
-$np = Nagios::Plugin->new;
+$np = Nagios::Plugin->new (usage => "dummy usage");
 $np->add_message( warning => "D E F" );
 ($code, $message) = $np->check_messages();
 is($code, WARNING, "(warning) code is $STATUS_TEXT{$code}");
 is($message, $messages{warning}, "(warning) message is $message");
 
-$np = Nagios::Plugin->new;
+$np = Nagios::Plugin->new (usage => "dummy usage");
 $np->add_message( warning => "D E F" );
 $np->add_message( ok => "G H I" );
 ($code, $message) = $np->check_messages();
 is($code, WARNING, "(warning, ok) code is $STATUS_TEXT{$code}");
 is($message, $messages{warning}, "(warning, ok) message is $message");
 
-$np = Nagios::Plugin->new;
+$np = Nagios::Plugin->new (usage => "dummy usage");
 $np->add_message( ok => "G H I" );
 ($code, $message) = $np->check_messages();
 is($code, OK, "(ok) code is $STATUS_TEXT{$code}");
@@ -240,7 +240,7 @@ is($message, $messages{ok}, "(ok) message is $message");
 
 
 # No add_message
-$np = Nagios::Plugin->new;
+$np = Nagios::Plugin->new (usage => "dummy usage");
 ($code, $message) = $np->check_messages();
 is($code, OK, "() code is $STATUS_TEXT{$code}");
 is($message, '', "() message is ''");
@@ -250,7 +250,7 @@ is($message, '', "() message is ''");
 # Error conditions
 
 # add_message errors
-$np = Nagios::Plugin->new;
+$np = Nagios::Plugin->new (usage => "dummy usage");
 ok(! defined eval { $np->add_message( foobar => 'hi mum' ) }, 
     'add_message dies on invalid code');
 ok(! defined eval { $np->add_message( OKAY => 'hi mum' ) }, 

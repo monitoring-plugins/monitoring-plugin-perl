@@ -11,7 +11,7 @@ use File::Basename;
 use Params::Validate qw(validate :types);
 
 # Remember to update Nagios::Plugins as well
-our $VERSION = "0.14";
+our $VERSION = "0.15";
 
 our @STATUS_CODES = qw(OK WARNING CRITICAL UNKNOWN DEPENDENT);
 

@@ -16,7 +16,7 @@ is(UNKNOWN,     $ERRORS{UNKNOWN},       "UNKNOWN   => $ERRORS{UNKNOWN}");
 is(DEPENDENT,   $ERRORS{DEPENDENT},     "DEPENDENT => $ERRORS{DEPENDENT}");
 
 my $plugin = 'TEST_PLUGIN';
-my $np = Nagios::Plugin->new( shortname => $plugin );
+my $np = Nagios::Plugin->new( shortname => $plugin, usage => "dummy usage" );
 is($np->shortname, $plugin, "shortname() is $plugin"); 
 
 # Test nagios_exit( CONSTANT, $msg ), nagios_exit( $string, $msg )
@@ -151,7 +151,7 @@ for (@ok) {
 # shortname testing
 SKIP: {
     skip "requires File::Basename", 2 unless eval { require File::Basename };
-    $np = Nagios::Plugin->new;
+    $np = Nagios::Plugin->new (usage => "dummy usage", version => "1");
     $plugin = uc File::Basename::basename($0);
     $plugin =~ s/\..*$//;
     is($np->shortname, $plugin, "shortname() is '$plugin'");

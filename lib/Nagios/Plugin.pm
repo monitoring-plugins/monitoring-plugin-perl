@@ -1,30 +1,67 @@
-# This is only because Class::Struct doesn't allow subclasses
-# Trick stolen from Class::DBI
-###package Nagios::__::Plugin;
-
-use Class::Struct;
-struct "Nagios::__::Plugin" => {
-    perfdata => '@',
-    shortname => '$',
-    messages => '%',
-    };
 
 package Nagios::Plugin;
 
 use Nagios::Plugin::Functions qw(:codes %ERRORS %STATUS_TEXT @STATUS_CODES);
+use Nagios::Plugin::Getopt;
+use Nagios::Plugin::Threshold; 
+use Params::Validate qw(:all);
 
 use strict;
 use warnings;
 
 use Carp;
+use base qw(Class::Accessor::Fast);
+
+# do we need all of these to be accessible?
+Nagios::Plugin->mk_accessors(qw(
+								perfdata 
+								messages 
+								opts
+								threshold
+								));
 
 use Exporter;
-our @ISA = qw(Exporter Nagios::__::Plugin);
+our @ISA = qw(Exporter);
 our @EXPORT = (@STATUS_CODES);
 our @EXPORT_OK = qw(%ERRORS);
 
 # Remember to update Nagios::Plugin::Functions as well!
-our $VERSION = "0.14";
+our $VERSION = "0.15";
+
+sub new {
+	my $class = shift;
+#	my %args = @_;
+
+	my %args = validate( @_, {
+		shortname => 0,
+		usage => 1,
+		version => 0,
+		url => 0,
+		plugin => 0,
+		blurb => 0,
+		extra => 0,
+		license => 0,
+		timeout => 0 },
+	);
+	my $shortname = undef;
+	if (exists $args{shortname}) {
+		$shortname = $args{shortname};
+		delete $args{shortname};
+	}
+	my $self = {
+	    shortname => $shortname,
+	    perfdata => [],        # to be added later
+	    messages => {
+			warning => [],
+			critical => [],
+			ok => []
+			},
+		opts => new Nagios::Plugin::Getopt(%args),
+		threshold => undef,  # defined later
+	};		
+	bless $self, $class;
+	return $self;
+}
 
 sub add_perfdata {
     my ($self, %args) = @_;
@@ -38,9 +75,9 @@ sub all_perfoutput {
 }
 
 sub set_thresholds { 
-    shift; 
+    my $self = shift; 
     require Nagios::Plugin::Threshold;
-    Nagios::Plugin::Threshold->set_thresholds(@_); 
+    return $self->threshold( Nagios::Plugin::Threshold->set_thresholds(@_)); 
 }
 
 # NP::Functions wrappers
@@ -56,13 +93,53 @@ sub die {
     my $self = shift;
     Nagios::Plugin::Functions::nagios_die(@_, { plugin => $self });
 }
+
 # Override default shortname accessor to add default
 sub shortname {
     my $self = shift;
-    $self->{'Nagios::__::Plugin::shortname'} = shift if @_;
-    return $self->{'Nagios::__::Plugin::shortname'} || 
+    $self->{shortname} = shift if @_;
+    return $self->{shortname} || 
            Nagios::Plugin::Functions::get_shortname();
 }
+
+# top level interface to Nagios::Plugin::Threshold
+sub check_threshold {
+	my $self = shift;
+
+	my %args;
+
+	if ( $#_ == 0 && ! ref $_[0]) {  # one positional param
+		%args = (check => shift);
+	}
+	else {
+		%args = validate ( @_, {  # named params
+			check => 1,
+			warning => 0,
+			critical => 0,
+		} );
+	}
+
+	if (! $self->threshold || exists $args{warning} || exists $args{critical}) {
+		$self->set_thresholds( 
+							   warning  => $args{warning} || $self->opts->warning , 
+							   critical => $args{critical} || $self->opts->critical ,
+							   );
+	}
+
+
+	return $self->threshold->get_status($args{check});
+}
+
+# top level interface to my Nagios::Plugin::Getopt object
+sub arg {
+    my $self = shift;
+	$self->opts->arg(@_);
+}
+sub getopts {
+    my $self = shift;
+	$self->opts->getopts(@_);
+}
+
 
 # -------------------------------------------------------------------------
 # NP::Functions::check_messages helpers and wrappers
@@ -80,8 +157,8 @@ sub add_message {
     croak "Error code '$code' not supported by add_message"
         if $code eq 'unknown' || $code eq 'dependent';
 
-    $self->messages($code, []) unless $self->messages($code);
-    push @{$self->messages($code)}, @messages;
+    $self->messages($code, []) unless $self->messages->{$code};
+    push @{$self->messages->{$code}}, @messages;
 }
 
 sub check_messages {
@@ -90,7 +167,7 @@ sub check_messages {
 
     # Add object messages to any passed in as args
     for my $code (qw(critical warning ok)) {
-        my $messages = $self->messages($code) || [];
+        my $messages = $self->messages->{$code} || [];
         if ($args{$code}) {
             unless (ref $args{$code} eq 'ARRAY') {
                 if ($code eq 'ok') {
@@ -123,8 +200,9 @@ __END__
 Nagios::Plugin - a family of perl modules to streamline writing Nagios 
 plugins
 
-
 =head1 SYNOPSIS
+
+    # TODO NJV -- make this more like check_stuff.
 
     # Constants OK, WARNING, CRITICAL, and UNKNOWN are exported by default
     # See also Nagios::Plugin::Functions for a functional interface
@@ -188,9 +266,7 @@ plugins
     #   | size=36kB;10:25;25: time=...
 
     # Option handling methods (NOT YET IMPLEMENTED - use 
-    #   Nagios::Plugin::Getopt for now)
-    
-
+    #   Nagios::Plugin::Getopt for 
 
 =head1 DESCRIPTION
 
@@ -280,6 +356,7 @@ NOT YET IMPLEMENTED - use Nagios::Plugin::Threshold directly for now.
 
 =over 4
 
+=item check_threshold( $value )
 =item check_threshold( check => $value, warning => $warn, critical => $crit )
 
 =back
@@ -382,6 +459,8 @@ section of the Nagios Plugin guidelines
 
 =head2 OPTION HANDLING METHODS
 
+TODO
+
 NOT YET IMPLEMENTED - use Nagios::Plugin::Getopt directly for now.
 
 
@@ -425,9 +504,6 @@ Maintained by the Nagios Plugin development team -
 http://nagiosplug.sourceforge.net.
 
 Originally by Ton Voon, E<lt>ton.voon@altinity.comE<gt>.
-
-Nathan Vonnahme added extra tests and subsequent fixes.
-
 
 =head1 COPYRIGHT AND LICENSE
 

@@ -8,7 +8,7 @@ my ($r,$args);
 my $s = 't/check_stuff.pl';
 $s = 'perl -Ilib '.$s;
 
-my $n = 'CHECK_STUFF';
+my $n = 'STUFF';
 
 # Nagios status strings and exit codes
 my %e  = qw(

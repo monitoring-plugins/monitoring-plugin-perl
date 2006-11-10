@@ -306,7 +306,7 @@ This documentation applies to version 0.01 of Nagios::Plugin::Getopt.
 
   use Nagios::Plugin::Getopt;
 
-  # Instantiate object (usage and version are mandatory)
+  # Instantiate object (usage is mandatory)
   $ng = Nagios::Plugin::Getopt->new(
     usage => "Usage: %s -H <host> -w <warning_threshold> 
   -c <critical threshold>",
@@ -352,7 +352,7 @@ additional arguments to be easily defined.
 
 =head2 CONSTRUCTOR
 
-  # Instantiate object (usage and version are mandatory)
+  # Instantiate object (usage is mandatory)
   $ng = Nagios::Plugin::Getopt->new(
     usage => 'Usage: %s --hello',
     version => '0.01',

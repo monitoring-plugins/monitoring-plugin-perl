@@ -11,20 +11,25 @@ Nagios::Plugin::Functions::_fake_exit(1);
 diag "\nusing Nagios::Plugin revision ". $Nagios::Plugin::VERSION . "\n"
   if $ENV{TEST_VERBOSE};
 
-my $p = Nagios::Plugin->new;
+my $p = Nagios::Plugin->new (usage => "dummy usage");
 isa_ok( $p, "Nagios::Plugin");
 
 $p->shortname("PAGESIZE");
-is($p->shortname, "PAGESIZE", "shortname set correctly");
+is($p->shortname, "PAGESIZE", "shortname explicitly set correctly");
 
-$p = Nagios::Plugin->new;
+$p = Nagios::Plugin->new (usage => "dummy usage");
 is($p->shortname, "NAGIOS-PLUGIN-01", "shortname should default on new");
 
-$p = Nagios::Plugin->new( shortname => "SIZE" );
+$p = Nagios::Plugin->new( shortname => "SIZE", usage => "dummy usage" );
 is($p->shortname, "SIZE", "shortname set correctly on new");
 
 diag "warn if < 10, critical if > 25 " if $ENV{TEST_VERBOSE};
 my $t = $p->set_thresholds( warning => "10:25", critical => "~:25" );
+
+use Data::Dumper;
+#diag "dumping p:  ". Dumper $p;
+#diag "dumping perfdata:  ". Dumper $p->perfdata;
+
 
 $p->add_perfdata( 
 	label => "size", 
@@ -34,6 +39,7 @@ $p->add_perfdata(
 	);
 
 cmp_ok( $p->all_perfoutput, 'eq', "size=1kB;10:25;~:25", "Perfdata correct");
+#diag "dumping perfdata:  ". Dumper ($p->perfdata);
 
 my $expected = {qw(
 		   -1    WARNING

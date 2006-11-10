@@ -39,7 +39,7 @@ return codes when testing.
     $e = nagios_exit( CRITICAL, 'aiiii ...' );
     print $e->message;
     print $e->return_code;
-    
+
     # NP::ExitResult also stringifies to the message output
     like(nagios_exit( WARNING, 'foobar'), qr/^foo/, 'matches!');
 
