@@ -1,6 +1,6 @@
 
 use strict;
-use Test::More tests => 111;
+use Test::More tests => 112;
 
 BEGIN { use_ok("Nagios::Plugin::Functions", ":all"); }
 Nagios::Plugin::Functions::_fake_exit(1);
@@ -14,6 +14,9 @@ foreach my $m ("", qw(::Threshold ::Getopt ::Performance ::Range)) {
 	my $a = eval "\$$v";
 	is($a, $this_version, "Version number for $mod the same as Functions: $this_version");
 }
+
+# check get_shortname
+is(get_shortname, "NAGIOS-PLUGIN-FUNCTIONS-01", "get_shortname ok");
 
 # Hardcoded checks of constants
 ok(defined %ERRORS, '%ERRORS defined');

@@ -18,7 +18,7 @@ our @STATUS_CODES = qw(OK WARNING CRITICAL UNKNOWN DEPENDENT);
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = (@STATUS_CODES, qw(nagios_exit nagios_die check_messages));
-our @EXPORT_OK = qw(%ERRORS %STATUS_TEXT @STATUS_CODES);
+our @EXPORT_OK = qw(%ERRORS %STATUS_TEXT @STATUS_CODES get_shortname);
 our %EXPORT_TAGS = (
     all => [ @EXPORT, @EXPORT_OK ],
     codes => [ @STATUS_CODES ],
@@ -224,6 +224,10 @@ Nagios plugins.
       critical => \@crit, warning => \@warn,
       ok => \@ok );
 
+    # get_shortname - return the default short name for this plugin
+    #   (as used by nagios_exit/die; not exported by default)
+    $shortname = get_shortname();
+
 
 =head1 DESCRIPTION
 
@@ -250,10 +254,11 @@ as are the following functions:
     nagios_die
     check_messages
 
-The following variables are exported only on request:
+The following variables and functions are exported only on request:
 
     %ERRORS
     %STATUS_TEXT
+    get_shortname
 
 
 =head2 FUNCTIONS
@@ -329,6 +334,18 @@ join the resultant critical, warning, and ok messages together i.e.
 all messages are joined and returned.
 
 =back
+
+=item get_shortname
+
+Return the default shortname used for this plugin i.e. the first
+token reported by nagios_exit/nagios_die. The default is basically
+
+    uc basename( $ENV{NAGIOS_PLUGIN} || $0 )
+
+with any leading 'CHECK_' and trailing file suffixes removed.
+
+get_shortname is not exported by default, so must be explicitly
+imported.
 
 =back
 
