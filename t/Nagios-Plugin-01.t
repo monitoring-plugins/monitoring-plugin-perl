@@ -11,16 +11,16 @@ Nagios::Plugin::Functions::_fake_exit(1);
 diag "\nusing Nagios::Plugin revision ". $Nagios::Plugin::VERSION . "\n"
   if $ENV{TEST_VERBOSE};
 
-my $p = Nagios::Plugin->new (usage => "dummy usage");
+my $p = Nagios::Plugin->new();
 isa_ok( $p, "Nagios::Plugin");
 
 $p->shortname("PAGESIZE");
 is($p->shortname, "PAGESIZE", "shortname explicitly set correctly");
 
-$p = Nagios::Plugin->new (usage => "dummy usage");
+$p = Nagios::Plugin->new();
 is($p->shortname, "NAGIOS-PLUGIN-01", "shortname should default on new");
 
-$p = Nagios::Plugin->new( shortname => "SIZE", usage => "dummy usage" );
+$p = Nagios::Plugin->new( shortname => "SIZE", () );
 is($p->shortname, "SIZE", "shortname set correctly on new");
 
 diag "warn if < 10, critical if > 25 " if $ENV{TEST_VERBOSE};

@@ -2,8 +2,6 @@
 package Nagios::Plugin;
 
 use Nagios::Plugin::Functions qw(:codes %ERRORS %STATUS_TEXT @STATUS_CODES);
-use Nagios::Plugin::Getopt;
-use Nagios::Plugin::Threshold; 
 use Params::Validate qw(:all);
 
 use strict;
@@ -12,7 +10,6 @@ use warnings;
 use Carp;
 use base qw(Class::Accessor::Fast);
 
-# do we need all of these to be accessible?
 Nagios::Plugin->mk_accessors(qw(
 								perfdata 
 								messages 
@@ -32,34 +29,41 @@ sub new {
 	my $class = shift;
 #	my %args = @_;
 
-	my %args = validate( @_, {
-		shortname => 0,
-		usage => 1,
-		version => 0,
-		url => 0,
-		plugin => 0,
-		blurb => 0,
-		extra => 0,
-		license => 0,
-		timeout => 0 },
+	my %args = validate( @_,
+		{
+			shortname => 0,
+			usage     => 0,
+			version   => 0,
+			url       => 0,
+			plugin    => 0,
+			blurb     => 0,
+			extra     => 0,
+			license   => 0,
+			timeout   => 0
+		},
 	);
+
 	my $shortname = undef;
 	if (exists $args{shortname}) {
 		$shortname = $args{shortname};
 		delete $args{shortname};
 	}
 	my $self = {
-	    shortname => $shortname,
-	    perfdata => [],        # to be added later
-	    messages => {
-			warning => [],
+		shortname => $shortname,
+		perfdata  => [],           # to be added later
+		messages  => {
+			warning  => [],
 			critical => [],
-			ok => []
-			},
-		opts => new Nagios::Plugin::Getopt(%args),
-		threshold => undef,  # defined later
-	};		
+			ok       => []
+		},
+		opts      => undef,        # see below
+		threshold => undef,        # defined later
+	};
 	bless $self, $class;
+	if (exists $args{usage}) {
+		require Nagios::Plugin::Getopt;
+		$self->opts( new Nagios::Plugin::Getopt(%args) );
+	}
 	return $self;
 }
 
@@ -119,26 +123,52 @@ sub check_threshold {
 		} );
 	}
 
-	if (! $self->threshold || exists $args{warning} || exists $args{critical}) {
-		$self->set_thresholds( 
-							   warning  => $args{warning} || $self->opts->warning , 
-							   critical => $args{critical} || $self->opts->critical ,
-							   );
+
+	# in order of preference, get warning and critical from
+	#  1.  explicit arguments to check_threshold
+	#  2.  previously explicitly set threshold object
+	#  3.  implicit options from Getopts object
+
+	if ( exists $args{warning} || exists $args{critical} ) {
+		$self->set_thresholds(
+			warning  => $args{warning},
+			critical => $args{critical},
+		);
 	}
-
-
+	elsif ( defined $self->threshold ) {
+		# noop
+	}
+	elsif ( defined $self->opts ) {
+		$self->set_thresholds(
+			warning  => $self->opts->warning,
+			critical => $self->opts->critical,
+		);
+	}
+	else {
+		return UNKNOWN;
+	}
+	
 	return $self->threshold->get_status($args{check});
 }
 
 # top level interface to my Nagios::Plugin::Getopt object
 sub arg {
     my $self = shift;
-	$self->opts->arg(@_);
+	$self->opts->arg(@_) if $self->_check_for_opts;
 }
 sub getopts {
     my $self = shift;
-	$self->opts->getopts(@_);
+	$self->opts->getopts(@_) if $self->_check_for_opts;
 }
+
+sub _check_for_opts {
+	my $self = shift;
+	croak
+		"You have to supply a 'usage' param to Nagios::Plugin::new() if you want to use Getopts from your Nagios::Plugin object."
+			unless ref $self->opts() eq 'Nagios::Plugin::Getopt';
+	return $self;
+}
+
 
 
 # -------------------------------------------------------------------------
