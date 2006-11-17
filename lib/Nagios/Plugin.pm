@@ -123,12 +123,10 @@ sub check_threshold {
 		} );
 	}
 
-
 	# in order of preference, get warning and critical from
 	#  1.  explicit arguments to check_threshold
 	#  2.  previously explicitly set threshold object
 	#  3.  implicit options from Getopts object
-
 	if ( exists $args{warning} || exists $args{critical} ) {
 		$self->set_thresholds(
 			warning  => $args{warning},
@@ -152,7 +150,7 @@ sub check_threshold {
 }
 
 # top level interface to my Nagios::Plugin::Getopt object
-sub arg {
+sub add_arg {
     my $self = shift;
 	$self->opts->arg(@_) if $self->_check_for_opts;
 }
@@ -258,8 +256,7 @@ plugins
         # Return code: 3; 
         #   output: PAGESIZE UNKNOWN - Could not retrieve page
 
-    # Threshold methods (NOT YET IMPLEMENTED - use 
-    #    Nagios::Plugin::Threshold for now)
+    # Threshold methods 
     $code = $np->check_threshold(
         check => $value,
         warning => $warning_threshold,
@@ -379,15 +376,49 @@ Alias for nagios_die(). Deprecated.
 
 =back
 
-
 =head2 THRESHOLD METHODS
 
-NOT YET IMPLEMENTED - use Nagios::Plugin::Threshold directly for now.
+These provide a top level interface to the C<Nagios::Plugins::Threshold>
+module; for more details, see its documentation.
 
 =over 4
 
 =item check_threshold( $value )
+
 =item check_threshold( check => $value, warning => $warn, critical => $crit )
+
+Evaluates $value against the thresholds and returns OK, CRITICAL, or
+WARNING constant.  The thresholds may be:
+
+1. explicitly set by passing 'warning' and/or 'critical' parameters to
+   C<check_threshold()>, or,
+
+2. explicitly set by calling C<set_thresholds()> before C<check_threshold()>, or,
+
+3. implicitly set by command-line parameters -w, -c, --critical or
+   --warning, if you have run C<$plugin->getopts()>.
+
+The return value is ready to pass to C <nagios_exit>, e . g .,
+
+  $p->nagios_exit(
+	return_code => $p->check_threshold($result),
+	message     => " sample result was $result"
+  );
+
+
+=item set_thresholds(warning => "10:25", critical => "~:25")
+
+Sets the acceptable ranges and creates the plugin's
+Nagios::Plugins::Threshold object.  See
+http://nagiosplug.sourceforge.net/developer-guidelines.html#THRESHOLDFORMAT
+for details and examples of the threshold format.
+
+=item threshold()
+
+Returns the object's C<Nagios::Plugin::Threshold> object, if it has
+been defined by calling set_thresholds().  You can pass a new
+Threshold object to it to replace the old one too, but you shouldn't
+need to do that from a plugin script.
 
 =back
 

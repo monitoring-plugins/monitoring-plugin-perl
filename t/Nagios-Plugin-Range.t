@@ -1,6 +1,7 @@
 
 use strict;
-use Test::More qw(no_plan); #tests => 123;
+#use Test::More qw(no_plan); 
+use Test::More tests => 149;
 
 BEGIN { 
   use_ok('Nagios::Plugin::Range');
