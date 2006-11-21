@@ -222,7 +222,6 @@ sub check_messages {
 
 __END__
 
-
 =head1 NAME
 
 Nagios::Plugin - a family of perl modules to streamline writing Nagios 
@@ -230,79 +229,97 @@ plugins
 
 =head1 SYNOPSIS
 
-    # TODO NJV -- make this more like check_stuff.
+   # Constants OK, WARNING, CRITICAL, and UNKNOWN are exported by default
+   # See also Nagios::Plugin::Functions for a functional interface
+   use Nagios::Plugin;
 
-    # Constants OK, WARNING, CRITICAL, and UNKNOWN are exported by default
-    # See also Nagios::Plugin::Functions for a functional interface
-    use Nagios::Plugin;
+   # Constructor
+   $np = Nagios::Plugin->new;                               # OR
+   $np = Nagios::Plugin->new( shortname => "PAGESIZE" );    # OR
 
-    # Constructor
-    $np = Nagios::Plugin->new;            # OR
-    $np = Nagios::Plugin->new( shortname => "PAGESIZE" );
 
-    # Exit methods - nagios_exit( CODE, MESSAGE ), 
-    #                nagios_die( MESSAGE, [CODE])
-    $page = retrieve_page($page1)
-        or $np->nagios_exit( UNKNOWN, "Could not retrieve page" );
-        # Return code: 3; 
-        #   output: PAGESIZE UNKNOWN - Could not retrieve page 
-    test_page($page)
-        or $np->nagios_exit( CRITICAL, "Bad page found" );
+   # use Nagios::Plugin::Getopt to process the @ARGV command line options:
+   #   --verbose, --help, --usage, --timeout and --host are defined automatically.
+   $np = Nagios::Plugin->new(  
+     usage => "Usage: %s [ -v|--verbose ]  [-H <host>] [-t <timeout>] "
+       . "[ -c|--critical=<threshold> ] [ -w|--warning=<threshold> ]",
+   );
 
-    # nagios_die() is just like nagios_exit(), but return code defaults 
-    #   to UNKNOWN
-    $page = retrieve_page($page2)
-        or $np->nagios_die( "Could not retrieve page" );
-        # Return code: 3; 
-        #   output: PAGESIZE UNKNOWN - Could not retrieve page
+   # add valid command line options and build them into your usage/help documentation.
+   $p->add_arg(
+     spec => 'warning|w=s',
+     help => '-w, --warning=INTEGER:INTEGER .  See '
+       . 'http://nagiosplug.sourceforge.net/developer-guidelines.html#THRESHOLDFORMAT '
+       . 'for the threshold format. ',
+   );
 
-    # Threshold methods 
-    $code = $np->check_threshold(
-        check => $value,
-        warning => $warning_threshold,
-        critical => $critical_threshold,
-    );
-    $np->nagios_exit( $code, "Threshold check failed" ) if $code != OK;
+   # Parse @ARGV and process standard arguments (e.g. usage, help, version)
+   $p->getopts;
 
-    # Message methods (EXPERIMENTAL AND SUBJECT TO CHANGE) -
-    #   add_message( CODE, $message ); check_messages()
-    for (@collection) {
-        if (m/Error/) {
-            $np->add_message( CRITICAL, $_ );
-        } else {
-            $np->add_message( OK, $_ );
-        }
-    }
-    ($code, $message) = $np->check_message();
-    nagios_exit( $code, $message );
-    # If any items in collection matched m/Error/, returns CRITICAL and 
-    #   the joined set of Error messages; otherwise returns OK and the 
-    #   joined set of ok messages
 
-    # Perfdata methods
-    $np->add_perfdata( 
-        label => "size",
-        value => $value,
-        uom => "kB",
-        threshold => $threshold,
-    );
-    $np->add_perfdata( label => "time", ... );
-    $np->nagios_exit( OK, "page size at http://... was ${value}kB" );
-    # Return code: 0; 
-    #   output: PAGESIZE OK - page size at http://... was 36kB \
-    #   | size=36kB;10:25;25: time=...
+   # Exit/return value methods - nagios_exit( CODE, MESSAGE ), 
+   #                             nagios_die( MESSAGE, [CODE])
+   $page = retrieve_page($page1)
+       or $np->nagios_exit( UNKNOWN, "Could not retrieve page" );
+       # Return code: 3; 
+       #   output: PAGESIZE UNKNOWN - Could not retrieve page 
+   test_page($page)
+       or $np->nagios_exit( CRITICAL, "Bad page found" );
 
-    # Option handling methods (NOT YET IMPLEMENTED - use 
-    #   Nagios::Plugin::Getopt for 
+   # nagios_die() is just like nagios_exit(), but return code defaults 
+   #   to UNKNOWN
+   $page = retrieve_page($page2)
+     or $np->nagios_die( "Could not retrieve page" );
+     # Return code: 3; 
+     #   output: PAGESIZE UNKNOWN - Could not retrieve page
+
+   # Threshold methods 
+   $code = $np->check_threshold(
+     check => $value,
+     warning => $warning_threshold,
+     critical => $critical_threshold,
+   );
+   $np->nagios_exit( $code, "Threshold check failed" ) if $code != OK;
+
+
+   # Message methods (EXPERIMENTAL AND SUBJECT TO CHANGE) -
+   #   add_message( CODE, $message ); check_messages()
+   for (@collection) {
+     if (m/Error/) {
+       $np->add_message( CRITICAL, $_ );
+     } else {
+       $np->add_message( OK, $_ );
+     }
+   }
+   ($code, $message) = $np->check_message();
+   nagios_exit( $code, $message );
+   # If any items in collection matched m/Error/, returns CRITICAL and 
+   #   the joined set of Error messages; otherwise returns OK and the 
+   #   joined set of ok messages
+
+
+   # Perfdata methods
+   $np->add_perfdata( 
+     label => "size",
+     value => $value,
+     uom => "kB",
+     threshold => $threshold,
+   );
+   $np->add_perfdata( label => "time", ... );
+   $np->nagios_exit( OK, "page size at http://... was ${value}kB" );
+   # Return code: 0; 
+   #   output: PAGESIZE OK - page size at http://... was 36kB \
+   #   | size=36kB;10:25;25: time=...
+
 
 =head1 DESCRIPTION
 
-Nagios::Plugin and its associated Nagios::Plugin::* modules are a family of
-perl modules to streamline writing Nagios plugins. The main end user modules
-are Nagios::Plugin, providing an object-oriented interface to the entire
-Nagios::Plugin::* collection, and Nagios::Plugin::Functions, providing a
-simpler functional interface to a useful subset of the available
-functionality.
+Nagios::Plugin and its associated Nagios::Plugin::* modules are a
+family of perl modules to streamline writing Nagios plugins. The main
+end user modules are Nagios::Plugin, providing an object-oriented
+interface to the entire Nagios::Plugin::* collection, and
+Nagios::Plugin::Functions, providing a simpler functional interface to
+a useful subset of the available functionality.
 
 The purpose of the collection is to make it as simple as possible for
 developers to create plugins that conform the Nagios Plugin guidelines
@@ -339,9 +356,21 @@ reverse of %ERRORS.
 
 =head2 CONSTRUCTOR
 
-    Nagios::Plugin->new;
+	Nagios::Plugin->new;
 
-    Nagios::Plugin->new( shortname => 'PAGESIZE' );
+	Nagios::Plugin->new( shortname => 'PAGESIZE' );
+
+	Nagios::Plugin->new(
+		usage => "Usage: %s [ -v|--verbose ]  [-H <host>] [-t <timeout>]
+	             [ -c|--critical=<critical threshold> ] [ -w|--warning=<warning threshold> ]  ",
+		version => $VERSION,
+		blurb   => $blurb,
+		extra   => $extra,
+		url     => $url,
+		license => $license,
+		plugin  => basename $0,
+		timeout => 15,
+	);
 
 Instantiates a new Nagios::Plugin object. Accepts the following named
 arguments:
@@ -353,8 +382,85 @@ arguments:
 The 'shortname' for this plugin, used as the first token in the plugin
 output by the various exit methods. Default: uc basename $0.
 
+=item usage ("Usage:  %s --foo --bar")
+
+Passing a value for the usage() argument makes Nagios::Plugin
+instantiate its own C<Nagios::Plugin::Getopt> object so you can start
+doing command line argument processing.  See
+L<Nagios::Plugin::Getopt/CONSTRUCTOR> for more about "usage" and the
+following options:
+
+=item version
+
+=item url
+
+=item blurb
+
+=item license
+
+=item extra
+
+=item plugin
+
+=item timeout
+
 =back
 
+=head2 OPTION HANDLING METHODS
+
+C<Nagios::Plugin> provides these methods for accessing the functionality in C<Nagios::Plugin::Getopt>.
+
+=over 4
+
+=item add_arg
+
+Examples:
+
+  # Define --hello argument (named parameters)
+  $plugin->add_arg(
+    spec => 'hello=s', 
+    help => "--hello\n   Hello string",
+    required => 1,
+  );
+
+  # Define --hello argument (positional parameters)
+  #   Parameter order is 'spec', 'help', 'default', 'required?'
+  $plugin->add_arg('hello=s', "--hello\n   Hello string", undef, 1);
+
+See L<Nagios::Plugin::Getopt/ARGUMENTS> for more details.
+
+=item getopts()
+
+Parses and processes the command line options you've defined,
+automatically doing the right thing with help/usage/version arguments.
+
+See  L<Nagios::Plugin::Getopt/GETOPTS> for more details.
+
+=item opts()
+
+Assuming you've instantiated it by passing 'usage' to new(), opts()
+returns the Nagios::Plugin object's C<Nagios::Plugin::Getopt> object,
+with which you can do lots of great things.
+
+E.g.
+
+  if ( $plugin->opts->verbose ) {
+	  print "yah yah YAH YAH YAH!!!";
+  }
+
+  # start counting down to timeout
+  alarm $plugin->opts->timeout;
+  your_long_check_step_that_might_time_out();
+
+  # access any of your custom command line options,
+  # assuming you've done these steps above:
+  #   $plugin->add_arg('my_argument=s', '--my_argument [STRING]');
+  #   $plugin->getopts;
+  print $plugin->opts->my_argument;
+
+Again, see L<Nagios::Plugin::Getopt>.
+
+=back
 
 =head2 EXIT METHODS
 
@@ -378,8 +484,9 @@ Alias for nagios_die(). Deprecated.
 
 =head2 THRESHOLD METHODS
 
-These provide a top level interface to the C<Nagios::Plugins::Threshold>
-module; for more details, see its documentation.
+These provide a top level interface to the
+C<Nagios::Plugin::Threshold> module; for more details, see
+L<Nagios::Plugin::Threshold> and L<Nagios::Plugin::Range>.
 
 =over 4
 
@@ -421,7 +528,6 @@ Threshold object to it to replace the old one too, but you shouldn't
 need to do that from a plugin script.
 
 =back
-
 
 =head2 MESSAGE METHODS
 
@@ -518,19 +624,13 @@ section of the Nagios Plugin guidelines
 =back
 
 
-=head2 OPTION HANDLING METHODS
-
-TODO
-
-NOT YET IMPLEMENTED - use Nagios::Plugin::Getopt directly for now.
-
-
 =head1 EXAMPLES
 
 "Enough talk!  Show me some examples!"
 
-See the file 'check_stuff.pl' in the 't' directory for a complete working
-example of a plugin script.
+See the file 'check_stuff.pl' in the 't' directory included with the
+Nagios::Plugin distribution for a complete working example of a plugin
+script.
 
 
 =head1 VERSIONING
@@ -543,12 +643,12 @@ possible.
 
 =head1 SEE ALSO
 
-See Nagios::Plugin::Functions for a simple functional interface to a subset
+See L<Nagios::Plugin::Functions> for a simple functional interface to a subset
 of the available Nagios::Plugin functionality.
 
-See also Nagios::Plugin::Getopt, Nagios::Plugin::Range,
-Nagios::Plugin::Performance, Nagios::Plugin::Range, and
-Nagios::Plugin::Threshold.
+See also L<Nagios::Plugin::Getopt>, L<Nagios::Plugin::Range>,
+L<Nagios::Plugin::Performance>, L<Nagios::Plugin::Range>, and
+L<Nagios::Plugin::Threshold>.
 
 The Nagios Plugin project page is at http://nagiosplug.sourceforge.net.
 
@@ -575,3 +675,4 @@ under the same terms as Perl itself, either Perl version 5.8.4 or, at your
 option, any later version of Perl 5 you may have available.
 
 =cut
+
