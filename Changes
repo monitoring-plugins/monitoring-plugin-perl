@@ -1,5 +1,9 @@
 Revision history for Perl module Nagios::Plugin.
 
+0.15  19th December 2006
+  - exposed Getopt and Threshold functionality from top level Nagios::Plugin
+  - exchanged Class::Struct for Class::Accessor
+
 0.14  18th October 2006
   - Fixed version number due to CPAN upload
 

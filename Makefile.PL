@@ -6,7 +6,6 @@ WriteMakefile(
     NAME              => 'Nagios::Plugin',
     VERSION_FROM      => 'lib/Nagios/Plugin/Functions.pm', # finds $VERSION
     PREREQ_PM         => {
-        Class::Struct       => 0,
         Params::Validate    => 0.24,
         Class::Accessor     => 0.22,
         Test::More 	        => 0.62,
