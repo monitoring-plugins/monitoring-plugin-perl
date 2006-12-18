@@ -535,7 +535,19 @@ EXPERIMENTAL AND SUBJECT TO CHANGE
 
 add_messages and check_messages are higher-level convenience methods to add
 and then check a set of messages, returning an appropriate return code
-and/or result message.
+and/or result message. They are equivalent to maintaining a set of @critical,
+@warning, and and @ok message arrays (add_message), and then doing a final 
+if test (check_message) like this:
+
+  if (@critical) {
+    nagios_exit( CRITICAL, join(' ', @critical) );
+  } 
+  elsif (@warning) {
+    nagios_exit( WARNING, join(' ', @warning) );
+  }
+  else {
+    nagios_exit( OK, join(' ', @ok) );
+  }
 
 =over 4
 
