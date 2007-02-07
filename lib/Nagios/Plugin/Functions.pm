@@ -18,11 +18,11 @@ our @STATUS_CODES = qw(OK WARNING CRITICAL UNKNOWN DEPENDENT);
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = (@STATUS_CODES, qw(nagios_exit nagios_die check_messages));
-our @EXPORT_OK = qw(%ERRORS %STATUS_TEXT @STATUS_CODES get_shortname);
+our @EXPORT_OK = qw(%ERRORS %STATUS_TEXT @STATUS_CODES get_shortname max_state);
 our %EXPORT_TAGS = (
     all => [ @EXPORT, @EXPORT_OK ],
     codes => [ @STATUS_CODES ],
-    functions => [ qw(nagios_exit nagios_die check_messages) ],
+    functions => [ qw(nagios_exit nagios_die check_messages max_state) ],
 );
 
 use constant OK         => 0;
@@ -54,6 +54,15 @@ sub get_shortname {
     $shortname =~ s/^CHECK_//;     # Remove any leading CHECK_
     $shortname =~ s/\..*$//;       # Remove any trailing suffix
     return $shortname;
+}
+
+sub max_state {
+	return CRITICAL if grep { $_ == CRITICAL } @_;
+	return WARNING if grep { $_ == WARNING } @_;
+	return OK if grep { $_ == OK } @_;
+	return UNKNOWN if grep { $_ == UNKNOWN } @_;
+	return DEPENDENT if grep { $_ == DEPENDENT } @_;
+	return UNKNOWN;
 }
 
 # nagios_exit( $code, $message )
@@ -197,7 +206,7 @@ __END__
 =head1 NAME
 
 Nagios::Plugin::Functions - functions to simplify the creation of 
-Nagios plugins.
+Nagios plugins
 
 =head1 SYNOPSIS
 
@@ -259,6 +268,7 @@ The following variables and functions are exported only on request:
     %ERRORS
     %STATUS_TEXT
     get_shortname
+    max_state
 
 
 =head2 FUNCTIONS
@@ -349,6 +359,12 @@ imported.
 
 =back
 
+=item max_state(@a)
+
+Returns the worst state in the array. Order is: CRITICAL, WARNING, OK, UNKNOWN,
+DEPENDENT
+
+=back
 
 =head1 SEE ALSO
 
