@@ -6,9 +6,13 @@ version_from: lib/Nagios/Plugin/Functions.pm
 installdirs:  site
 requires:
     Carp:                          0
-    Class::Accessor:               0.22
-    Params::Validate:              0.24
+    Class::Accessor:               0
+    Params::Validate:              0
     Test::More:                    0.62
+    Config::Tiny:                  0
+    File::Spec:                    0
+    File::Basename:
+    IO::File:
 
 distribution_type: module
 generated_by: ExtUtils::MakeMaker version 6.17

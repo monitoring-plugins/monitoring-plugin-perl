@@ -10,11 +10,14 @@ use File::Basename;
 use Getopt::Long qw(:config no_ignore_case bundling);
 use Carp;
 use Params::Validate qw(:all);
+use Config::Tiny;
 use base qw(Class::Accessor);
 
 use Nagios::Plugin::Functions;
-use vars qw($VERSION);
+use vars qw($VERSION $DEFAULT_CONFIG_FILE);
 $VERSION = $Nagios::Plugin::Functions::VERSION;
+
+$DEFAULT_CONFIG_FILE = '/etc/nagios/plugins.cfg';
 
 # Standard defaults
 my %DEFAULT = (
@@ -35,6 +38,9 @@ my @ARGS = ({
   }, {
     spec => 'version|V',
     help => "-V, --version\n   Print version information",
+  }, {
+    spec => 'default-opts:s@',
+    help => "--default-opts=[<section>[@<config_file>]]\n   Section and/or config_file from which to load default options (may repeat)",
   }, {
     spec => 'timeout|t=i',
     help => "-t, --timeout=INTEGER\n   Seconds before plugin times out (default: %s)",
@@ -140,7 +146,7 @@ sub _process_specs_getopt_long
     # Setup names and defaults
     my $spec = $arg->{spec};
     # Use first arg as name (like Getopt::Long does)
-    $spec =~ s/=\w+$//;
+    $spec =~ s/[=:].*$//;
     my $name = (split /\s*\|\s*/, $spec)[0];
     $arg->{name} = $name;
     if (defined $self->{$name}) {
@@ -179,6 +185,135 @@ sub _process_opts
   $self->_die($self->_usage)    if $self->{usage};
   $self->_die($self->_revision) if $self->{version};
   $self->_die($self->_help)     if $self->{help};
+}
+
+# -------------------------------------------------------------------------
+# Default opts methods
+
+sub _load_config_section
+{
+  my $self = shift;
+  my ($section, $file, $flags) = @_;
+  $section ||= $self->{_attr}->{plugin};
+  $file ||= $DEFAULT_CONFIG_FILE;
+
+  $self->_die("Cannot find config file '$file'") if $flags->{fatal} && ! -f $file;
+
+  my $Config = Config::Tiny->read($file);
+  $self->_die("Cannot read config file '$file'") unless defined $Config;
+
+  $self->_die("Invalid section '$section' in config file '$file'")
+    if $flags->{fatal} && ! exists $Config->{$section};
+
+  return $Config->{$section};
+}
+
+# Helper method to setup a hash of spec definitions for _cmdline
+sub _setup_spec_index
+{
+  my $self = shift;
+  return if defined $self->{_spec};
+  $self->{_spec} = { map { $_->{name} => $_->{spec} } @{$self->{_args}} };
+}
+
+# Quote values that require it
+sub _cmdline_value
+{
+  my $self = shift;
+  local $_ = shift;
+  if (m/\s/ && (m/^[^"']/ || m/[^"']$/)) {
+    return qq("$_");
+  }
+  elsif ($_ eq '') {
+    return q("");
+  }
+  else {
+    return $_;
+  }
+}
+
+# Helper method to format key/values in $hash in a quasi-commandline format
+sub _cmdline
+{
+  my $self = shift;
+  my ($hash) = @_;
+  $hash ||= $self;
+
+  $self->_setup_spec_index;
+
+  my @args = ();
+  for my $key (sort keys %$hash) {
+    # Skip internal keys
+    next if $key =~ m/^_/;
+
+    # Skip defaults and internals
+    next if exists $DEFAULT{$key} && $hash->{$key} eq $DEFAULT{$key}; 
+    next if grep { $key eq $_ } qw(help usage version default-opts);
+    next unless defined $hash->{$key};
+
+    # Render arg
+    my $spec = $self->{_spec}->{$key} || '';
+    if ($spec =~ m/[=:].+$/) {
+      # Arg takes value - may be a scalar or an arrayref
+      for my $value (ref $hash->{$key} eq 'ARRAY' ? @{$hash->{$key}} : ( $hash->{$key} )) {
+        $value = $self->_cmdline_value($value);
+        if (length($key) > 1) {
+          push @args, sprintf "--%s=%s", $key, $value;
+        } 
+        else {
+          push @args, "-$key", $value;
+        }
+      }
+    }
+
+    else {
+      # Flag - render long or short based on option length
+      push @args, (length($key) > 1 ? '--' : '-') . $key;
+    }
+  }
+
+  return wantarray ? @args : join(' ', @args);
+}
+
+# Process and load default-opts sections
+sub _process_default_opts
+{
+  my $self = shift;
+  my ($args) = @_;
+
+  my $defopts_list = $args->{'default-opts'};
+  my $defopts_explicit = 1;
+
+  # If no default_opts defined, force one implicitly
+  if (! $defopts_list) {
+    $defopts_list = [ '' ];
+    $defopts_explicit = 0;
+  }
+
+  my @sargs = ();
+  for my $defopts (@$defopts_list) {
+    $defopts ||= $self->{_attr}->{plugin};
+    my $section = $defopts;
+    my $file = '';
+
+    # Parse section@file
+    if ($defopts =~ m/^(\w*)@(.*?)\s*$/) {
+      $section = $1;
+      $file = $2;
+    }
+
+    # Load section args
+    my $shash = $self->_load_config_section($section, $file, { fatal => $defopts_explicit });
+
+    # Turn $shash into a series of commandline-like arguments
+    push @sargs, $self->_cmdline($shash);
+  }
+
+  # Reset ARGV to default-opts + original
+  @ARGV = ( @sargs, @{$self->{_attr}->{argv}} );
+
+  printf "[default-opts] %s %s\n", $self->{_attr}->{plugin}, join(' ', @ARGV)
+    if $args->{verbose} && $args->{verbose} >= 3;
 }
 
 # -------------------------------------------------------------------------
@@ -223,10 +358,21 @@ sub getopts
   # Collate spec arguments for Getopt::Long
   my @opt_array = $self->_process_specs_getopt_long;
 
-  # Call GetOptions using @opt_array
-  my $ok = GetOptions($self, @opt_array);
+  # Capture original @ARGV (for default-opts games)
+  $self->{_attr}->{argv} = [ @ARGV ];
 
-  # Invalid options - given usage message and exit
+  # Call GetOptions using @opt_array
+  my $args1 = {};
+  my $ok = GetOptions($args1, @opt_array);
+  # Invalid options - give usage message and exit
+  $self->_die($self->_usage) unless $ok;
+
+  # Process default-opts
+  $self->_process_default_opts($args1);
+
+  # Call GetOptions again, this time including default-opts
+  $ok = GetOptions($self, @opt_array);
+  # Invalid options - give usage message and exit
   $self->_die($self->_usage) unless $ok;
 
   # Process immediate options (possibly exiting)
@@ -264,6 +410,7 @@ sub _init
     plugin => { default => $plugin },
     blurb => 0,
     extra => 0,
+    'default-opts' => 0,
     license => { default => $DEFAULT{license} },
     timeout => { default => $DEFAULT{timeout} },
   });
@@ -295,11 +442,8 @@ __END__
 
 =head1 NAME
 
-Nagios::Plugin::Getopt - OO perl module providing standardised argument processing for Nagios plugins
-
-=head1 VERSION
-
-This documentation applies to version 0.01 of Nagios::Plugin::Getopt.
+Nagios::Plugin::Getopt - OO perl module providing standardised argument 
+processing for Nagios plugins
 
 
 =head1 SYNOPSIS
