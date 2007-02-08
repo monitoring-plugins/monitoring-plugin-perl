@@ -1,0 +1,1 @@
+check_mysql --password=secret --username=admin

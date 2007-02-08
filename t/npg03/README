@@ -1,0 +1,13 @@
+Nagios-Plugin-Getopt-03.t automatically tests all cases defined in the 'input' directory
+and expects the output to match the corresponding file in the 'expected' directory. To
+define a new test case, just create a new file in the 'input' directory containing the
+input command line, and a corresponding file in the 'expected' directory containing
+what you think the expanded command line should be. Note that this expansion is normalised
+as follows:
+
+- command line arguments are reported in alphabetical order
+- extraneous white space is removed
+
+Also, if you use a completely new argument than those defined in Nagios-Plugin-Getopt-03.t
+you will need to define it there as well.
+

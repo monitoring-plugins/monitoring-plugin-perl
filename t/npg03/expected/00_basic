@@ -1,0 +1,1 @@
+check_mysql -H localhost -S --critical=15 --password=secret --username=altinity --warning=10

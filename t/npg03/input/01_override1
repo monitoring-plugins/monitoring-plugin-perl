@@ -1,0 +1,1 @@
+check_mysql --username=admin --default-opts=more_options --warning=5
