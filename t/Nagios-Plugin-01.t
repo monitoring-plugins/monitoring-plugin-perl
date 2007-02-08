@@ -1,7 +1,7 @@
 # Nagios::Plugin original test cases
 
 use strict;
-use Test::More tests => 12;
+use Test::More tests => 13;
 
 BEGIN { use_ok('Nagios::Plugin') };
 
@@ -40,6 +40,14 @@ $p->add_perfdata(
 
 cmp_ok( $p->all_perfoutput, 'eq', "size=1kB;10:25;~:25", "Perfdata correct");
 #diag "dumping perfdata:  ". Dumper ($p->perfdata);
+
+$p->add_perfdata(
+	label => "time",
+	value => "3.52",
+	threshold => $t,
+	);
+
+is( $p->all_perfoutput, "size=1kB;10:25;~:25 time=3.52;10:25;~:25", "Perfdata correct when no uom specified");
 
 my $expected = {qw(
 		   -1    WARNING

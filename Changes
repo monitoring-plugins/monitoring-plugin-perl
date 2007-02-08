@@ -1,5 +1,9 @@
 Revision history for Perl module Nagios::Plugin.
 
+???   ??
+  - fixed warnings when no uom specified for add_perfdata
+  - added max_state function in N::P::Functions
+
 0.15  19th December 2006
   - exposed Getopt and Threshold functionality from top level Nagios::Plugin
   - exchanged Class::Struct for Class::Accessor

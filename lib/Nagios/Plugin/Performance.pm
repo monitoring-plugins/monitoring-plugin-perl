@@ -22,7 +22,7 @@ struct "Nagios::Plugin::Performance" => {
 
 sub perfoutput {
 	my $self = shift;
-	my $output = $self->label."=".$self->value.$self->uom.";".$self->threshold->warning.";".$self->threshold->critical;
+	my $output = $self->label."=".$self->value. ($self->uom || "") .";".$self->threshold->warning.";".$self->threshold->critical;
 	return $output;
 }
 

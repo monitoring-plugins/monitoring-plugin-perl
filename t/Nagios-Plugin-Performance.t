@@ -80,3 +80,5 @@ cmp_ok( $p[0]->rrdlabel, "eq", "home_a_m", "changing / to _");
 cmp_ok( $p[1]->rrdlabel, "eq", "shared_folder_big", "replacing bad characters");
 cmp_ok( $p[2]->rrdlabel, "eq", "1234567890123456789", "shortening rrd label");
 
+
+# add_perfdata tests in t/Nagios-Plugin-01.t
