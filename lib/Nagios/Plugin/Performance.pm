@@ -6,39 +6,47 @@ use strict;
 use warnings;
 
 use Carp;
-use Nagios::Plugin::Threshold;
+use base qw(Class::Accessor::Fast);
+Nagios::Plugin::Performance->mk_ro_accessors(
+    qw(label value uom warning critical min max)
+);
+
 use Nagios::Plugin::Functions;
+use Nagios::Plugin::Threshold;
+use Nagios::Plugin::Range;
 our ($VERSION) = $Nagios::Plugin::Functions::VERSION;
-
-use Class::Struct;
-struct "Nagios::Plugin::Performance" => {
-	label => '$',
-	value => '$',
-	uom   => '$',
-	threshold => 'Nagios::Plugin::Threshold',
-	min  => '$',
-	max  => '$',
-	};
-
-sub perfoutput {
-	my $self = shift;
-	my $output = $self->label."=".$self->value. ($self->uom || "") .";".$self->threshold->warning.";".$self->threshold->critical;
-	return $output;
-}
 
 sub _parse {
 	my $class = shift;
 	my $string = shift;
-	my $p = $class->new;
 	$string =~ s/^([^=]+)=([\d\.]+)(\w*);?([\d\.]+)?;?([\d\.]+)?;?([\d\.]+)?;?([\d\.]+)?\s*//;
 	return undef unless ((defined $1 && $1 ne "") && (defined $2 && $2 ne ""));
-	$p->label($1);
-	$p->value($2+0);
-	$p->uom($3);
-	$p->threshold(Nagios::Plugin::Threshold->set_thresholds(warning => $4, critical => $5));
-	$p->min($6);
-	$p->max($7);
+    my $p = $class->new(
+        label => $1, value => $2+0, uom => $3, warning => $4, critical => $5, 
+        min => $6, max => $7
+    );
 	return ($p, $string);
+}
+
+# Map undef to ''
+sub _nvl {
+    my ($self, $value) = @_;
+    defined $value ? $value : ''
+}
+
+sub perfoutput {
+	my $self = shift;
+    my $out = sprintf "%s=%s%s;%s;%s;%s;%s",
+        $self->label,
+        $self->value,
+        $self->_nvl($self->uom),
+        $self->_nvl($self->warning),
+        $self->_nvl($self->critical),
+        $self->_nvl($self->min),
+        $self->_nvl($self->max);
+    # Previous implementation omitted trailing ;; - do we need this?
+    $out =~ s/;;$//;
+    return $out;
 }
 
 sub parse_perfstring {
@@ -58,8 +66,9 @@ sub rrdlabel {
 	my $name = $self->label;
 	if ($name eq "/") {
 		$name = "root";
+    }
 	# If filesystem name, remove initial / and convert subsequent "/" to "_"
-	} elsif ($name =~ s/^\///) {
+	elsif ($name =~ s/^\///) {
 		$name =~ s/\//_/g;
 	}
 	# Convert bad chars
@@ -68,84 +77,150 @@ sub rrdlabel {
 	return substr( $name, 0, 19 );
 }
 
+# Backward compatibility: create a threshold object on the fly as requested
+sub threshold
+{
+    my $self = shift;
+    return Nagios::Plugin::Threshold->set_thresholds(
+        warning => $self->warning, critical => $self->critical
+    );
+}
+
+# Constructor - unpack thresholds, map args to hashref
+sub new 
+{
+    my $class = shift;
+    my %arg = @_;
+
+    # Convert thresholds
+    if (my $threshold = delete $arg{threshold}) {
+        $arg{warning}  ||= $threshold->warning  . "";
+        $arg{critical} ||= $threshold->critical . "";
+    }
+
+    $class->SUPER::new(\%arg);
+}
+
 1;
+
 __END__
 
 =head1 NAME
 
-Nagios::Plugin::Performance - Performance information in a perl object
+Nagios::Plugin::Performance - class for handling Nagios::Plugin
+performance data.
 
 =head1 SYNOPSIS
 
   use Nagios::Plugin::Performance;
 
-  @p = Nagios::Plugin::Performance->parse_perfstring("/=382MB;15264;15269;; /var=218MB;9443;9448");
-  if (@p) {
-	print "1st label = ", $p[0]->label, $/;
-	print "1st uom   = ", $p[0]->uom, $/;
-	print "2nd crit  = ", $p[1]->threshold->critical, $/;
-  } else {
-	print "Cannot parse",$/;
+  # Constructor (also accepts a 'threshold' obj instead of warning/critical)
+  $p = Nagios::Plugin::Performance->new(
+      label     => 'size',
+      value     => $value,
+      uom       => "kB",
+      warning   => $warning,
+      critical  => $critical,
+      min       => $min,
+      max       => $max,
+  );
+
+  # Parser
+  @perf = Nagios::Plugin::Performance->parse_perfstring(
+      "/=382MB;15264;15269;; /var=218MB;9443;9448"
+  ) 
+  or warn("Failed to parse perfstring");
+
+  # Accessors
+  for $p (@perf) {
+    printf "label:    %s\n",   $p->label;
+    printf "value:    %s\n",   $p->value;
+    printf "uom:      %s\n",   $p->uom;
+    printf "warning:  %s\n",   $p->warning;
+    printf "critical: %s\n",   $p->critical;
+    printf "min:      %s\n",   $p->min;
+    printf "max:      %s\n",   $p->max;
+    # Special accessor returning a threshold obj containing warning/critical
+    $threshold = $p->threshold;
   }
+
+  # Perfdata output format i.e. label=value[uom];[warn];[crit];[min];[max]
+  print $p->perfoutput;
+
 
 =head1 DESCRIPTION
 
-Handles common Nagios Plugin performance data. This has a public interface because it could be
-used by performance graphing routines, such as nagiostat (http://nagiostat.sourceforge.net),
-perfparse (http://perfparse.sourceforge.net), nagiosgraph (http://nagiosgraph.sourceforge.net) or
-NagiosGrapher (http://www.nagiosexchange.org/NagiosGrapher.84.0.html).
+Nagios::Plugin class for handling performance data. This is a public 
+interface because it could be used by performance graphing routines, 
+such as nagiostat (http://nagiostat.sourceforge.net), perfparse 
+(http://perfparse.sourceforge.net), nagiosgraph 
+(http://nagiosgraph.sourceforge.net) or NagiosGrapher 
+(http://www.nagiosexchange.org/NagiosGrapher.84.0.html).
 
-Once the performance string has been parsed, you can query the label, value, uom, or thresholds.
+Nagios::Plugin::Performance offers both a parsing interface (via 
+parse_perfstring), for turning nagios performance output strings into
+their components, and a composition interface (via new), for turning
+components into perfdata strings.
 
 =head1 CLASS METHODS
 
 =over 4
 
+=item Nagios::Plugin::Performance->new(%attributes)
+
+Instantiates a new Nagios::Plugin::Performance object with the given 
+attributes.
+
 =item Nagios::Plugin::Performance->parse_perfstring($string)
 
-Returns an array of Nagios::Plugin::Performance objects based on the string entered. 
-If there is an error parsing the string, an empty array is returned.
+Returns an array of Nagios::Plugin::Performance objects based on the string 
+entered. If there is an error parsing the string, an empty array is returned.
 
 =back
 
-=head1 OBJECT METHODS
+=head1 OBJECT METHODS (ACCESSORS)
 
 =over 4
 
-=item label, value, uom, min, max
+=item label, value, uom, warning, critical, min, max
 
 These all return scalars. min and max are not well supported yet.
 
-=item rrdlabel
-
-Returns a label that can be used for the dataset name of an RRD, ie, between 1-19
-characters long with characters [a-zA-Z0-9_].
-
-There is no guarantee that multiple N:P:Performance objects will have unique rrdlabels.
-
 =item threshold
 
-This returns a Nagios::Plugin::Threshold object.
+Returns a Nagios::Plugin::Threshold object holding the warning and critical 
+ranges for this performance data (if any).
+
+=item rrdlabel
+
+Returns a string based on 'label' that is suitable for use as dataset name of 
+an RRD i.e. munges label to be 1-19 characters long with only characters 
+[a-zA-Z0-9_].
+
+There is no guarantee that multiple N:P:Performance objects will have unique 
+rrdlabels.
+
+=item perfoutput
+
+Outputs the data in Nagios::Plugin perfdata format i.e. 
+label=value[uom];[warn];[crit];[min];[max].
 
 =back 
 
 =head1 SEE ALSO
 
-Nagios::Plugin for information about versioning.
-
-http://nagiosplug.sourceforge.net
+Nagios::Plugin, Nagios::Plugin::Threshold, http://nagiosplug.sourceforge.net.
 
 =head1 AUTHOR
 
-This code is maintained by the Nagios Plugin Development Team: http://nagiosplug.sourceforge.net
+This code is maintained by the Nagios Plugin Development Team: see
+http://nagiosplug.sourceforge.net.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006 Nagios Plugin Development Team
+Copyright (C) 2006-2007 Nagios Plugin Development Team
 
 This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.4 or,
-at your option, any later version of Perl 5 you may have available.
-
+it under the same terms as Perl itself. 
 
 =cut

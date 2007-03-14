@@ -16,9 +16,7 @@ t/Nagios-Plugin-Getopt-03.t
 t/Nagios-Plugin-Performance.t
 t/Nagios-Plugin-Range.t
 t/Nagios-Plugin-Threshold.t
-t/npg03/
 t/npg03/README
-t/npg03/expected/
 t/npg03/expected/00_basic
 t/npg03/expected/01_override1
 t/npg03/expected/02_override2
@@ -27,7 +25,6 @@ t/npg03/expected/06_singlechar2
 t/npg03/expected/07_singlechar3
 t/npg03/expected/09_funnystuff
 t/npg03/expected/12_nosection_implicit
-t/npg03/input/
 t/npg03/input/00_basic
 t/npg03/input/01_override1
 t/npg03/input/02_override2

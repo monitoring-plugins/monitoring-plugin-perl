@@ -1,6 +1,6 @@
 
 use strict;
-use Test::More tests => 49;
+use Test::More tests => 77;
 BEGIN { use_ok('Nagios::Plugin::Performance') };
 
 diag "\nusing Nagios::Plugin::Performance revision ". $Nagios::Plugin::Performance::VERSION . "\n" if $ENV{TEST_VERBOSE};
@@ -8,15 +8,55 @@ diag "\nusing Nagios::Plugin::Performance revision ". $Nagios::Plugin::Performan
 use Nagios::Plugin::Functions;
 Nagios::Plugin::Functions::_fake_exit(1);
 
-my @p = Nagios::Plugin::Performance->parse_perfstring("/=382MB;15264;15269;; /var=218MB;9443;9448");
+my (@p, $p);
+my @test = (
+  { 
+    perfoutput => "/=382MB;15264;15269;0;32768", label => '/', rrdlabel => 'root', value => 382, uom => 'MB', warning => 15264, critical => 15269, min => 0, max => 32768, 
+  }, {
+    perfoutput => "/var=218MB;9443;9448", label => '/var', rrdlabel => 'var', value => '218', uom => 'MB', warning => 9443, critical => 9448, min => undef, max => undef,
+  },
+);
+
+# Round-trip tests
+for my $t (@test) {
+    # Parse to components
+    ($p) = Nagios::Plugin::Performance->parse_perfstring($t->{perfoutput});
+    for (sort keys %$t) {
+        next if m/^perfoutput$/;
+        is($p->$_(), $t->{$_}, "$_ okay (" . (defined $t->{$_} ? $t->{$_} : 'undef')  . ")");
+    }
+
+    # Construct from components
+    my @construct = qw(label value uom warning critical min max);
+    $p = Nagios::Plugin::Performance->new(map { $_ => $t->{$_} } @construct);
+    is($p->perfoutput, $t->{perfoutput}, "perfoutput okay ($t->{perfoutput})");
+    # Check threshold accessor
+    is($p->threshold->warning->end, $t->{warning}, "threshold warning okay ($t->{warning})");
+    is($p->threshold->critical->end, $t->{critical}, "threshold critical okay ($t->{critical})");
+
+    # Construct using threshold
+    @construct = qw(label value uom min max);
+    $p = Nagios::Plugin::Performance->new(
+        map({ $_ => $t->{$_} } @construct), 
+        threshold => Nagios::Plugin::Threshold->set_thresholds(warning => $t->{warning}, critical => $t->{critical}),
+    );
+    is($p->perfoutput, $t->{perfoutput}, "perfoutput okay ($t->{perfoutput})");
+    # Check warning/critical accessors
+    is($p->warning, $t->{warning}, "warning okay ($t->{warning})");
+    is($p->critical, $t->{critical}, "critical okay ($t->{critical})");
+}
+
+
+# Test multiple parse_perfstrings
+@p = Nagios::Plugin::Performance->parse_perfstring("/=382MB;15264;15269;; /var=218MB;9443;9448");
 cmp_ok( $p[0]->label, 'eq', "/", "label okay");
 cmp_ok( $p[0]->rrdlabel, 'eq', "root", "rrd label okay");
 cmp_ok( $p[0]->value, '==', 382, "value okay");
 cmp_ok( $p[0]->uom, 'eq', "MB", "uom okay");
 cmp_ok( $p[0]->threshold->warning->end, "==", 15264, "warn okay");
 cmp_ok( $p[0]->threshold->critical->end, "==", 15269, "crit okay");
-ok( ! defined $p[0]->min, "min okay");
-ok( ! defined $p[0]->max, "max okay");
+ok(! defined $p[0]->min, "min undef");
+ok(! defined $p[0]->max, "max undef");
 
 cmp_ok( $p[1]->label, 'eq', "/var", "label okay");
 cmp_ok( $p[1]->rrdlabel, 'eq', "var", "rrd label okay");

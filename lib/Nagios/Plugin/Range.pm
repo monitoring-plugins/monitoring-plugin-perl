@@ -10,7 +10,7 @@ use Nagios::Plugin::Functions;
 our ($VERSION) = $Nagios::Plugin::Functions::VERSION;
 
 use overload
-        '""' => sub { shift->stringify };
+        '""' => sub { shift->_stringify };
 
 use Class::Struct;
 struct "Nagios::Plugin::Range" => {
@@ -24,7 +24,7 @@ struct "Nagios::Plugin::Range" => {
 use constant OUTSIDE => 0;
 use constant INSIDE => 1;
 
-sub stringify {
+sub _stringify {
 	my $self = shift;
 	return "" unless $self->is_set;
 	return (($self->alert_on) ? "@" : "") .
@@ -37,13 +37,13 @@ sub is_set {
 	(! defined $self->alert_on) ? 0 : 1;
 }
 
-sub set_range_start {
+sub _set_range_start {
 	my ($self, $value) = @_;
 	$self->start($value+0);	# Force scalar into number
 	$self->start_infinity(0);
 }
 
-sub set_range_end {
+sub _set_range_end {
 	my ($self, $value) = @_;
 	$self->end($value+0);	# Force scalar into number
 	$self->end_infinity(0);
@@ -71,13 +71,13 @@ sub parse_range_string {
 	}
 	if ( $string =~ m/^([\d\.-]+)?:/ ) {     # '10:'
 		my $start = $1;
-	    $range->set_range_start($start) if defined $start;
+	    $range->_set_range_start($start) if defined $start;
 		$range->end_infinity(1);  # overridden below if there's an end specified
 	    $string =~ s/^([-\d\.]+)?://;
 	    $valid++;
 	}
 	if ($string =~ /^([-\d\.]+)$/) {   # 'x:10' or '10'
-	    $range->set_range_end($string);
+	    $range->_set_range_end($string);
 	    $valid++;
 	}
 
@@ -124,23 +124,41 @@ __END__
 
 =head1 NAME
 
-Nagios::Plugin::Range - Common range functions for Nagios::Plugin
+Nagios::Plugin::Range - class for handling Nagios::Plugin range data.
+
+=head1 SYNOPSIS
+
+    # NB: This is an internal Nagios::Plugin class. 
+    # See Nagios::Plugin itself for public interfaces.
+
+    # Instantiate an empty range object
+    $r = Nagios::Plugin::Range->new; 
+
+    # Instantiate by parsing a standard nagios range string
+    $r = Nagios::Plugin::Range->parse_range_string;
+
+    # Returns true if the range is defined/non-empty
+    $r->is_set;
+
+    # Returns true if $value matches range, false otherwise
+    $r->check_range($value);
+
 
 =head1 DESCRIPTION
 
-Handles common Nagios Plugin range data. See Nagios::Plugin for creation interfaces.
+Internal Nagios::Plugin class for handling common range data. See 
+Nagios::Plugin for public interfaces.
 
 =head1 AUTHOR
 
-This code is maintained by the Nagios Plugin Development Team: http://nagiosplug.sourceforge.net
+This code is maintained by the Nagios Plugin Development Team: see
+http://nagiosplug.sourceforge.net.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006 Nagios Plugin Development Team
+Copyright (C) 2006-2007 Nagios Plugin Development Team
 
 This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.4 or,
-at your option, any later version of Perl 5 you may have available.
-
+it under the same terms as Perl itself.
 
 =cut

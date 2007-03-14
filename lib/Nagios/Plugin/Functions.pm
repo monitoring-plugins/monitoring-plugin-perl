@@ -343,8 +343,6 @@ If join_all is supplied, however, it will be used as a string to
 join the resultant critical, warning, and ok messages together i.e.
 all messages are joined and returned.
 
-=back
-
 =item get_shortname
 
 Return the default shortname used for this plugin i.e. the first
@@ -356,8 +354,6 @@ with any leading 'CHECK_' and trailing file suffixes removed.
 
 get_shortname is not exported by default, so must be explicitly
 imported.
-
-=back
 
 =item max_state(@a)
 

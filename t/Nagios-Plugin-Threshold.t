@@ -113,7 +113,7 @@ SKIP_DEATH:
 
 diag "threshold: critical if > 25 " if $ENV{TEST_VERBOSE};
 $t = Nagios::Plugin::Threshold->set_thresholds( critical => "~:25" );
-ok( defined $t, "Threshold ('', '~:25') set (".$t->critical->stringify().")" );
+ok( defined $t, "Threshold ('', '~:25') set (".$t->critical.")" );
 ok( ! $t->warning->is_set, "Warning not set");
 cmp_ok( $t->critical->end, '==',25, "Critical end set");
 ok $t->critical->start_infinity, "Critical starts at negative infinity";

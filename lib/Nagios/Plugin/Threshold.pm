@@ -58,38 +58,49 @@ __END__
 
 =head1 NAME
 
-Nagios::Plugin::Threshold - Threshold information in a perl object
+Nagios::Plugin::Threshold - class for handling Nagios::Plugin thresholds.
+
+=head1 SYNOPSIS
+
+    # NB: This is an internal Nagios::Plugin class.
+    # See Nagios::Plugin itself for public interfaces.
+  
+    # Constructor
+    $t = Nagios::Plugin::Threshold->set_thresholds(
+        warning  => $warning_range_string,
+        critical => $critical_range_string,
+    );
+
+    # Value checking - returns CRITICAL if in the critical range,
+    # WARNING if in the warning range, and OK otherwise
+    $status = $t->get_status($value);
+
+    # Accessors - return the associated N::P::Range object
+    $warning_range  = $t->warning;
+    $critical_range = $t->critical;
+
 
 =head1 DESCRIPTION
 
-Handles common Nagios Plugin threshold data. See Nagios::Plugin or Nagios::Plugin::Performance for 
-creation of this object.
+Internal Nagios::Plugin class for handling threshold data. See 
+Nagios::Plugin for public interfaces.
 
-=head1 OBJECT METHODS
+A threshold object contains (typically) a pair of ranges, associated 
+with a particular severity e.g.
 
-=over 4
-
-=item warning, critical
-
-Returns the warning or critical range as a Nagios::Plugin::Range object.
-
-=item get_status($value)
-
-Given a value, will see if the value breaches the critical or the warning range. Returns the status code.
-
-=back
+  warning  => range1
+  critical => range2
 
 =head1 AUTHOR
 
-This code is maintained by the Nagios Plugin Development Team: http://nagiosplug.sourceforge.net
+This code is maintained by the Nagios Plugin Development Team: see
+http://nagiosplug.sourceforge.net.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006 Nagios Plugin Development Team
+Copyright (C) 2006-2007 Nagios Plugin Development Team
 
 This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.4 or,
-at your option, any later version of Perl 5 you may have available.
-
+it under the same terms as Perl itself.
 
 =cut
