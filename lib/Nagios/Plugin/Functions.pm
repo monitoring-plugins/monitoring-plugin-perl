@@ -9,20 +9,21 @@ use strict;
 use warnings;
 use File::Basename;
 use Params::Validate qw(validate :types);
+use Math::Calc::Units;
 
 # Remember to update Nagios::Plugins as well
-our $VERSION = "0.15";
+our $VERSION = "0.16";
 
 our @STATUS_CODES = qw(OK WARNING CRITICAL UNKNOWN DEPENDENT);
 
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = (@STATUS_CODES, qw(nagios_exit nagios_die check_messages));
-our @EXPORT_OK = qw(%ERRORS %STATUS_TEXT @STATUS_CODES get_shortname max_state);
+our @EXPORT_OK = qw(%ERRORS %STATUS_TEXT @STATUS_CODES get_shortname max_state convert);
 our %EXPORT_TAGS = (
     all => [ @EXPORT, @EXPORT_OK ],
     codes => [ @STATUS_CODES ],
-    functions => [ qw(nagios_exit nagios_die check_messages max_state) ],
+    functions => [ qw(nagios_exit nagios_die check_messages max_state convert) ],
 );
 
 use constant OK         => 0;
@@ -148,6 +149,17 @@ sub nagios_die {
 # For backwards compatibility
 sub die { nagios_die(@_); }
 
+
+# ------------------------------------------------------------------------
+# Utility functions
+
+# Simple wrapper around Math::Calc::Units::convert
+sub convert
+{
+    my ($value, $from, $to) = @_;
+    my ($newval) = Math::Calc::Units::convert("$value $from", $to, 'exact');
+    return $newval;
+}
 
 # ------------------------------------------------------------------------
 # check_messages - return a status and/or message based on a set of 

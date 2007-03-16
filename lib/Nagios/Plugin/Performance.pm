@@ -7,7 +7,7 @@ use warnings;
 
 use Carp;
 use base qw(Class::Accessor::Fast);
-Nagios::Plugin::Performance->mk_ro_accessors(
+__PACKAGE__->mk_ro_accessors(
     qw(label value uom warning critical min max)
 );
 

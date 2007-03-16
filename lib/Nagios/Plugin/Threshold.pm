@@ -5,55 +5,75 @@ use 5.006;
 use strict;
 use warnings;
 
+use base qw(Class::Accessor::Fast);
+__PACKAGE__->mk_accessors(qw(warning critical));
+
 use Nagios::Plugin::Range;
 use Nagios::Plugin::Functions qw(:codes nagios_die);
 our ($VERSION) = $Nagios::Plugin::Functions::VERSION;
 
-use Class::Struct;
-struct "Nagios::Plugin::Threshold" => {
-	warning => 'Nagios::Plugin::Range',
-	critical => 'Nagios::Plugin::Range',
-	};
-
-sub set_thresholds {
-	my ($class, %args) = @_;
-	my $t = $class->new( warning => Nagios::Plugin::Range->new, critical => Nagios::Plugin::Range->new );
-	if (defined $args{warning}) {
-		my $r = Nagios::Plugin::Range->parse_range_string($args{warning});
-		if (defined $r) {
-			$t->warning($r);
-		} else {
-			nagios_die( "Warning range incorrect: '$args{warning}'" );
-		}
-	}
-	if (defined $args{critical}) {
-		my $r = Nagios::Plugin::Range->parse_range_string($args{critical});
-		if (defined $r) {
-			$t->critical($r);
-		} else {
-			nagios_die( "Critical range incorrect: '$args{critical}'" );
-		}
-	}
-	return $t;
-}
-
-sub get_status {
+sub get_status 
+{
 	my ($self, $value) = @_;
 
 	if ($self->critical->is_set) {
-		if ($self->critical->check_range($value) == 1) {
-			return CRITICAL;
-		}
+		return CRITICAL if $self->critical->check_range($value);
 	}
 	if ($self->warning->is_set) {
-		if ($self->warning->check_range($value) == 1) {
-			return WARNING;
-		}
+		return WARNING if $self->warning->check_range($value);
 	}
 	return OK;
 }
+
+sub _inflate
+{
+    my ($self, $value, $key) = @_;
+
+    # Return an undefined range if $value is undef
+    return Nagios::Plugin::Range->new if ! defined $value;
+
+    # For refs, check isa N::P::Range
+    if (ref $value) {
+        nagios_die("Invalid $key object: type " . ref $value)
+            unless $value->isa("Nagios::Plugin::Range");
+        return $value;
+    }
+
+    # Otherwise parse $value
+    my $range = Nagios::Plugin::Range->parse_range_string($value) 
+        or nagios_die("Cannot parse $key range: '$value'");
+    return $range;
+}
+
+sub set_thresholds
+{
+	my ($self, %arg) = @_;
+
+    # Equals new() as a class method
+    return $self->new(%arg) unless ref $self;
+
+    # On an object, just acts as special mutator
+    $self->set($_, $arg{$_}) foreach qw(warning critical);
+}
+
+sub set
+{
+    my $self = shift;
+    my ($key, $value) = @_;
+    $self->SUPER::set($key, $self->_inflate($value, $key));
+}
 		
+# Constructor - inflate scalars to N::P::Range objects
+sub new 
+{
+    my ($self, %arg) = @_;
+    $self->SUPER::new({
+        map { $_ => $self->_inflate($arg{$_}, $_) } qw(warning critical)
+    });
+}
+
 1;
+
 __END__
 
 =head1 NAME

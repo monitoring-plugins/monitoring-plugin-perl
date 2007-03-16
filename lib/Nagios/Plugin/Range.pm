@@ -4,7 +4,12 @@ use 5.006;
 
 use strict;
 use warnings;
+
 use Carp;
+use base qw(Class::Accessor::Fast);
+__PACKAGE__->mk_accessors(
+    qw(start end start_infinity end_infinity alert_on)
+);
 
 use Nagios::Plugin::Functions;
 our ($VERSION) = $Nagios::Plugin::Functions::VERSION;
@@ -12,15 +17,7 @@ our ($VERSION) = $Nagios::Plugin::Functions::VERSION;
 use overload
         '""' => sub { shift->_stringify };
 
-use Class::Struct;
-struct "Nagios::Plugin::Range" => {
-	start => '$',
-	end => '$',
-	start_infinity => '$',	# TRUE / FALSE
-	end_infinity => '$',	# TRUE / FALSE
-	alert_on => '$',	# OUTSIDE 0, INSIDE 1, not defined == range not set
-	};
-
+# alert_on constants (undef == range not set)
 use constant OUTSIDE => 0;
 use constant INSIDE => 1;
 
@@ -119,7 +116,14 @@ sub check_range {
 	}
 }
 
+# Constructor - map args to hashref for SUPER
+sub new 
+{
+    shift->SUPER::new({ @_ });
+}
+
 1;
+
 __END__
 
 =head1 NAME
@@ -135,7 +139,7 @@ Nagios::Plugin::Range - class for handling Nagios::Plugin range data.
     $r = Nagios::Plugin::Range->new; 
 
     # Instantiate by parsing a standard nagios range string
-    $r = Nagios::Plugin::Range->parse_range_string;
+    $r = Nagios::Plugin::Range->parse_range_string( $range_str );
 
     # Returns true if the range is defined/non-empty
     $r->is_set;

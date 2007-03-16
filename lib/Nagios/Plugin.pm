@@ -22,8 +22,7 @@ our @ISA = qw(Exporter);
 our @EXPORT = (@STATUS_CODES);
 our @EXPORT_OK = qw(%ERRORS);
 
-# Remember to update Nagios::Plugin::Functions as well!
-our $VERSION = "0.15";
+our $VERSION = $Nagios::Plugin::Functions::VERSION;
 
 sub new {
 	my $class = shift;

@@ -1,7 +1,6 @@
 
 use strict;
-use Test::More tests => 71;
-#use Test::Exception;  # broken for now so we don't need this.
+use Test::More tests => 87;
 BEGIN { 
   use_ok('Nagios::Plugin::Threshold'); 
   use_ok('Nagios::Plugin::Functions', ':all' );
@@ -37,19 +36,31 @@ sub test_expected_statuses {
     my $debug = shift;
 
     foreach (sort {$a<=>$b} keys %$expected) {
-    is $STATUS_TEXT{$t->get_status($_)}, $expected->{$_}, "    $_ - $expected->{$_}";
-    if ($debug) {
-        diag "val = $_; critical check = ".$t->critical->check_range($_).
-        "; warning check = ".$t->warning->check_range($_);
-    }
+        is $STATUS_TEXT{$t->get_status($_)}, $expected->{$_}, "  $_ - $expected->{$_}";
+        if ($debug) {
+            diag "val = $_; critical check = ".$t->critical->check_range($_).
+                "; warning check = ".$t->warning->check_range($_);
+        }
     }
     use Data::Dumper;
     diag "thresh dump: ". Dumper $t if $debug;
 }
 test_expected_statuses( $t, $expected );
 
+# GMC: this test seems bogus to me - either we've died, in which case internal 
+# state is undefined (and untestable!), or we should be returning a non-fatal error
+if (0) {
+  diag "threshold: warn if less than 5 or more than 33." if $ENV{TEST_VERBOSE};
+  eval { $t = Nagios::Plugin::Threshold->set_thresholds(warning => "5:33", critical => "") };
+  ok( defined $t, "Threshold ('5:33', '') set");
+  cmp_ok( $t->warning->start, '==', 5, "Warning start set");
+  cmp_ok( $t->warning->end, '==',   33, "Warning end set");
+  ok( ! $t->critical->is_set, "Critical not set");
+}
+
+# GC: same as previous test, except critical is undef instead of ''
 diag "threshold: warn if less than 5 or more than 33." if $ENV{TEST_VERBOSE};
-eval { $t = Nagios::Plugin::Threshold->set_thresholds(warning => "5:33", critical => "") };
+$t = Nagios::Plugin::Threshold->set_thresholds(warning => "5:33", critical => undef);
 ok( defined $t, "Threshold ('5:33', '') set");
 cmp_ok( $t->warning->start, '==', 5, "Warning start set");
 cmp_ok( $t->warning->end, '==',   33, "Warning end set");
@@ -87,7 +98,6 @@ $expected = { qw(
    10231            CRITICAL
 ) };
 test_expected_statuses( $t, $expected );
-
 
 # "I'm going to die homeless, penniless, and 30 pounds overweight."
 # "...and that's...okay."
@@ -162,5 +172,38 @@ $expected = { qw(
     31001           OK
 ) };
 test_expected_statuses( $t, $expected );
+
+
+# GMC: as of 0.16, set_thresholds can also be called as a mutator
+diag "threshold mutator: warn if more than 30; critical if > 60" 
+  if $ENV{TEST_VERBOSE};
+my $t1 = $t;
+$t->set_thresholds(warning => "0:45", critical => "0:90");
+is($t1, $t, "same threshold object after \$t->set_thresholds");
+ok( defined $t, "Threshold ('0:45', '0:90') set");
+is( $t->warning->start,  0, "Warning start ok");
+is( $t->warning->end,   45, "Warning end ok");
+is( $t->critical->start, 0, "Critical start ok");
+is( $t->critical->end,  90, "Critical end ok");
+
+
+# Also as of 0.16, accepts N::P::Range objects as arguments
+my $warning  = Nagios::Plugin::Range->parse_range_string("50");
+my $critical = Nagios::Plugin::Range->parse_range_string("70:90");
+$t = Nagios::Plugin::Threshold->set_thresholds(warning => $warning, critical => $critical);
+ok( defined $t, "Threshold from ranges ('50', '70:90') set");
+is( $t->warning->start,   0, "Warning start ok");
+is( $t->warning->end,    50, "Warning end ok");
+is( $t->critical->start, 70, "Critical start ok");
+is( $t->critical->end,   90, "Critical end ok");
+
+$critical = Nagios::Plugin::Range->parse_range_string("90:");
+$t->set_thresholds(warning => "~:20", critical => $critical);
+ok( defined $t, "Threshold from string + range ('~:20', '90:') set");
+ok( $t->warning->start_infinity, "Warning start ok (infinity)");
+is( $t->warning->end,    20, "Warning end ok");
+is( $t->critical->start, 90, "Critical start ok");
+ok( $t->critical->end_infinity, "Critical end ok (infinity)");
+
 
 ok 1, "sweet, made it to the end.";

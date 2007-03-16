@@ -5,18 +5,20 @@
 use strict;
 #use Test::More 'no_plan';
 use Test::More tests=>26;
-use Test::Exception;
 
 BEGIN { use_ok('Nagios::Plugin') };
 use Nagios::Plugin::Functions;
 Nagios::Plugin::Functions::_fake_exit(1);
 
 
-lives_ok sub { my $broke = Nagios::Plugin->new(); }, "constructor DOESN'T die without usage";
+eval { Nagios::Plugin->new(); };
+ok(! $@, "constructor DOESN'T die without usage");
 
 my $p = Nagios::Plugin->new();
-dies_ok sub { $p->add_arg('warning', 'warning') }, "add_arg() dies if you haven't instantiated with usage";
-dies_ok sub { $p->getopts }, "getopts()  dies if you haven't instantiated with usage";
+eval { $p->add_arg('warning', 'warning') };
+ok($@, "add_arg() dies if you haven't instantiated with usage");
+eval { $p->getopts };
+ok($@, "getopts() dies if you haven't instantiated with usage");
 
 $p = Nagios::Plugin->new( usage => "dummy usage statement" );
 
@@ -41,7 +43,8 @@ can_ok $p, 'threshold';
 #isa_ok $p->threshold, 'Nagios::Plugin::Threshold', "threshold object is defined";
 
 
-dies_ok sub { $p->check_threshold() }, "check_threshold dies if called with no args";
+eval { $p->check_threshold() };
+ok($@,  "check_threshold dies if called with no args");
 
 
 # thresholds set implicitly
