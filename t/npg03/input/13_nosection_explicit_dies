@@ -1,1 +1,1 @@
-check_no_section --default-opts= -H localhost
+check_no_section --extra-opts= -H localhost

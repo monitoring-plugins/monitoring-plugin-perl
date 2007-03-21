@@ -1,0 +1,1 @@
+check_disk -p /tmp -p /home -p /users

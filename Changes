@@ -1,10 +1,10 @@
 Revision history for Perl module Nagios::Plugin.
 
 0.16   ??
-  - perldoc updates to Performance, Threshold, and Range (Gavin)
-  - remove default use of Threshold from N::P::Performance (Gavin)
-  - remove remaining Class::Struct usages from Threshold + Range (Gavin)
-  - remove remaining Class::Struct usages from Performance (Gavin)
+  - added automatic spec-to-help-text support to N::P::Getopt (Gavin)
+  - added initial --extra-opts support to N::P::Getopt (Gavin)
+  - removed default use of Threshold from N::P::Performance (Gavin)
+  - removed remaining Class::Struct usages from Performance, Threshold, and Range (Gavin)
   - fixed warnings when no uom specified for add_perfdata (Ton)
   - added max_state function in N::P::Functions (Ton)
 

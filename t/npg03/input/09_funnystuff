@@ -1,1 +1,1 @@
-check_disk --default-opts=funny_stuff
+check_disk --extra-opts=funny_stuff

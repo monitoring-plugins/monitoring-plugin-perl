@@ -27,8 +27,8 @@ sub setup
   
   # Add argument - named version
   $ng->arg(
-    spec => 'critical|c=s',
-    help => qq(-c, --critical=INTEGER\n   Exit with CRITICAL status if less than INTEGER foobars are free),
+    spec => 'critical|c=i',
+    help => qq(Exit with CRITICAL status if less than INTEGER foobars are free),
     required => 1,
   );
 
@@ -104,6 +104,7 @@ like($@, qr/$PARAM{version}/, 'version info includes version');
 like($@, qr/$PARAM{url}/, 'version info includes url');
 unlike($@, qr/Usage:/, 'no usage message');
 unlike($@, qr/Missing arg/, 'no missing arguments');
+
 @ARGV = ( '--version' );
 $ng = setup;
 ok(! defined eval { $ng->getopts }, 'getopts died on version');
@@ -128,6 +129,7 @@ like($@, qr/--verbose/, 'help includes default options 2');
 like($@, qr/--warning/, 'help includes custom option 1');
 like($@, qr/--critical/, 'help includes custom option 2');
 unlike($@, qr/Missing arg/, 'no missing arguments');
+
 @ARGV = ( '--help' );
 $ng = setup;
 ok(! defined eval { $ng->getopts }, 'getopts died on help');
@@ -140,6 +142,6 @@ like($@, qr/Usage:/, 'help includes usage message');
 like($@, qr/--version/, 'help includes default options 1');
 like($@, qr/--verbose/, 'help includes default options 2');
 like($@, qr/--warning/, 'help includes custom option 1');
-like($@, qr/--critical/, 'help includes custom option 2');
+like($@, qr/-c, --critical=INTEGER/, 'help includes custom option 2, with expanded args');
 unlike($@, qr/Missing arg/, 'no missing arguments');
 

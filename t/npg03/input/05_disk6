@@ -1,0 +1,1 @@
+check_disk2 --warning=10% --critical=5% --extra-opts= --path=/usr

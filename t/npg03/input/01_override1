@@ -1,1 +1,1 @@
-check_mysql --username=admin --default-opts=more_options --warning=5
+check_mysql --username=admin --extra-opts=more_options --warning=5

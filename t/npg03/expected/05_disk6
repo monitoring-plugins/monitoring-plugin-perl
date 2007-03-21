@@ -1,0 +1,1 @@
+check_disk2 --critical=5% --path=/var --path=/home --path=/usr --units=GB --warning=10%

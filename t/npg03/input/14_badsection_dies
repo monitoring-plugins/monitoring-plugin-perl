@@ -1,1 +1,1 @@
-check_no_section --default-opts=bad_section
+check_no_section --extra-opts=bad_section

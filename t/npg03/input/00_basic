@@ -1,1 +1,1 @@
-check_mysql -S --default-opts= --default-opts=more_options -H localhost
+check_mysql -S --extra-opts= --extra-opts=more_options -H localhost

@@ -1,4 +1,4 @@
-# Nagios::Plugin::Getopt --default-opts tests
+# Nagios::Plugin::Getopt --extra-opts tests
 
 use strict;
 use File::Spec;
@@ -27,7 +27,8 @@ for my $efile (glob File::Spec->catfile($tdir, 'expected', '*')) {
   }
 }
 
-$Nagios::Plugin::Getopt::DEFAULT_CONFIG_FILE = File::Spec->catfile($tdir, 'plugins.cfg');
+# Override NAGIOS_CONFIG_PATH to use our test plugins.ini file
+$ENV{NAGIOS_CONFIG_PATH} = "/random/bogus/path:$tdir";
 
 my %PARAM = (
     version => '0.01',
@@ -56,14 +57,18 @@ my $arg = [
   { spec => 'S',            help => '-S' },
   { spec => 'H=s',          help => '-H' },
   { spec => 'p=s@',         help => '-p' },
+  { spec => 'path=s@',      help => '--path' },
   { spec => 'username|u=s', help => '--username' },
   { spec => 'password=s',   help => '--password' },
-  { spec => 'critical=i',   help => '--critical' },
-  { spec => 'warning=i',    help => '--warning' },
+  { spec => 'critical=s',   help => '--critical' },
+  { spec => 'warning=s',    help => '--warning' },
   { spec => 'expect=s',     help => '--expect' },
+  { spec => 'units=s',      help => '--units' },
 ];
 
-my %SKIP = map { $_ => 1 } qw(05_singlechar1 07_singlechar3);
+#my %SKIP = map { $_ => 1 } qw(05_singlechar1 07_singlechar3);
+#my %SKIP = map { $_ => 1 } qw(06_singlechar2);
+my %SKIP = ();
 
 # Process all test cases in $tdir/input
 my $glob = $ARGV[0] || '*';
@@ -82,7 +87,7 @@ for my $infile (glob File::Spec->catfile($tdir, 'input', $glob)) {
     
     # Parse the options
     SKIP: {
-      skip "Still discussing how overrides with multiple arguments should work ...", 1 if $SKIP{$infile};
+      skip "Skipping ..." if $SKIP{$infile};
 
       @ARGV = @args;
       eval { $ng->getopts };

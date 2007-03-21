@@ -1,6 +1,5 @@
 
 # tests for toplevel access to Threshold and GetOpts stuff
-# $Id$
 
 use strict;
 #use Test::More 'no_plan';
