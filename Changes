@@ -1,6 +1,7 @@
 Revision history for Perl module Nagios::Plugin.
 
 0.16   ??
+  - added support for multi-entry help output (e.g. two separate help entries for --warning) (Gavin)
   - added automatic spec-to-help-text support to N::P::Getopt (Gavin)
   - added initial --extra-opts support to N::P::Getopt (Gavin)
   - removed default use of Threshold from N::P::Performance (Gavin)
