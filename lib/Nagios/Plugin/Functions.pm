@@ -46,13 +46,6 @@ our %STATUS_TEXT = reverse %ERRORS;
 my $_fake_exit = 0;
 sub _fake_exit { @_ ? $_fake_exit = shift : $_fake_exit };
 
-# Tweak default die handling: die is cool because it allows capturing both return codes and 
-# output via eval, but the Nagios Plugin Guidelines like STDOUT over STDERR
-$SIG{__DIE__} = sub {
-    print STDOUT shift;
-    exit $!;
-};
-
 sub get_shortname {
     my %arg = @_;
 
