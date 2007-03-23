@@ -22,7 +22,10 @@ our @ISA = qw(Exporter);
 our @EXPORT = (@STATUS_CODES);
 our @EXPORT_OK = qw(%ERRORS);
 
-our $VERSION = $Nagios::Plugin::Functions::VERSION;
+# CPAN stupidly won't index this module without a literal $VERSION here,
+#   so we're forced to duplicate it explicitly
+our $VERSION = 0.17;
+# our $VERSION = $Nagios::Plugin::Functions::VERSION;
 
 sub new {
 	my $class = shift;

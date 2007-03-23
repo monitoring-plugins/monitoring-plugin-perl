@@ -1,6 +1,9 @@
 Revision history for Perl module Nagios::Plugin.
 
-0.16   ??
+0.17  23rd March 2007
+  - bump version number again due to cpan indexing stupidity (Gavin)
+
+0.16  23rd March 2007
   - added support for multi-entry help output (e.g. two separate help entries for --warning) (Gavin)
   - added automatic spec-to-help-text support to N::P::Getopt (Gavin)
   - added initial --extra-opts support to N::P::Getopt (Gavin)

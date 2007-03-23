@@ -1,7 +1,7 @@
 # http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         Nagios-Plugin
-version:      0.16
+version:      0.17
 version_from: lib/Nagios/Plugin/Functions.pm
 installdirs:  site
 requires:
