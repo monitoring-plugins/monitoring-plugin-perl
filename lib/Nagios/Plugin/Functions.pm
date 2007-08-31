@@ -46,6 +46,10 @@ our %STATUS_TEXT = reverse %ERRORS;
 my $_fake_exit = 0;
 sub _fake_exit { @_ ? $_fake_exit = shift : $_fake_exit };
 
+# _use_die flag and accessor/mutator, so exceptions can be raised correctly
+my $_use_die = 0;
+sub _use_die { @_ ? $_use_die = shift : $_use_die };
+
 sub get_shortname {
     my %arg = @_;
 
@@ -115,9 +119,14 @@ sub nagios_exit {
         return Nagios::Plugin::ExitResult->new($code, $output);
     }
 
-    # Print output and exit
-    print $output;
-    exit $code;
+    # Print output and exit; die if called via nagios_die and flag set
+    if($_use_die && (caller(1))[3] =~ m/die/) {
+        $!=$code;
+        die($output);
+    } else {
+        print $output;
+        exit $code;
+    }
 }
 
 # nagios_die( $message, [ $code ])   OR   nagios_die( $code, $message )
@@ -297,7 +306,8 @@ form "PLUGIN CODE - $message".
 =item nagios_die( $message, [CODE] )
 
 Same as nagios_exit(), except that CODE is optional, defaulting
-to UNKNOWN.
+to UNKNOWN.  NOTE: exceptions are not raised by default to calling code.
+Set C<$_use_die> flag if this functionality is required (see test code).
 
 =item check_messages( critical => \@crit, warning => \@warn )
 

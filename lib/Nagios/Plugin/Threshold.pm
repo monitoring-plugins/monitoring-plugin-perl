@@ -40,8 +40,8 @@ sub _inflate
     }
 
     # Otherwise parse $value
-    my $range = Nagios::Plugin::Range->parse_range_string($value) 
-        or nagios_die("Cannot parse $key range: '$value'");
+    my $range = Nagios::Plugin::Range->parse_range_string($value);
+    nagios_die("Cannot parse $key range: '$value'") unless(defined($range));
     return $range;
 }
 

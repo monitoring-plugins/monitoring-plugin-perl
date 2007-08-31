@@ -1,6 +1,6 @@
 
 use strict;
-use Test::More tests => 77;
+use Test::More tests => 84;
 BEGIN { use_ok('Nagios::Plugin::Performance') };
 
 diag "\nusing Nagios::Plugin::Performance revision ". $Nagios::Plugin::Performance::VERSION . "\n" if $ENV{TEST_VERBOSE};
@@ -120,5 +120,17 @@ cmp_ok( $p[0]->rrdlabel, "eq", "home_a_m", "changing / to _");
 cmp_ok( $p[1]->rrdlabel, "eq", "shared_folder_big", "replacing bad characters");
 cmp_ok( $p[2]->rrdlabel, "eq", "1234567890123456789", "shortening rrd label");
 
+# turn off fake_exit and enable use_die so we pick up on errors via nagios_die
+Nagios::Plugin::Functions::_use_die(1);
+Nagios::Plugin::Functions::_fake_exit(0);
+
+@p = Nagios::Plugin::Performance->parse_perfstring("time=0.002722s;0.000000;0.000000;0.000000;10.000000");
+cmp_ok( $p[0]->label, "eq", "time", "label okay");
+cmp_ok( $p[0]->value, "eq", "0.002722", "value okay");
+cmp_ok( $p[0]->uom, "eq", "s", "uom okay");
+    ok( defined $p[0]->threshold->warning->is_set, "Warning range has been set"); 
+    ok( defined $p[0]->threshold->critical->is_set, "Critical range has been set");
+cmp_ok( $p[0]->threshold->warning, 'eq', "0", "warn okay");
+cmp_ok( $p[0]->threshold->critical, 'eq', "0", "crit okay");
 
 # add_perfdata tests in t/Nagios-Plugin-01.t

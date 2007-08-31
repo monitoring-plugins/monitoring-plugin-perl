@@ -476,7 +476,8 @@ form "SHORTNAME CODE - $message".
 =item nagios_die( $message, [<CODE>] )
 
 Same as nagios_exit(), except that CODE is optional, defaulting
-to UNKNOWN.
+to UNKNOWN.  NOTE: exceptions are not raised by default to calling code.
+Set C<$_use_die> flag if this functionality is required (see test code).
 
 =item die( $message, [<CODE>] )
 

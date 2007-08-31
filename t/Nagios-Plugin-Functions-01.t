@@ -1,6 +1,6 @@
 
 use strict;
-use Test::More tests => 112;
+use Test::More tests => 113;
 
 BEGIN { use_ok("Nagios::Plugin::Functions", ":all"); }
 Nagios::Plugin::Functions::_fake_exit(1);
@@ -154,3 +154,8 @@ for (@ok) {
             $_->[1] . '.*' . $_->[2]));
 }
 
+# Check that _use_die set to 1 will catch exceptions correctly
+Nagios::Plugin::Functions::_fake_exit(0);
+Nagios::Plugin::Functions::_use_die(1);
+eval { nagios_die("Using die") };
+is( $@, "NAGIOS-PLUGIN-FUNCTIONS-01 UNKNOWN - Using die\n", "Caught exception");
