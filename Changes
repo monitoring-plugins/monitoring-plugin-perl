@@ -1,9 +1,10 @@
 Revision history for Perl module Nagios::Plugin.
 
-0.18 ??
+0.18  31st August 2007
   - Fix error when parsing performance data where warn or crit are 0
   - Optional _use_die flag to force nagios_die to call die instead of exit, so
     exceptions can be caught with an eval
+  - Convenience function to set use_die so you can run 'use Nagios::Plugin::Performance use_die => 1'
 
 0.17  23rd March 2007
   - bump version number again due to cpan indexing stupidity (Gavin)

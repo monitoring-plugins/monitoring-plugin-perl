@@ -16,6 +16,12 @@ use Nagios::Plugin::Threshold;
 use Nagios::Plugin::Range;
 our ($VERSION) = $Nagios::Plugin::Functions::VERSION;
 
+sub import {
+	my ($class, %attr) = @_;
+	$_ = $attr{use_die} || 0;
+	Nagios::Plugin::Functions::_use_die($_);
+}
+
 sub _parse {
 	my $class = shift;
 	my $string = shift;
@@ -112,7 +118,7 @@ performance data.
 
 =head1 SYNOPSIS
 
-  use Nagios::Plugin::Performance;
+  use Nagios::Plugin::Performance use_die => 1;
 
   # Constructor (also accepts a 'threshold' obj instead of warning/critical)
   $p = Nagios::Plugin::Performance->new(
@@ -161,6 +167,14 @@ Nagios::Plugin::Performance offers both a parsing interface (via
 parse_perfstring), for turning nagios performance output strings into
 their components, and a composition interface (via new), for turning
 components into perfdata strings.
+
+=head1 USE'ING THE MODULE
+
+If you are using this module for the purposes of parsing perf data, you
+will probably want to set use_die => 1 at use time. This forces
+&Nagios::Plugin::Functions::nagios_exit to call die() - rather than exit() -
+when an error occurs. This is then trappable by an eval. If you don't set use_die,
+then an error in these modules will cause your script to exit
 
 =head1 CLASS METHODS
 
