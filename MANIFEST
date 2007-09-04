@@ -1,15 +1,18 @@
 Changes
-Makefile.PL
-MANIFEST
-META.yml
-README
 lib/Nagios/Plugin.pm
+lib/Nagios/Plugin/Config.pm
+lib/Nagios/Plugin/ExitResult.pm
+lib/Nagios/Plugin/Functions.pm
+lib/Nagios/Plugin/Getopt.pm
 lib/Nagios/Plugin/Performance.pm
 lib/Nagios/Plugin/Range.pm
 lib/Nagios/Plugin/Threshold.pm
-lib/Nagios/Plugin/Functions.pm
-lib/Nagios/Plugin/Getopt.pm
-lib/Nagios/Plugin/ExitResult.pm
+Makefile.PL
+MANIFEST			This list of files
+META.yml
+README
+t/check_stuff.pl
+t/check_stuff.t
 t/Nagios-Plugin-01.t
 t/Nagios-Plugin-02.t
 t/Nagios-Plugin-03.t
@@ -21,12 +24,10 @@ t/Nagios-Plugin-Getopt-01.t
 t/Nagios-Plugin-Getopt-02.t
 t/Nagios-Plugin-Getopt-03.t
 t/Nagios-Plugin-Getopt-04.t
+t/Nagios-Plugin-Performance-02.t
 t/Nagios-Plugin-Performance.t
 t/Nagios-Plugin-Range.t
 t/Nagios-Plugin-Threshold.t
-t/check_stuff.pl
-t/check_stuff.t
-t/npg03/README
 t/npg03/expected/00_basic
 t/npg03/expected/00_noextra
 t/npg03/expected/01_override1
@@ -54,3 +55,4 @@ t/npg03/input/12_nosection_implicit
 t/npg03/input/13_nosection_explicit_dies
 t/npg03/input/14_badsection_dies
 t/npg03/plugins.ini
+t/npg03/README

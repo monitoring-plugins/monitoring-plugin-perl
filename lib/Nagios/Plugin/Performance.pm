@@ -25,7 +25,7 @@ sub import {
 sub _parse {
 	my $class = shift;
 	my $string = shift;
-	$string =~ s/^([^=]+)=([\d\.]+)(\w*);?([\d\.]+)?;?([\d\.]+)?;?([\d\.]+)?;?([\d\.]+)?\s*//;
+	$string =~ s/^([^=]+)=([\d\.]+)([\w%]*);?([\d\.]+)?;?([\d\.]+)?;?([\d\.]+)?;?([\d\.]+)?\s*//;
 	return undef unless ((defined $1 && $1 ne "") && (defined $2 && $2 ne ""));
     my $p = $class->new(
         label => $1, value => $2+0, uom => $3, warning => $4, critical => $5, 

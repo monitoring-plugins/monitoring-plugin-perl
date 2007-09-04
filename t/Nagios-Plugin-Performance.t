@@ -1,6 +1,6 @@
 
 use strict;
-use Test::More tests => 84;
+use Test::More tests => 91;
 BEGIN { use_ok('Nagios::Plugin::Performance') };
 
 diag "\nusing Nagios::Plugin::Performance revision ". $Nagios::Plugin::Performance::VERSION . "\n" if $ENV{TEST_VERBOSE};
@@ -132,5 +132,14 @@ cmp_ok( $p[0]->uom, "eq", "s", "uom okay");
     ok( defined $p[0]->threshold->critical->is_set, "Critical range has been set");
 cmp_ok( $p[0]->threshold->warning, 'eq', "0", "warn okay");
 cmp_ok( $p[0]->threshold->critical, 'eq', "0", "crit okay");
+
+@p = Nagios::Plugin::Performance->parse_perfstring("pct_used=73.7%;90;95");
+cmp_ok( $p[0]->label, "eq", "pct_used", "label okay");
+cmp_ok( $p[0]->value, "eq", "73.7", "value okay");
+cmp_ok( $p[0]->uom, "eq", "%", "uom okay");
+    ok( defined eval { $p[0]->threshold->warning->is_set }, "Warning range has been set");
+    ok( defined eval { $p[0]->threshold->critical->is_set }, "Critical range has been set");
+cmp_ok( $p[0]->threshold->warning, 'eq', "90", "warn okay");
+cmp_ok( $p[0]->threshold->critical, 'eq', "95", "crit okay");
 
 # add_perfdata tests in t/Nagios-Plugin-01.t

@@ -1,5 +1,10 @@
 Revision history for Perl module Nagios::Plugin.
 
+0.19  4th September 2007
+  - Fix test failures due to bad MANIFEST file
+  - Fixed performance parsing where uom = %
+  - Fixed version numbering
+
 0.18  31st August 2007
   - Fix error when parsing performance data where warn or crit are 0
   - Optional _use_die flag to force nagios_die to call die instead of exit, so
