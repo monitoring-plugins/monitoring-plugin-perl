@@ -1,5 +1,8 @@
 Revision history for Perl module Nagios::Plugin.
 
+0.20  5th September 2007
+  - Version bump because of CPAN permission problems
+
 0.19  4th September 2007
   - Fix test failures due to bad MANIFEST file
   - Fixed performance parsing where uom = %

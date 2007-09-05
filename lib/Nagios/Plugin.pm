@@ -25,7 +25,7 @@ our @EXPORT_OK = qw(%ERRORS);
 # CPAN stupidly won't index this module without a literal $VERSION here,
 #   so we're forced to duplicate it explicitly
 # Make sure you update $Nagios::Plugin::Functions::VERSION too
-our $VERSION = 0.19;
+our $VERSION = "0.20";
 # our $VERSION = $Nagios::Plugin::Functions::VERSION;
 
 sub new {
@@ -227,7 +227,7 @@ __END__
 
 =head1 NAME
 
-Nagios::Plugin - a family of perl modules to streamline writing Nagios 
+Nagios::Plugin - A family of perl modules to streamline writing Nagios 
 plugins
 
 =head1 SYNOPSIS
