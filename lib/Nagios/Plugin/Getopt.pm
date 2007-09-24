@@ -60,9 +60,7 @@ sub _die
   my $self = shift;
   my ($msg) = @_;
   $msg .= "\n" unless substr($msg, -1) eq "\n";
-  # Set errno to UNKNOWN for die return code
-  local $! = 3;
-  die $msg;
+  Nagios::Plugin::Functions::_nagios_exit(3, $msg);
 }
 
 # Return the given attribute, if set, including a final newline

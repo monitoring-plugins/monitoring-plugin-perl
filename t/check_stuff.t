@@ -2,7 +2,7 @@
 # 
 use strict; use warnings;
 #use Test::More qw(no_plan);
-use Test::More tests => 16;
+use Test::More tests => 14;
 
 my ($r,$args);
 my $s = 't/check_stuff.pl';
@@ -22,23 +22,13 @@ $r = `$s`;
 is 	$?>>8 , 	$e{UNKNOWN}, 		"exits($e{UNKNOWN}) with no args";
 like 	$r,		qr/^$n UNKNOWN/,	"UNKNOWN with no args";
 
+$r = `$s -V`;
+is 	$?>>8 , 	$e{UNKNOWN}, 		"exits($e{UNKNOWN}) with -V arg";
+like 	$r,		qr/^[\w\.]+ \d+/i,	"looks like there's a version";
 
-#TODO:
-SKIP: {
-	local $TODO = q~d'oh! we'll have to redirect STDERR and check it with like() here instead of checking `` which only gets STDIN.  Maybe use IPC::Open3?~;
-	skip "too noisy, see TODO here", 6;
-
-	$r = `$s -V`;
-	is 	$?>>8 , 	$e{UNKNOWN}, 		"exits($e{UNKNOWN}) with -V arg";
-	like 	$r,		qr/\d+\.\d/i,	"looks like there's a version";  # broken
-	is $r, '', "prints nothing to STDOUT";
-
-	$r = `$s -h`;
-	is 	$?>>8 , 	$e{UNKNOWN}, 		"exits($e{UNKNOWN}) with -h arg";
-	like 	$r,		qr/usage/i,	"looks like there's something helpful";  # broken
-	is $r, '', "prints nothing to STDOUT";
-}
-
+$r = `$s -h`;
+is 	$?>>8 , 	$e{UNKNOWN}, 		"exits($e{UNKNOWN}) with -h arg";
+like 	$r,		qr/usage/i,	"looks like there's something helpful";  # broken
 
 $args = " -r 99 ";
 diag "running `$s $args`" if $ENV{TEST_VERBOSE};

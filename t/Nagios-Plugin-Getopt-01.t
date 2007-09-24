@@ -5,6 +5,9 @@ use strict;
 use Test::More tests => 76;
 BEGIN { use_ok('Nagios::Plugin::Getopt') };
 
+# Needed to get evals to work in testing
+Nagios::Plugin::Functions::_use_die(1);
+
 my %PARAM = (
     version => '0.01',
     url => 'http://www.openfusion.com.au/labs/nagios/',

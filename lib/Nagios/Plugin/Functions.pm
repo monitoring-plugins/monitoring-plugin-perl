@@ -8,7 +8,7 @@ use 5.006;
 use strict;
 use warnings;
 use File::Basename;
-use Params::Validate qw(validate :types);
+use Params::Validate qw(:types validate);
 use Math::Calc::Units;
 
 # Remember to update Nagios::Plugins as well
@@ -119,14 +119,24 @@ sub nagios_exit {
         return Nagios::Plugin::ExitResult->new($code, $output);
     }
 
-    # Print output and exit; die if called via nagios_die and flag set
-    if($_use_die && (caller(1))[3] =~ m/die/) {
-        $!=$code;
-        die($output);
-    } else {
-        print $output;
-        exit $code;
+    _nagios_exit($code, $output);
+}
+
+sub _nagios_exit {
+    my ($code, $output) = @_;
+    # Print output and exit; die if flag set and called via a die in stack backtrace
+    if ($_use_die) {
+      for (my $i = 0;; $i++) {
+        @_ = caller($i);
+        last unless @_;
+        if ($_[3] =~ m/die/) {
+          $! = $code;
+          die($output);
+        }
+      }
     }
+    print $output;
+    exit $code;
 }
 
 # nagios_die( $message, [ $code ])   OR   nagios_die( $code, $message )
