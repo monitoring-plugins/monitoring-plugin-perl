@@ -1,6 +1,6 @@
 Revision history for Perl module Nagios::Plugin.
 
-0.21 ??
+0.21  24th September 2007
   - Help, usage and version output now goes to stdout, not stderr
 
 0.20  5th September 2007
