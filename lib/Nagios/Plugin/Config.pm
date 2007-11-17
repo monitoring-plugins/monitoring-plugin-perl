@@ -72,9 +72,7 @@ sub read_string
 
                 # Handle properties
                 if ( /^\s*([^=]+?)\s*=\s*(.*?)\s*$/ ) {
-                        $self->{$ns}->{$1} = defined $self->{$ns}->{$1} ?
-                                [ $self->{$ns}->{$1}, $2 ] : 
-                                $2;
+			push @{$self->{$ns}->{$1}}, $2;
                         next;
                 }
 
