@@ -1,6 +1,6 @@
 Revision history for Perl module Nagios::Plugin.
 
-0.22  ??th ??? 200?
+0.22  13th December 2007
   - Fixed handling of repeated ini arguments
 
 0.21  24th September 2007
