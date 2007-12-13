@@ -1,0 +1,15 @@
+RELEASING
+
+Change version number in lib/Nagios/Plugin.pm and lib/Nagios/Plugin/Functions.pm
+Add date to Changes file
+svn commit
+
+perl Makefile.PL
+make
+make test
+make dist
+
+Upload file to CPAN
+
+Send announcement to nagiosplug-help, nagios-announce
+Add news item to http://nagiosplugins.org
