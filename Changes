@@ -1,5 +1,8 @@
 Revision history for Perl module Nagios::Plugin.
 
+0.23  18th December 2007
+  - Use $^X for perl in check_stuff.t test, due to lots of failing in CPAN Testers
+
 0.22  13th December 2007
   - Fixed handling of repeated ini arguments
 

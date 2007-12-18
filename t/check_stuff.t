@@ -6,7 +6,7 @@ use Test::More tests => 14;
 
 my ($r,$args);
 my $s = 't/check_stuff.pl';
-$s = 'perl -Ilib '.$s;
+$s = "$^X -Ilib $s";
 
 my $n = 'STUFF';
 
