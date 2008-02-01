@@ -1,5 +1,8 @@
 Revision history for Perl module Nagios::Plugin.
 
+0.24  1st February 2008
+  - Fixed a test failure which highlighted a precision rounding within hashes
+
 0.23  18th December 2007
   - Use $^X for perl in check_stuff.t test, due to lots of failing in CPAN Testers
 

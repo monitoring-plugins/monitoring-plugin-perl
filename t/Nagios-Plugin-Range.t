@@ -1,7 +1,7 @@
 
 use strict;
 #use Test::More qw(no_plan); 
-use Test::More tests => 149;
+use Test::More tests => 151;
 
 BEGIN { 
   use_ok('Nagios::Plugin::Range');
@@ -157,8 +157,13 @@ $expected = {
     -95.999 => 1,
     -1 => 1,
     0  => 1,
-    123456789012344.91 => 1,
+    # The fractional values needs to be quoted, otherwise the hash rounds it up to ..345
+    # and there is one less test run.
+    # I think some newer versions of perl use a higher precision value for the hash key. 
+    # This doesn't appear to affect the actual plugin though
+    "123456789012344.91" => 1,
     123456789012345  => 0,
+    "123456789012345.61" => 0,
     123456789012346  => 0,
 };
 test_expected( $r, $expected );
