@@ -22,10 +22,12 @@ sub import {
 	Nagios::Plugin::Functions::_use_die($_);
 }
 
+my $value_re = qr/[-+]?[\d\.]+/;
+my $value_re_with_negative_infinity = qr/$value_re|~/;
 sub _parse {
 	my $class = shift;
 	my $string = shift;
-	$string =~ s/^([^=]+)=([\d\.]+)([\w%]*);?([\d\.]+)?;?([\d\.]+)?;?([\d\.]+)?;?([\d\.]+)?\s*//;
+	$string =~ s/^([^=]+)=($value_re)([\w%]*);?($value_re_with_negative_infinity\:?$value_re?)?;?($value_re_with_negative_infinity\:?$value_re?)?;?($value_re)?;?($value_re)?\s*//o;
 	return undef unless ((defined $1 && $1 ne "") && (defined $2 && $2 ne ""));
     my $p = $class->new(
         label => $1, value => $2+0, uom => $3, warning => $4, critical => $5, 

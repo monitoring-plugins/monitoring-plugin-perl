@@ -25,7 +25,7 @@ our @EXPORT_OK = qw(%ERRORS);
 # CPAN stupidly won't index this module without a literal $VERSION here,
 #   so we're forced to duplicate it explicitly
 # Make sure you update $Nagios::Plugin::Functions::VERSION too
-our $VERSION = "0.24";
+our $VERSION = "0.25";
 
 sub new {
 	my $class = shift;

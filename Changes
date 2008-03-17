@@ -1,5 +1,8 @@
 Revision history for Perl module Nagios::Plugin.
 
+0.25  17th March 2008
+  - Fixed parsing of performance data with negative values and full range definitions
+
 0.24  1st February 2008
   - Fixed a test failure which highlighted a precision rounding within hashes
 
