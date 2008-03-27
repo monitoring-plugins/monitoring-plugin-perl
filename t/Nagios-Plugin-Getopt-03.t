@@ -8,6 +8,9 @@ use IO::File;
 use Test::More qw(no_plan);
 BEGIN { use_ok('Nagios::Plugin::Getopt') };
 
+# Needed to get evals to work in testing
+Nagios::Plugin::Functions::_use_die(1);
+
 my $tdir = 'npg03';
 if (! -d $tdir) {
   my $ttdir = File::Spec->catdir('t', $tdir);
