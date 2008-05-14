@@ -11,7 +11,7 @@ __PACKAGE__->mk_accessors(
     qw(start end start_infinity end_infinity alert_on)
 );
 
-use Nagios::Plugin::Functions;
+use Nagios::Plugin::Functions qw(:DEFAULT $value_re);
 our ($VERSION) = $Nagios::Plugin::Functions::VERSION;
 
 use overload
@@ -54,7 +54,7 @@ sub parse_range_string {
 
 	$string =~ s/\s//g;  # strip out any whitespace
 	# check for valid range definition
-	unless ( $string =~ /[\d~]/ && $string =~ m/^\@?(-?[\d.]+|~)?(:(-?[\d.]+)?)?$/ ) {
+	unless ( $string =~ /[\d~]/ && $string =~ m/^\@?($value_re|~)?(:($value_re)?)?$/ ) {
 	    carp "invalid range definition '$string'";
 	    return undef;
 	}
@@ -66,14 +66,14 @@ sub parse_range_string {
 	if ($string =~ s/^~//) {  # '~:x'
 	    $range->start_infinity(1);
 	}
-	if ( $string =~ m/^([\d\.-]+)?:/ ) {     # '10:'
+	if ( $string =~ m/^($value_re)?:/ ) {     # '10:'
 		my $start = $1;
 	    $range->_set_range_start($start) if defined $start;
 		$range->end_infinity(1);  # overridden below if there's an end specified
-	    $string =~ s/^([-\d\.]+)?://;
+	    $string =~ s/^($value_re)?://;
 	    $valid++;
 	}
-	if ($string =~ /^([-\d\.]+)$/) {   # 'x:10' or '10'
+	if ($string =~ /^($value_re)$/) {   # 'x:10' or '10'
 	    $range->_set_range_end($string);
 	    $valid++;
 	}

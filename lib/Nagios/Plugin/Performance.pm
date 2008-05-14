@@ -11,7 +11,7 @@ __PACKAGE__->mk_ro_accessors(
     qw(label value uom warning critical min max)
 );
 
-use Nagios::Plugin::Functions;
+use Nagios::Plugin::Functions qw($value_re);
 use Nagios::Plugin::Threshold;
 use Nagios::Plugin::Range;
 our ($VERSION) = $Nagios::Plugin::Functions::VERSION;
@@ -22,12 +22,11 @@ sub import {
 	Nagios::Plugin::Functions::_use_die($_);
 }
 
-my $value_re = qr/[-+]?[\d\.]+/;
-my $value_re_with_negative_infinity = qr/$value_re|~/;
+my $value_with_negative_infinity = qr/$value_re|~/;
 sub _parse {
 	my $class = shift;
 	my $string = shift;
-	$string =~ s/^([^=]+)=($value_re)([\w%]*);?($value_re_with_negative_infinity\:?$value_re?)?;?($value_re_with_negative_infinity\:?$value_re?)?;?($value_re)?;?($value_re)?\s*//o;
+	$string =~ s/^([^=]+)=($value_re)([\w%]*);?($value_with_negative_infinity\:?$value_re?)?;?($value_with_negative_infinity\:?$value_re?)?;?($value_re)?;?($value_re)?\s*//o;
 	return undef unless ((defined $1 && $1 ne "") && (defined $2 && $2 ne ""));
     my $p = $class->new(
         label => $1, value => $2+0, uom => $3, warning => $4, critical => $5, 

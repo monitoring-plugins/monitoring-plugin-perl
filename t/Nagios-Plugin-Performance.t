@@ -1,6 +1,6 @@
 
 use strict;
-use Test::More tests => 111;
+use Test::More tests => 123;
 BEGIN { use_ok('Nagios::Plugin::Performance') };
 
 diag "\nusing Nagios::Plugin::Performance revision ". $Nagios::Plugin::Performance::VERSION . "\n" if $ENV{TEST_VERBOSE};
@@ -162,13 +162,32 @@ is( $p[0]->threshold->warning, "-60:-5", "warn okay");
 is( $p[0]->threshold->critical, "-120:-3", "crit okay");
 
 # Check infinity values are okay
-@p = Nagios::Plugin::Performance->parse_perfstring("salary=52GBP;~:23;45:");
+@p = Nagios::Plugin::Performance->parse_perfstring("salary=52GBP;~:23.5;45.2:");
 is( $p[0]->label, "salary", "label okay");
 is( $p[0]->value, "52", "value okay");
 is( $p[0]->uom, "GBP", "uom okay");
 ok( defined eval { $p[0]->threshold->warning->is_set }, "Warning range has been set");
 is( $p[0]->threshold->critical->is_set, 1, "Critical range has been set");
-is( $p[0]->threshold->warning, "~:23", "warn okay");
-is( $p[0]->threshold->critical, "45:", "warn okay");
+is( $p[0]->threshold->warning, "~:23.5", "warn okay");
+is( $p[0]->threshold->critical, "45.2:", "warn okay");
+
+# Check scientific notation
+@p = Nagios::Plugin::Performance->parse_perfstring("offset=1.120567322e-05");
+is( $p[0]->label, "offset", "label okay for scientific notation");
+is( $p[0]->value, 1.120567322e-05, "value okay");
+is( $p[0]->uom, "", "uom okay");
+ok( ! $p[0]->threshold->warning->is_set, "Warning range has not been set");
+ok( ! $p[0]->threshold->critical->is_set, "Critical range has not been set");
+
+
+# Check scientific notation with warnings and criticals
+@p = Nagios::Plugin::Performance->parse_perfstring("offset=-1.120567322e-05unit;-1.1e-05:1.0e-03;4.3e+02:4.3e+25");
+is( $p[0]->label, "offset", "label okay for scientific notation in warnings and criticals");
+is( $p[0]->value, -1.120567322e-05, "value okay");
+is( $p[0]->uom, "unit", "uom okay");
+ok( $p[0]->threshold->warning->is_set, "Warning range has been set");
+is( $p[0]->threshold->warning, "-1.1e-05:0.001", "warn okay");
+is( $p[0]->threshold->critical->is_set, 1, "Critical range has been set");
+is( $p[0]->threshold->critical, "430:4.3e+25", "warn okay");
 
 # add_perfdata tests in t/Nagios-Plugin-01.t

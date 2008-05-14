@@ -1,5 +1,8 @@
 Revision history for Perl module Nagios::Plugin.
 
+0.27 14th May 2008
+  - Fixed parsing of performance data with scientific notation
+
 0.26 28th March 2008
   - Fixed test failure in t/Nagios-Plugin-Getopt-03.t (Thomas Guyot-Sionnest)
 
