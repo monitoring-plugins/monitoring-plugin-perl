@@ -11,8 +11,6 @@
 # the really cool Nagios monitoring scripts you're going to create.
 # You rock.  
 
-# $Id$
-
 ##############################################################################
 # prologue
 use strict;
@@ -21,8 +19,7 @@ use warnings;
 use Nagios::Plugin ;
 
 use vars qw($VERSION $PROGNAME  $verbose $warn $critical $timeout $result);
-'$Revision$' =~ /^.*(\d+.\d+) \$$/;  # Use The Revision from RCS/CVS/Subversion
-$VERSION = $1;
+$VERSION = '1.0';
 
 # get the base name of this script for use in the examples
 use File::Basename;
