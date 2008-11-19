@@ -19,11 +19,11 @@ our @STATUS_CODES = qw(OK WARNING CRITICAL UNKNOWN DEPENDENT);
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = (@STATUS_CODES, qw(nagios_exit nagios_die check_messages));
-our @EXPORT_OK = qw(%ERRORS %STATUS_TEXT @STATUS_CODES get_shortname max_state convert $value_re);
+our @EXPORT_OK = qw(%ERRORS %STATUS_TEXT @STATUS_CODES get_shortname max_state max_state_alt convert $value_re);
 our %EXPORT_TAGS = (
     all => [ @EXPORT, @EXPORT_OK ],
     codes => [ @STATUS_CODES ],
-    functions => [ qw(nagios_exit nagios_die check_messages max_state convert) ],
+    functions => [ qw(nagios_exit nagios_die check_messages max_state max_state_alt convert) ],
 );
 
 use constant OK         => 0;
@@ -71,6 +71,15 @@ sub max_state {
 	return UNKNOWN if grep { $_ == UNKNOWN } @_;
 	return DEPENDENT if grep { $_ == DEPENDENT } @_;
 	return UNKNOWN;
+}
+
+sub max_state_alt {
+        return CRITICAL if grep { $_ == CRITICAL } @_;
+        return WARNING if grep { $_ == WARNING } @_;
+        return UNKNOWN if grep { $_ == UNKNOWN } @_;
+        return DEPENDENT if grep { $_ == DEPENDENT } @_;
+        return OK if grep { $_ == OK } @_;
+        return UNKNOWN;
 }
 
 # nagios_exit( $code, $message )
@@ -303,6 +312,7 @@ The following variables and functions are exported only on request:
     %STATUS_TEXT
     get_shortname
     max_state
+    max_state_alt
 
 
 =head2 FUNCTIONS
@@ -394,6 +404,18 @@ imported.
 
 Returns the worst state in the array. Order is: CRITICAL, WARNING, OK, UNKNOWN,
 DEPENDENT
+
+The typical usage of max_state is to initialise the state as UNKNOWN and use
+it on the result of various test. If no test were performed successfully the
+state will still be UNKNOWN.
+
+=item max_state_alt(@a)
+
+Returns the worst state in the array. Order is: CRITICAL, WARNING, UNKNOWN,
+DEPENDENT, OK
+
+This is a true definition of a max state (OK last) and should be used if the
+internal tests performed can return UNKNOWN.
 
 =back
 
