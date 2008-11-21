@@ -1,5 +1,9 @@
 Revision history for Perl module Nagios::Plugin.
 
+0.28 21st November 2008
+  - Fixed test problems when run against Test::More 0.86
+  - Added max_state_* wrappers
+
 0.27 14th May 2008
   - Fixed parsing of performance data with scientific notation
 

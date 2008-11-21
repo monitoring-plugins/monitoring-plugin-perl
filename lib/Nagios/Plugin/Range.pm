@@ -15,6 +15,7 @@ use Nagios::Plugin::Functions qw(:DEFAULT $value_re);
 our ($VERSION) = $Nagios::Plugin::Functions::VERSION;
 
 use overload
+        'eq' => sub { shift->_stringify },
         '""' => sub { shift->_stringify };
 
 # alert_on constants (undef == range not set)

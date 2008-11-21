@@ -130,8 +130,10 @@ cmp_ok( $p[0]->value, "eq", "0.002722", "value okay");
 cmp_ok( $p[0]->uom, "eq", "s", "uom okay");
     ok( defined $p[0]->threshold->warning->is_set, "Warning range has been set"); 
     ok( defined $p[0]->threshold->critical->is_set, "Critical range has been set");
-cmp_ok( $p[0]->threshold->warning, 'eq', "0", "warn okay");
-cmp_ok( $p[0]->threshold->critical, 'eq', "0", "crit okay");
+# The two below used to be cmp_ok, but Test::More 0.86 appears to have a problem with a stringification
+# of 0. See http://rt.cpan.org/Ticket/Display.html?id=41109
+is( $p[0]->threshold->warning, "0", "warn okay");
+is( $p[0]->threshold->critical, "0", "crit okay");
 
 @p = Nagios::Plugin::Performance->parse_perfstring("pct_used=73.7%;90;95");
 cmp_ok( $p[0]->label, "eq", "pct_used", "label okay");
