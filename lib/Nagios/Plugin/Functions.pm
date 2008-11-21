@@ -12,7 +12,7 @@ use Params::Validate qw(:types validate);
 use Math::Calc::Units;
 
 # Remember to update Nagios::Plugins as well
-our $VERSION = "0.27";
+our $VERSION = "0.28";
 
 our @STATUS_CODES = qw(OK WARNING CRITICAL UNKNOWN DEPENDENT);
 
