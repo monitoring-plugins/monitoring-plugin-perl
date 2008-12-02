@@ -1,6 +1,6 @@
 
 use strict;
-use Test::More tests => 123;
+use Test::More;
 BEGIN { use_ok('Nagios::Plugin::Performance') };
 
 diag "\nusing Nagios::Plugin::Performance revision ". $Nagios::Plugin::Performance::VERSION . "\n" if $ENV{TEST_VERBOSE};
@@ -11,20 +11,20 @@ Nagios::Plugin::Functions::_fake_exit(1);
 my (@p, $p);
 my @test = (
   { 
-    perfoutput => "/=382MB;15264;15269;0;32768", label => '/', rrdlabel => 'root', value => 382, uom => 'MB', warning => 15264, critical => 15269, min => 0, max => 32768, 
+    perfoutput => "/=382MB;15264;15269;0;32768", label => '/', rrdlabel => 'root', value => 382, uom => 'MB', warning => 15264, critical => 15269, min => 0, max => 32768, clean_label => "root",
   }, {
-    perfoutput => "/var=218MB;9443;9448", label => '/var', rrdlabel => 'var', value => '218', uom => 'MB', warning => 9443, critical => 9448, min => undef, max => undef,
+    perfoutput => "/var=218MB;9443;9448", label => '/var', rrdlabel => 'var', value => '218', uom => 'MB', warning => 9443, critical => 9448, min => undef, max => undef, clean_label => "var",
+  }, {
+    perfoutput => '/var/long@:-/filesystem/name/and/bad/chars=218MB;9443;9448', label => '/var/long@:-/filesystem/name/and/bad/chars', rrdlabel => 'var_long____filesys', value => '218', uom => 'MB', warning => 9443, critical => 9448, min => undef, max => undef, clean_label => 'var_long____filesystem_name_and_bad_chars',
   },
 );
+
+plan tests => (8 * scalar @test) + 94;
 
 # Round-trip tests
 for my $t (@test) {
     # Parse to components
     ($p) = Nagios::Plugin::Performance->parse_perfstring($t->{perfoutput});
-    for (sort keys %$t) {
-        next if m/^perfoutput$/;
-        is($p->$_(), $t->{$_}, "$_ okay (" . (defined $t->{$_} ? $t->{$_} : 'undef')  . ")");
-    }
 
     # Construct from components
     my @construct = qw(label value uom warning critical min max);
@@ -33,6 +33,8 @@ for my $t (@test) {
     # Check threshold accessor
     is($p->threshold->warning->end, $t->{warning}, "threshold warning okay ($t->{warning})");
     is($p->threshold->critical->end, $t->{critical}, "threshold critical okay ($t->{critical})");
+    is($p->rrdlabel, $t->{rrdlabel}, "rrdlabel okay");
+    is($p->clean_label, $t->{clean_label}, "clean_label okay" );
 
     # Construct using threshold
     @construct = qw(label value uom min max);

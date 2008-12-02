@@ -70,18 +70,22 @@ sub parse_perfstring {
 
 sub rrdlabel {
 	my $self = shift;
+	my $name = $self->clean_label;
+	# Shorten
+	return substr( $name, 0, 19 );
+}
+
+sub clean_label {
+	my $self = shift;
 	my $name = $self->label;
 	if ($name eq "/") {
 		$name = "root";
-    }
-	# If filesystem name, remove initial / and convert subsequent "/" to "_"
-	elsif ($name =~ s/^\///) {
+	} elsif ( $name =~ s/^\/// ) {
 		$name =~ s/\//_/g;
 	}
-	# Convert bad chars
+	# Convert all other characters
 	$name =~ s/\W/_/g;
-	# Shorten
-	return substr( $name, 0, 19 );
+	return $name;
 }
 
 # Backward compatibility: create a threshold object on the fly as requested
@@ -212,8 +216,17 @@ Returns a string based on 'label' that is suitable for use as dataset name of
 an RRD i.e. munges label to be 1-19 characters long with only characters 
 [a-zA-Z0-9_].
 
+This calls $self->clean_label and then truncates to 19 characters.
+
 There is no guarantee that multiple N:P:Performance objects will have unique 
 rrdlabels.
+
+=item clean_label
+
+Returns a "clean" label for use as a dataset name in RRD, ie, it converts
+characters that are not [a-zA-Z0-9_] to _.
+
+It also converts "/" to "root" and "/{name}" to "{name}".
 
 =item perfoutput
 

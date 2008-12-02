@@ -1,5 +1,8 @@
 Revision history for Perl module Nagios::Plugin.
 
+0.29 2nd December 2008
+  - clean_label, for cleaning up a label for RRD, but without truncation
+
 0.28 21st November 2008
   - Fixed test problems when run against Test::More 0.86
   - Added max_state_* wrappers
