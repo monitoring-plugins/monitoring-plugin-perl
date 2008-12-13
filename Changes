@@ -1,5 +1,11 @@
 Revision history for Perl module Nagios::Plugin.
 
+0.30 13th December 2008
+  - Fixed performance parsing when numeric fields had commas instead of periods due to locale settings
+  - If a performance set is not parseable, instead of returning an empty array, will return all the successfully
+    parsed sets
+  - Fixed test plan for Nagios-Plugin-Performance.t
+
 0.29 2nd December 2008
   - clean_label, for cleaning up a label for RRD, but without truncation
 

@@ -11,7 +11,7 @@ __PACKAGE__->mk_ro_accessors(
     qw(label value uom warning critical min max)
 );
 
-use Nagios::Plugin::Functions qw($value_re);
+use Nagios::Plugin::Functions;
 use Nagios::Plugin::Threshold;
 use Nagios::Plugin::Range;
 our ($VERSION) = $Nagios::Plugin::Functions::VERSION;
@@ -22,17 +22,24 @@ sub import {
 	Nagios::Plugin::Functions::_use_die($_);
 }
 
+# This is NOT the same as N::P::Functions::value_re. We leave that to be the strict
+# version. This one allows commas to be part of the numeric value.
+my $value = qr/[-+]?[\d\.,]+/;
+my $value_re = qr/$value(?:e$value)?/;
 my $value_with_negative_infinity = qr/$value_re|~/;
 sub _parse {
 	my $class = shift;
 	my $string = shift;
-	$string =~ s/^([^=]+)=($value_re)([\w%]*);?($value_with_negative_infinity\:?$value_re?)?;?($value_with_negative_infinity\:?$value_re?)?;?($value_re)?;?($value_re)?\s*//o;
+	$string =~ /^([^=]+)=($value_re)([\w%]*);?($value_with_negative_infinity\:?$value_re?)?;?($value_with_negative_infinity\:?$value_re?)?;?($value_re)?;?($value_re)?/o;
 	return undef unless ((defined $1 && $1 ne "") && (defined $2 && $2 ne ""));
+	my @info = ($1, $2, $3, $4, $5, $6, $7);
+	# We convert any commas to periods, in the value fields
+	map { defined $info[$_] && $info[$_] =~ s/,/./go } (1, 3, 4, 5, 6);
     my $p = $class->new(
-        label => $1, value => $2+0, uom => $3, warning => $4, critical => $5, 
-        min => $6, max => $7
+        label => $info[0], value => $info[1]+0, uom => $info[2], warning => $info[3], critical => $info[4], 
+        min => $info[5], max => $info[6]
     );
-	return ($p, $string);
+	return $p;
 }
 
 # Map undef to ''
@@ -58,12 +65,18 @@ sub perfoutput {
 
 sub parse_perfstring {
 	my ($class, $perfstring) = @_;
-	my @perfs;
+	my @perfs = ();
 	my $obj;
 	while ($perfstring) {
-		($obj, $perfstring) = $class->_parse($perfstring);
-		return () unless $obj;
-		push @perfs, $obj;
+		$perfstring =~ s/^\s*//;
+		if ($perfstring =~ /\s/) {
+			$perfstring =~ s/^(.*?)\s//;
+			$obj = $class->_parse($1);
+		} else {
+			$obj = $class->_parse($perfstring);
+			$perfstring = "";
+		}
+		push @perfs, $obj if $obj;
 	}
 	return @perfs;
 }
@@ -193,7 +206,11 @@ attributes.
 =item Nagios::Plugin::Performance->parse_perfstring($string)
 
 Returns an array of Nagios::Plugin::Performance objects based on the string 
-entered. If there is an error parsing the string, an empty array is returned.
+entered. If there is an error parsing the string - which may consists of several
+sets of data -  will return an array with all the successfully parsed sets.
+
+If values are input with commas instead of periods, due to different locale settings,
+then it will still be parsed, but the commas will be converted to periods.
 
 =back
 

@@ -1,12 +1,9 @@
 
 use strict;
 use Test::More;
-BEGIN { use_ok('Nagios::Plugin::Performance') };
-
-diag "\nusing Nagios::Plugin::Performance revision ". $Nagios::Plugin::Performance::VERSION . "\n" if $ENV{TEST_VERBOSE};
-
 use Nagios::Plugin::Functions;
 Nagios::Plugin::Functions::_fake_exit(1);
+
 
 my (@p, $p);
 my @test = (
@@ -19,7 +16,10 @@ my @test = (
   },
 );
 
-plan tests => (8 * scalar @test) + 94;
+plan tests => (8 * scalar @test) + 125;
+
+use_ok('Nagios::Plugin::Performance');
+diag "\nusing Nagios::Plugin::Performance revision ". $Nagios::Plugin::Performance::VERSION . "\n" if $ENV{TEST_VERBOSE};
 
 # Round-trip tests
 for my $t (@test) {
@@ -70,6 +70,32 @@ cmp_ok( $p[1]->threshold->critical->end, "==", 9448, "crit okay");
 @p = Nagios::Plugin::Performance->parse_perfstring("rubbish");
 ok( ! @p, "Errors correctly");
 ok( ! Nagios::Plugin::Performance->parse_perfstring(""), "Errors on empty string");
+
+
+
+# Check 1 bad with 1 good format output
+@p = Nagios::Plugin::Performance->parse_perfstring("rta=&391ms;100,200;500,034;0;   pl=0%;20;60  ");
+is( scalar @p, 1, "One bad piece of data - only one returned" );
+is( $p[0]->label, "pl", "label okay for different numeric");
+is( $p[0]->value, 0, "value okay");
+is( $p[0]->uom, "%", "uom okay");
+ok( $p[0]->threshold->warning->is_set, "Warning range has been set");
+is( $p[0]->threshold->warning, "20", "warn okay");
+is( $p[0]->threshold->critical->is_set, 1, "Critical range has been set");
+is( $p[0]->threshold->critical, "60", "warn okay");
+
+# Same as above, but order swapped
+@p = Nagios::Plugin::Performance->parse_perfstring("   pl=0%;20;60  rta=&391ms;100,200;500,034;0;   ");
+is( scalar @p, 1, "One bad piece of data - only one returned" );
+is( $p[0]->label, "pl", "label okay for different numeric");
+is( $p[0]->value, 0, "value okay");
+is( $p[0]->uom, "%", "uom okay");
+ok( $p[0]->threshold->warning->is_set, "Warning range has been set");
+is( $p[0]->threshold->warning, "20", "warn okay");
+is( $p[0]->threshold->critical->is_set, 1, "Critical range has been set");
+is( $p[0]->threshold->critical, "60", "warn okay");
+
+
 
 
 @p = Nagios::Plugin::Performance->parse_perfstring(
@@ -193,5 +219,24 @@ ok( $p[0]->threshold->warning->is_set, "Warning range has been set");
 is( $p[0]->threshold->warning, "-1.1e-05:0.001", "warn okay");
 is( $p[0]->threshold->critical->is_set, 1, "Critical range has been set");
 is( $p[0]->threshold->critical, "430:4.3e+25", "warn okay");
+
+
+
+# Check different collation with commas instead of periods
+@p = Nagios::Plugin::Performance->parse_perfstring("rta=1,391ms;100,200;500,034;0; pl=0%;20;60;;");
+is( $p[0]->label, "rta", "label okay for numeric with commas instead of periods");
+is( $p[0]->value, 1.391, "value okay");
+is( $p[0]->uom, "ms", "uom okay");
+ok( $p[0]->threshold->warning->is_set, "Warning range has been set");
+is( $p[0]->threshold->warning, "100.2", "warn okay");
+is( $p[0]->threshold->critical->is_set, 1, "Critical range has been set");
+is( $p[0]->threshold->critical, "500.034", "warn okay");
+is( $p[1]->label, "pl", "label okay for different numeric");
+is( $p[1]->value, 0, "value okay");
+is( $p[1]->uom, "%", "uom okay");
+ok( $p[1]->threshold->warning->is_set, "Warning range has been set");
+is( $p[1]->threshold->warning, "20", "warn okay");
+is( $p[1]->threshold->critical->is_set, 1, "Critical range has been set");
+is( $p[1]->threshold->critical, "60", "warn okay");
 
 # add_perfdata tests in t/Nagios-Plugin-01.t
