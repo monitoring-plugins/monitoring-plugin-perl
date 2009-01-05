@@ -1,5 +1,8 @@
 Revision history for Perl module Nagios::Plugin.
 
+0.31 5th January 2009
+  - Check for valid numerical value before returning perfdata object
+
 0.30 13th December 2008
   - Fixed performance parsing when numeric fields had commas instead of periods due to locale settings
   - If a performance set is not parseable, instead of returning an empty array, will return all the successfully

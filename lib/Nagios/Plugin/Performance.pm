@@ -35,8 +35,18 @@ sub _parse {
 	my @info = ($1, $2, $3, $4, $5, $6, $7);
 	# We convert any commas to periods, in the value fields
 	map { defined $info[$_] && $info[$_] =~ s/,/./go } (1, 3, 4, 5, 6);
+
+	# Check that $info[1] is an actual value
+	# We do this by returning undef if a warning appears
+	my $performance_value;
+	{
+		my $not_value;
+		local $SIG{__WARN__} = sub { $not_value++ };
+		$performance_value = $info[1]+0;
+		return undef if $not_value;
+	}
     my $p = $class->new(
-        label => $info[0], value => $info[1]+0, uom => $info[2], warning => $info[3], critical => $info[4], 
+        label => $info[0], value => $performance_value, uom => $info[2], warning => $info[3], critical => $info[4], 
         min => $info[5], max => $info[6]
     );
 	return $p;

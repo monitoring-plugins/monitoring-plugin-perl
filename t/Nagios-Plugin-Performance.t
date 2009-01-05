@@ -16,7 +16,7 @@ my @test = (
   },
 );
 
-plan tests => (8 * scalar @test) + 132;
+plan tests => (8 * scalar @test) + 135;
 
 use_ok('Nagios::Plugin::Performance');
 diag "\nusing Nagios::Plugin::Performance revision ". $Nagios::Plugin::Performance::VERSION . "\n" if $ENV{TEST_VERBOSE};
@@ -249,5 +249,11 @@ is( $p[0]->threshold->warning->is_set, 1, "Warning range has been set");
 is( $p[0]->threshold->warning, 60, "warn okay");
 is( $p[0]->threshold->critical->is_set, 1, "Critical range has been set");
 is( $p[0]->threshold->critical, 120, "warn okay");
+
+# Some values with funny commas
+@p = Nagios::Plugin::Performance->parse_perfstring("time=1800,600,300,0,3600 other=45.6");
+is( $p[0]->label, "other", "Ignored time=1800,600,300,0,3600, but allowed other=45.6");
+is( $p[0]->value, 45.6, "value okay");
+is( $p[0]->uom, "", "uom okay");
 
 # add_perfdata tests in t/Nagios-Plugin-01.t
