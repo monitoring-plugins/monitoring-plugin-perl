@@ -38,7 +38,8 @@ sub read
                        }
                 }
 
-                croak "Cannot find '$FILENAME1' or '$FILENAME2' in any standard location." unless $_[0];
+                # Use die instead of croak, so we can pass a clean message downstream
+                die "Cannot find '$FILENAME1' or '$FILENAME2' in any standard location.\n" unless $_[0];
         }
 
         $class->SUPER::read( @_ );

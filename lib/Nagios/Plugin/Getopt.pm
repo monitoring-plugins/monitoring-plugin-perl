@@ -242,9 +242,13 @@ sub _load_config_section
   my ($section, $file, $flags) = @_;
   $section ||= $self->{_attr}->{plugin};
 
-  my $Config = Nagios::Plugin::Config->read($file);
+  my $Config;
+  eval { $Config = Nagios::Plugin::Config->read($file); };
+  $self->_die($@) if ($@); #TODO: add test?
 
   # TODO: is this check sane? Does --extra-opts=foo require a [foo] section?
+  ## Nevertheless, if we die as UNKNOWN here we should do the same on default
+  ## file *added eval/_die above*.
   $self->_die("Invalid section '$section' in config file '$file'")
     unless exists $Config->{$section};
 
