@@ -39,6 +39,9 @@ sub _inflate
         return $value;
     }
 
+    # Another quick exit if $value is an empty string
+    return Nagios::Plugin::Range->new if $value eq "";
+
     # Otherwise parse $value
     my $range = Nagios::Plugin::Range->parse_range_string($value);
     nagios_die("Cannot parse $key range: '$value'") unless(defined($range));

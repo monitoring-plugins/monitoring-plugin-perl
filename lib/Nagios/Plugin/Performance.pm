@@ -30,7 +30,7 @@ my $value_with_negative_infinity = qr/$value_re|~/;
 sub _parse {
 	my $class = shift;
 	my $string = shift;
-	$string =~ /^([^=]+)=($value_re)([\w%]*);?($value_with_negative_infinity\:?$value_re?)?;?($value_with_negative_infinity\:?$value_re?)?;?($value_re)?;?($value_re)?/o;
+	$string =~ /^'?([^'=]+)'?=($value_re)([\w%]*);?($value_with_negative_infinity\:?$value_re?)?;?($value_with_negative_infinity\:?$value_re?)?;?($value_re)?;?($value_re)?/o;
 	return undef unless ((defined $1 && $1 ne "") && (defined $2 && $2 ne ""));
 	my @info = ($1, $2, $3, $4, $5, $6, $7);
 	# We convert any commas to periods, in the value fields
@@ -60,8 +60,13 @@ sub _nvl {
 
 sub perfoutput {
 	my $self = shift;
+	# Add quotes if label contains a space character
+	my $label = $self->label;
+	if ($label =~ / /) {
+		$label = "'$label'";
+	}
     my $out = sprintf "%s=%s%s;%s;%s;%s;%s",
-        $self->label,
+        $label,
         $self->value,
         $self->_nvl($self->uom),
         $self->_nvl($self->warning),
@@ -79,8 +84,9 @@ sub parse_perfstring {
 	my $obj;
 	while ($perfstring) {
 		$perfstring =~ s/^\s*//;
-		if ($perfstring =~ /\s/) {
-			$perfstring =~ s/^(.*?)\s//;
+		# If there is more than 1 equals sign, split it out and parse individually
+		if (@{[$perfstring =~ /=/g]} > 1) {
+			$perfstring =~ s/^(.*?=.*?)\s//;
 			$obj = $class->_parse($1);
 		} else {
 			$obj = $class->_parse($perfstring);

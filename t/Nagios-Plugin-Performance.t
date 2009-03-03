@@ -13,10 +13,34 @@ my @test = (
     perfoutput => "/var=218MB;9443;9448", label => '/var', rrdlabel => 'var', value => '218', uom => 'MB', warning => 9443, critical => 9448, min => undef, max => undef, clean_label => "var",
   }, {
     perfoutput => '/var/long@:-/filesystem/name/and/bad/chars=218MB;9443;9448', label => '/var/long@:-/filesystem/name/and/bad/chars', rrdlabel => 'var_long____filesys', value => '218', uom => 'MB', warning => 9443, critical => 9448, min => undef, max => undef, clean_label => 'var_long____filesystem_name_and_bad_chars',
+  }, {
+    perfoutput => "'page file'=36%;80;90;", 
+    expected_perfoutput => "'page file'=36%;80;90",
+    label => 'page file',
+    rrdlabel => 'page_file',
+    value => '36', 
+    uom => '%', 
+    warning => 80, 
+    critical => 90, 
+    min => undef, 
+    max => undef, 
+    clean_label => 'page_file',
+  }, {
+    perfoutput => "'data'=5;;;;", 
+    expected_perfoutput => "data=5;;",
+    label => 'data',
+    rrdlabel => 'data',
+    value => 5,
+    uom => "",
+    warning => undef, 
+    critical => undef, 
+    min => undef, 
+    max => undef, 
+    clean_label => 'data',
   },
 );
 
-plan tests => (8 * scalar @test) + 135;
+plan tests => (11 * scalar @test) + 175;
 
 use_ok('Nagios::Plugin::Performance');
 diag "\nusing Nagios::Plugin::Performance revision ". $Nagios::Plugin::Performance::VERSION . "\n" if $ENV{TEST_VERBOSE};
@@ -25,14 +49,26 @@ diag "\nusing Nagios::Plugin::Performance revision ". $Nagios::Plugin::Performan
 for my $t (@test) {
     # Parse to components
     ($p) = Nagios::Plugin::Performance->parse_perfstring($t->{perfoutput});
+    is ($p->value, $t->{value}, "value okay $t->{value}");
+    is ($p->label, $t->{label}, "label okay $t->{label}");
+    is ($p->uom,   $t->{uom},   "uom okay $t->{uom}");
 
     # Construct from components
     my @construct = qw(label value uom warning critical min max);
     $p = Nagios::Plugin::Performance->new(map { $_ => $t->{$_} } @construct);
-    is($p->perfoutput, $t->{perfoutput}, "perfoutput okay ($t->{perfoutput})");
+    my $expected_perfoutput = $t->{perfoutput};
+    if (exists $t->{expected_perfoutput}) {
+        $expected_perfoutput = $t->{expected_perfoutput};
+    };
+    is($p->perfoutput, $expected_perfoutput, "perfoutput okay ($expected_perfoutput)");
     # Check threshold accessor
-    is($p->threshold->warning->end, $t->{warning}, "threshold warning okay ($t->{warning})");
-    is($p->threshold->critical->end, $t->{critical}, "threshold critical okay ($t->{critical})");
+    foreach my $type (qw(warning critical)) {
+        if (! defined $t->{$type}) {
+            isnt( $p->threshold->$type->is_set, "threshold $type not set");
+        } else {
+            is($p->threshold->$type->end, $t->{$type}, "threshold $type okay ($t->{$type})");
+        }
+    }
     is($p->rrdlabel, $t->{rrdlabel}, "rrdlabel okay");
     is($p->clean_label, $t->{clean_label}, "clean_label okay" );
 
@@ -42,10 +78,15 @@ for my $t (@test) {
         map({ $_ => $t->{$_} } @construct), 
         threshold => Nagios::Plugin::Threshold->set_thresholds(warning => $t->{warning}, critical => $t->{critical}),
     );
-    is($p->perfoutput, $t->{perfoutput}, "perfoutput okay ($t->{perfoutput})");
+    is($p->perfoutput, $expected_perfoutput, "perfoutput okay ($expected_perfoutput)");
     # Check warning/critical accessors
-    is($p->warning, $t->{warning}, "warning okay ($t->{warning})");
-    is($p->critical, $t->{critical}, "critical okay ($t->{critical})");
+    foreach my $type (qw(warning critical)) {
+        if (! defined $t->{$type}) {
+            isnt( $p->threshold->$type->is_set, "threshold $type not set");
+        } else {
+            is($p->threshold->$type->end, $t->{$type}, "threshold $type okay ($t->{$type})");
+        }
+    }
 }
 
 
@@ -255,5 +296,57 @@ is( $p[0]->threshold->critical, 120, "warn okay");
 is( $p[0]->label, "other", "Ignored time=1800,600,300,0,3600, but allowed other=45.6");
 is( $p[0]->value, 45.6, "value okay");
 is( $p[0]->uom, "", "uom okay");
+
+
+# Test labels with spaces (returned by nsclient++)
+@p = Nagios::Plugin::Performance->parse_perfstring("'C:\ Label:  Serial Number bc22aa2e'=8015MB;16387;18435;0;20484 'D:\ Label: Serial Number XA22aa2e'=8015MB;16388;18436;1;2048");
+is( $p[0]->label, "C:\ Label:  Serial Number bc22aa2e");
+is( $p[0]->rrdlabel, "C__Label___Serial_N");
+is( $p[0]->value, 8015, "value okay");
+is( $p[0]->uom, "MB", "uom okay");
+is( $p[0]->threshold->warning->end, 16387, "warn okay");
+is( $p[0]->threshold->critical->end, 18435, "crit okay");
+is( $p[0]->min, 0, "min ok");
+is( $p[0]->max, 20484, "max ok");
+
+is( $p[1]->label, "D:\ Label: Serial Number XA22aa2e", "label okay");
+is( $p[1]->rrdlabel, "D__Label__Serial_Nu", "rrd label okay");
+is( $p[1]->value, 8015, "value okay");
+is( $p[1]->uom, "MB", "uom okay");
+is( $p[1]->threshold->warning->end, 16388, "warn okay");
+is( $p[1]->threshold->critical->end, 18436, "crit okay");
+is( $p[1]->min, 1, "min ok");
+is( $p[1]->max, 2048, "max ok");
+
+
+# Mix labels with and without quotes
+@p = Nagios::Plugin::Performance->parse_perfstring("  short=4 'C:\ Label:  Serial Number bc22aa2e'=8015MB;16387;18435;0;20484 end=5 ");
+is( $p[0]->label, "short" );
+is( $p[0]->rrdlabel, "short");
+is( $p[0]->value, 4, "value okay");
+is( $p[0]->uom, "", "uom okay");
+isnt( $p[0]->threshold->warning->is_set, "warn okay");
+isnt( $p[0]->threshold->critical->is_set, "crit okay");
+is( $p[0]->min, undef, "min ok");
+is( $p[0]->max, undef, "max ok");
+
+is( $p[1]->label, "C:\ Label:  Serial Number bc22aa2e", "label okay");
+is( $p[1]->rrdlabel, "C__Label___Serial_N", "rrd label okay");
+is( $p[1]->value, 8015, "value okay");
+is( $p[1]->uom, "MB", "uom okay");
+is( $p[1]->threshold->warning->end, 16387, "warn okay");
+is( $p[1]->threshold->critical->end, 18435, "crit okay");
+is( $p[1]->min, 0, "min ok");
+is( $p[1]->max, 20484, "max ok");
+
+is( $p[2]->label, "end" );
+is( $p[2]->rrdlabel, "end" );
+is( $p[2]->value, 5, "value okay");
+is( $p[2]->uom, "", "uom okay");
+isnt( $p[2]->threshold->warning->is_set, "warn okay");
+isnt( $p[2]->threshold->critical->is_set, 18436, "crit okay");
+is( $p[2]->min, undef, "min ok");
+is( $p[2]->max, undef, "max ok");
+
 
 # add_perfdata tests in t/Nagios-Plugin-01.t

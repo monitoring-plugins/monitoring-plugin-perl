@@ -1,5 +1,9 @@
 Revision history for Perl module Nagios::Plugin.
 
+0.32 3rd March 2009
+  - Handle performance data with quotes in the label (thanks to Kang)
+  - Die if default config file is not available and --extra-opts is set
+
 0.31 5th January 2009
   - Check for valid numerical value before returning perfdata object
 

@@ -1,6 +1,6 @@
 
 use strict;
-use Test::More tests => 87;
+use Test::More tests => 93;
 BEGIN { 
   use_ok('Nagios::Plugin::Threshold'); 
   use_ok('Nagios::Plugin::Functions', ':all' );
@@ -12,6 +12,18 @@ diag "\nusing Nagios::Plugin::Threshold revision ". $Nagios::Plugin::Threshold::
   if $ENV{TEST_VERBOSE};
 
 Nagios::Plugin::Functions::_fake_exit(1);
+
+my $t;
+
+$t = Nagios::Plugin::Threshold->set_thresholds(warning => undef, critical => undef);
+ok( defined $t, "two undefs" );
+ok( ! $t->warning->is_set, "warning not set" );
+ok( ! $t->critical->is_set, "critical not set" );
+
+$t = Nagios::Plugin::Threshold->set_thresholds(warning => "", critical => "");
+ok( defined $t, "two empty strings" );
+ok( ! $t->warning->is_set, "warning not set" );
+ok( ! $t->critical->is_set, "critical not set" );
 
 diag "threshold: critical if > 80" if $ENV{TEST_VERBOSE};
 my $t = Nagios::Plugin::Threshold->set_thresholds(critical => "80");
