@@ -87,7 +87,14 @@ sub parse_perfstring {
 		# If there is more than 1 equals sign, split it out and parse individually
 		if (@{[$perfstring =~ /=/g]} > 1) {
 			$perfstring =~ s/^(.*?=.*?)\s//;
-			$obj = $class->_parse($1);
+			if (defined $1) {
+				$obj = $class->_parse($1);
+			} else {
+				# This could occur if perfdata was soemthing=value=
+				# Since this is invalid, we reset the string and continue
+				$perfstring = "";
+				$obj = $class->_parse($perfstring);
+			}
 		} else {
 			$obj = $class->_parse($perfstring);
 			$perfstring = "";

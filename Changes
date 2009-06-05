@@ -1,5 +1,8 @@
 Revision history for Perl module Nagios::Plugin.
 
+0.33 5th June 2009
+  - Fixed infinite loop when invalid performance data with multiple = were present
+
 0.32 3rd March 2009
   - Handle performance data with quotes in the label (thanks to Kang)
   - Die if default config file is not available and --extra-opts is set

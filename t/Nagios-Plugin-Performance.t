@@ -1,4 +1,5 @@
 
+use warnings;
 use strict;
 use Test::More;
 use Nagios::Plugin::Functions;
@@ -40,7 +41,7 @@ my @test = (
   },
 );
 
-plan tests => (11 * scalar @test) + 175;
+plan tests => (11 * scalar @test) + 176;
 
 use_ok('Nagios::Plugin::Performance');
 diag "\nusing Nagios::Plugin::Performance revision ". $Nagios::Plugin::Performance::VERSION . "\n" if $ENV{TEST_VERBOSE};
@@ -348,5 +349,8 @@ isnt( $p[2]->threshold->critical->is_set, 18436, "crit okay");
 is( $p[2]->min, undef, "min ok");
 is( $p[2]->max, undef, "max ok");
 
+
+@p = Nagios::Plugin::Performance->parse_perfstring("processes=9;WKFLSV32.exe;9=");
+is_deeply( \@p, [], "Fails parsing correctly");
 
 # add_perfdata tests in t/Nagios-Plugin-01.t
