@@ -254,7 +254,7 @@ plugins
    );
 
    # add valid command line options and build them into your usage/help documentation.
-   $p->add_arg(
+   $np->add_arg(
      spec => 'warning|w=s',
      help => '-w, --warning=INTEGER:INTEGER .  See '
        . 'http://nagiosplug.sourceforge.net/developer-guidelines.html#THRESHOLDFORMAT '
@@ -262,7 +262,7 @@ plugins
    );
 
    # Parse @ARGV and process standard arguments (e.g. usage, help, version)
-   $p->getopts;
+   $np->getopts;
 
 
    # Exit/return value methods - nagios_exit( CODE, MESSAGE ), 
