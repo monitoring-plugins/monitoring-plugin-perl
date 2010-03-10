@@ -173,7 +173,7 @@ sub nagios_die {
 
     # Else just assume $arg1 is the message and hope for the best
     else {
-        return nagios_exit( UNKNOWN, $arg1, $rest );
+        return nagios_exit( UNKNOWN, $arg1, $arg2 );
     }
 }
 
