@@ -11,6 +11,7 @@ use Carp;
 use base qw(Class::Accessor::Fast);
 
 Nagios::Plugin->mk_accessors(qw(
+								shortname
 								perfdata 
 								messages 
 								opts
@@ -45,11 +46,8 @@ sub new {
 		},
 	);
 
-	my $shortname = undef;
-	if (exists $args{shortname}) {
-		$shortname = $args{shortname};
-		delete $args{shortname};
-	}
+	my $shortname = Nagios::Plugin::Functions::get_shortname(\%args);
+	delete $args{shortname} if (exists $args{shortname});
 	my $self = {
 		shortname => $shortname,
 		perfdata  => [],           # to be added later
@@ -104,14 +102,6 @@ sub max_state {
 }
 sub max_state_alt {
     Nagios::Plugin::Functions::max_state_alt(@_);
-}
-
-# Override default shortname accessor to add default
-sub shortname {
-    my $self = shift;
-    $self->{shortname} = shift if @_;
-    return $self->{shortname} || 
-           Nagios::Plugin::Functions::get_shortname();
 }
 
 # top level interface to Nagios::Plugin::Threshold

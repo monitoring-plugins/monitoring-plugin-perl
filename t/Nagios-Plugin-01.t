@@ -1,7 +1,7 @@
 # Nagios::Plugin original test cases
 
 use strict;
-use Test::More tests => 13;
+use Test::More tests => 15;
 
 BEGIN { use_ok('Nagios::Plugin') };
 
@@ -22,6 +22,12 @@ is($p->shortname, "NAGIOS-PLUGIN-01", "shortname should default on new");
 
 $p = Nagios::Plugin->new( shortname => "SIZE", () );
 is($p->shortname, "SIZE", "shortname set correctly on new");
+
+$p = Nagios::Plugin->new( plugin => "check_stuff", () );
+is($p->shortname, "STUFF", "shortname uses plugin name as default");
+
+$p = Nagios::Plugin->new(  shortname => "SIZE", plugin => "check_stuff", () );
+is($p->shortname, "SIZE", "shortname is not overriden by default");
 
 diag "warn if < 10, critical if > 25 " if $ENV{TEST_VERBOSE};
 my $t = $p->set_thresholds( warning => "10:25", critical => "~:25" );
