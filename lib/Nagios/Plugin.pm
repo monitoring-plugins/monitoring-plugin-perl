@@ -21,7 +21,7 @@ Nagios::Plugin->mk_accessors(qw(
 use Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = (@STATUS_CODES);
-our @EXPORT_OK = qw(%ERRORS);
+our @EXPORT_OK = qw(%ERRORS %STATUS_TEXT);
 
 # CPAN stupidly won't index this module without a literal $VERSION here,
 #   so we're forced to duplicate it explicitly
