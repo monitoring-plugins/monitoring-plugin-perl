@@ -507,7 +507,7 @@ WARNING constant.  The thresholds may be:
 2. explicitly set by calling C<set_thresholds()> before C<check_threshold()>, or,
 
 3. implicitly set by command-line parameters -w, -c, --critical or
-   --warning, if you have run C<$plugin->getopts()>.
+   --warning, if you have run C<< $plugin->getopts() >>.
 
 The return value is ready to pass to C <nagios_exit>, e . g .,
 

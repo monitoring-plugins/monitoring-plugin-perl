@@ -1,5 +1,9 @@
 Revision history for Perl module Nagios::Plugin.
 
+0.34 15th April 2010
+  - Amended standard --extra-opts help
+  - pod fix (Frank Wiegand - RT51872)
+
 0.33 5th June 2009
   - Fixed infinite loop when invalid performance data with multiple = were present
 

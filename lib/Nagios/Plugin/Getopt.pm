@@ -38,7 +38,7 @@ my @ARGS = ({
     help => "-V, --version\n   Print version information",
   }, {
     spec => 'extra-opts:s@',
-    help => "--extra-opts=[<section>[@<config_file>]]\n   Section and/or config_file from which to load extra options (may repeat)",
+    help => "--extra-opts=[section][\@file]\n   Read options from an ini file. See http://nagiosplugins.org/extra-opts for usage",
   }, {
     spec => 'timeout|t=i',
     help => "-t, --timeout=INTEGER\n   Seconds before plugin times out (default: %s)",
