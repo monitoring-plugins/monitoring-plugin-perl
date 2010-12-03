@@ -1,5 +1,8 @@
 Revision history for Perl module Nagios::Plugin.
 
+0.35 3rd December 2010
+  - Fixed test failures with Test::More 0.96 (Slaven Rezic and Peter John Edwards - RT57709)
+
 0.34 15th April 2010
   - Amended standard --extra-opts help
   - pod fix (Frank Wiegand - RT51872)
