@@ -289,7 +289,7 @@ plugins
        $np->add_message( OK, $_ );
      }
    }
-   ($code, $message) = $np->check_message();
+   ($code, $message) = $np->check_messages();
    nagios_exit( $code, $message );
    # If any items in collection matched m/Error/, returns CRITICAL and 
    #   the joined set of Error messages; otherwise returns OK and the 
@@ -541,7 +541,7 @@ add_messages and check_messages are higher-level convenience methods to add
 and then check a set of messages, returning an appropriate return code
 and/or result message. They are equivalent to maintaining a set of @critical,
 @warning, and and @ok message arrays (add_message), and then doing a final 
-if test (check_message) like this:
+if test (check_messages) like this:
 
   if (@critical) {
     nagios_exit( CRITICAL, join(' ', @critical) );
