@@ -16,11 +16,16 @@ sub get_status
 {
 	my ($self, $value) = @_;
 
-	if ($self->critical->is_set) {
-		return CRITICAL if $self->critical->check_range($value);
+	$value = [ $value ] if (ref $value eq "");
+	foreach my $v (@$value) {
+		if ($self->critical->is_set) {
+			return CRITICAL if $self->critical->check_range($v);
+		}
 	}
-	if ($self->warning->is_set) {
-		return WARNING if $self->warning->check_range($value);
+	foreach my $v (@$value) { 
+		if ($self->warning->is_set) {
+			return WARNING if $self->warning->check_range($v);
+		}
 	}
 	return OK;
 }

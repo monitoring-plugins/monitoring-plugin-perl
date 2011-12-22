@@ -3,7 +3,7 @@
 
 use strict;
 #use Test::More 'no_plan';
-use Test::More tests=>26;
+use Test::More tests=>30;
 
 BEGIN { use_ok('Nagios::Plugin') };
 use Nagios::Plugin::Functions;
@@ -51,6 +51,12 @@ is $p->check_threshold(2), OK, "check_threshold OK when called implicitly";
 is $p->check_threshold(6), WARNING, "check_threshold WARNING";
 is $p->check_threshold(11), CRITICAL, "check_threshold CRITICAL";
 is $p->check_threshold(check=>11), CRITICAL, "check_threshold CRITICAL with hash param";
+
+# Check that arrays allowed
+is $p->check_threshold([2,1]), OK, "check_threshold OK when called implicitly";
+is $p->check_threshold([6,2]), WARNING, "check_threshold WARNING";
+is $p->check_threshold([1,2,6,11]), CRITICAL, "check_threshold CRITICAL";
+is $p->check_threshold(check=>[1,2,6,11]), CRITICAL, "check_threshold CRITICAL with hash param";
 
 # thresholds set explicitly
 is $p->check_threshold(

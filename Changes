@@ -1,5 +1,8 @@
 Revision history for Perl module Nagios::Plugin.
 
+0.36 22nd December 2011
+  - Updated check_threshold to allow multiple check values to be checked at once
+
 0.35 3rd December 2010
   - Fixed test failures with Test::More 0.96 (Slaven Rezic and Peter John Edwards - RT57709)
 

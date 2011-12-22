@@ -110,7 +110,7 @@ sub check_threshold {
 
 	my %args;
 
-	if ( $#_ == 0 && ! ref $_[0]) {  # one positional param
+	if ( $#_ == 0 && (! ref $_[0] || ref $_[0] eq "ARRAY" )) {  # one positional param
 		%args = (check => shift);
 	}
 	else {
@@ -508,6 +508,9 @@ WARNING constant.  The thresholds may be:
 
 3. implicitly set by command-line parameters -w, -c, --critical or
    --warning, if you have run C<< $plugin->getopts() >>.
+
+You can specify $value as an array of values and each will be checked against
+the thresholds.
 
 The return value is ready to pass to C <nagios_exit>, e . g .,
 
