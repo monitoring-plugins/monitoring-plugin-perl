@@ -249,6 +249,7 @@ sub _load_config_section
   # TODO: is this check sane? Does --extra-opts=foo require a [foo] section?
   ## Nevertheless, if we die as UNKNOWN here we should do the same on default
   ## file *added eval/_die above*.
+  $file ||= $Config->np_getfile();
   $self->_die("Invalid section '$section' in config file '$file'")
     unless exists $Config->{$section};
 

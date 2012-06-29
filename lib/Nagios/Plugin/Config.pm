@@ -7,6 +7,7 @@ use base qw(Config::Tiny);
 
 my $FILENAME1 = 'plugins.ini';
 my $FILENAME2 = 'nagios-plugins.ini';
+my $CURRENT_FILE = undef;
 
 # Config paths ending in nagios (search for $FILENAME1)
 my @NAGIOS_CONFIG_PATH = qw(/etc/nagios /usr/local/nagios/etc /usr/local/etc/nagios /etc/opt/nagios);
@@ -42,6 +43,7 @@ sub read
                 die "Cannot find '$FILENAME1' or '$FILENAME2' in any standard location.\n" unless $_[0];
         }
 
+        $CURRENT_FILE = $_[0];
         $class->SUPER::read( @_ );
 }
 
@@ -73,7 +75,7 @@ sub read_string
 
                 # Handle properties
                 if ( /^\s*([^=]+?)\s*=\s*(.*?)\s*$/ ) {
-			push @{$self->{$ns}->{$1}}, $2;
+                        push @{$self->{$ns}->{$1}}, $2;
                         next;
                 }
 
@@ -84,6 +86,9 @@ sub read_string
 }
 
 sub write { croak "Write access not permitted" }
+
+# Return last file used by read();
+sub np_getfile { return $CURRENT_FILE; }
 
 1;
 
