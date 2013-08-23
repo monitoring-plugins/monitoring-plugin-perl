@@ -338,7 +338,7 @@ sub _process_extra_opts
     my $file = '';
 
     # Parse section@file
-    if ($extopts =~ m/^(\w*)@(.*?)\s*$/) {
+    if ($extopts =~ m/^([^@]*)@(.*?)\s*$/) {
       $section = $1;
       $file = $2;
     }
