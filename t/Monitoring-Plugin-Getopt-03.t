@@ -1,4 +1,4 @@
-# Nagios::Plugin::Getopt --extra-opts tests
+# Monitoring::Plugin::Getopt --extra-opts tests
 
 use strict;
 use File::Spec;
@@ -6,15 +6,15 @@ use File::Basename;
 use IO::File;
 
 use Test::More qw(no_plan);
-BEGIN { use_ok('Nagios::Plugin::Getopt') };
+BEGIN { use_ok('Monitoring::Plugin::Getopt') };
 
 # Needed to get evals to work in testing
-Nagios::Plugin::Functions::_use_die(1);
+Monitoring::Plugin::Functions::_use_die(1);
 
 my $tdir = 'npg03';
 if (! -d $tdir) {
   my $ttdir = File::Spec->catdir('t', $tdir);
-  die "missing '$tdir' directory\n" unless -d $ttdir; 
+  die "missing '$tdir' directory\n" unless -d $ttdir;
   $tdir = $ttdir;
 }
 
@@ -30,22 +30,22 @@ for my $efile (glob File::Spec->catfile($tdir, 'expected', '*')) {
   }
 }
 
-# Override NAGIOS_CONFIG_PATH to use our test plugins.ini file
-$ENV{NAGIOS_CONFIG_PATH} = "/random/bogus/path:$tdir";
+# Override MONITORING_CONFIG_PATH to use our test plugins.ini file
+$ENV{MONITORING_CONFIG_PATH} = "/random/bogus/path:$tdir";
 
 my %PARAM = (
     version => '0.01',
-    blurb => 'This plugin tests various stuff.', 
-    usage => "Usage: %s -H <host> -w <warning_threshold> 
+    blurb => 'This plugin tests various stuff.',
+    usage => "Usage: %s -H <host> -w <warning_threshold>
   -c <critical threshold>",
 );
 
-sub ng_setup 
+sub ng_setup
 {
   my $arg = shift;
 
   # Instantiate object
-  my $ng = Nagios::Plugin::Getopt->new(%PARAM);
+  my $ng = Monitoring::Plugin::Getopt->new(%PARAM);
 
   if (ref $arg eq 'ARRAY' && @$arg) {
     $ng->arg(%$_) foreach @$arg;
@@ -54,7 +54,7 @@ sub ng_setup
   return $ng;
 }
 
-# Setup our Nagios::Plugin::Getopt object
+# Setup our Monitoring::Plugin::Getopt object
 my $ng;
 my $arg = [
   { spec => 'S',            help => '-S' },
@@ -85,9 +85,9 @@ for my $infile (glob File::Spec->catfile($tdir, 'input', $glob)) {
     $cmd =~ s/^\s+//;
     my ($plugin, @args) = split /\s+/, $cmd;
 
-    # Fake out the plugin name 
+    # Fake out the plugin name
     $ng->{_attr}->{plugin} = $plugin;
-    
+
     # Parse the options
     SKIP: {
       skip "Skipping ..." if $SKIP{$infile};
@@ -99,10 +99,9 @@ for my $infile (glob File::Spec->catfile($tdir, 'input', $glob)) {
         ok($infile =~ m/_(dies?|catch)$/, "$infile ($@)");
         is($@, $EXPECTED{$infile}, $infile) if ($infile =~ m/_catch$/);
       }
-      else { 
+      else {
         is($plugin . ' ' . $ng->_cmdline, $EXPECTED{$infile}, $infile);
       }
     }
   }
 }
-

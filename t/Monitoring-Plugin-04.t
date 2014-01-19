@@ -5,25 +5,25 @@ use strict;
 #use Test::More 'no_plan';
 use Test::More tests=>30;
 
-BEGIN { use_ok('Nagios::Plugin') };
-use Nagios::Plugin::Functions;
-Nagios::Plugin::Functions::_fake_exit(1);
+BEGIN { use_ok('Monitoring::Plugin') };
+use Monitoring::Plugin::Functions;
+Monitoring::Plugin::Functions::_fake_exit(1);
 
 
-eval { Nagios::Plugin->new(); };
+eval { Monitoring::Plugin->new(); };
 ok(! $@, "constructor DOESN'T die without usage");
 
-my $p = Nagios::Plugin->new();
+my $p = Monitoring::Plugin->new();
 eval { $p->add_arg('warning', 'warning') };
 ok($@, "add_arg() dies if you haven't instantiated with usage");
 eval { $p->getopts };
 ok($@, "getopts() dies if you haven't instantiated with usage");
 
-$p = Nagios::Plugin->new( usage => "dummy usage statement" );
+$p = Monitoring::Plugin->new( usage => "dummy usage statement" );
 
 # option accessors work
 can_ok $p, 'opts';
-isa_ok $p->opts, 'Nagios::Plugin::Getopt', "Getopt object is defined";
+isa_ok $p->opts, 'Monitoring::Plugin::Getopt', "Getopt object is defined";
 
 $p->add_arg('warning|w=s', "warning");
 $p->add_arg('critical|c=s', "critical");
@@ -35,11 +35,11 @@ is $p->opts->critical, "10", "critical opt is accessible";
 
 
 can_ok $p, 'perfdata';
-#isa_ok $p->perfdata, 'Nagios::Plugin::Performance', "perfdata object is defined";
+#isa_ok $p->perfdata, 'Monitoring::Plugin::Performance', "perfdata object is defined";
 
 
 can_ok $p, 'threshold';
-#isa_ok $p->threshold, 'Nagios::Plugin::Threshold', "threshold object is defined";
+#isa_ok $p->threshold, 'Monitoring::Plugin::Threshold', "threshold object is defined";
 
 
 eval { $p->check_threshold() };
@@ -60,20 +60,20 @@ is $p->check_threshold(check=>[1,2,6,11]), CRITICAL, "check_threshold CRITICAL w
 
 # thresholds set explicitly
 is $p->check_threshold(
-					   check    => 2, 
+					   check    => 2,
 					   warning  => 50,
 					   critical => 100
 ), OK, "check_threshold explicit OK";
 
 is $p->check_threshold(
-					   check    => 66, 
+					   check    => 66,
 					   warning  => 50,
 					   critical => 100
 ), WARNING, "check_threshold explicit WARNING";
 
 
 is $p->check_threshold(
-					   check    => -1, 
+					   check    => -1,
 					   warning  => 5,
 					   critical => '0:5',
 ), CRITICAL, "check_threshold explicit CRITICAL";
@@ -82,7 +82,7 @@ is $p->check_threshold(
 
 # what happens if you forget to define warning or critical thresholds?
 $p = undef;
-$p = Nagios::Plugin->new();
+$p = Monitoring::Plugin->new();
 
 is $p->check_threshold(2), UNKNOWN, "everything is now UNKNOWN";
 is $p->check_threshold(-200), UNKNOWN, "everything is now UNKNOWN";

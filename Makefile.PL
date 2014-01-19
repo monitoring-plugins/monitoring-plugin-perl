@@ -1,22 +1,23 @@
-use 5.006;
-use ExtUtils::MakeMaker;
-# See lib/ExtUtils/MakeMaker.pm for details of how to influence
-# the contents of the Makefile that is written.
-WriteMakefile(
-    NAME              => 'Nagios::Plugin',
-    VERSION_FROM      => 'lib/Nagios/Plugin/Functions.pm', # finds $VERSION
-    PREREQ_PM         => {
-        Params::Validate    => 0,
-        Class::Accessor     => 0,
-        Test::More 	        => 0.62,
-        Carp                => 0,
-        Config::Tiny        => 0,
-        File::Spec          => 0,
-        File::Basename      => 0,
-        IO::File            => 0,
-        Math::Calc::Units   => 0,           # used in N::P::Performance
-    }, # e.g., Module::Name => 1.1
-    ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
-      (ABSTRACT_FROM  => 'lib/Nagios/Plugin.pm', # retrieve abstract from module
-       AUTHOR         => 'Nagios Plugin Development Team <nagiosplug-devel@lists.sourceforge.net>') : ()),
-);
+use inc::Module::Install;
+
+name     'Monitoring-Plugin';
+all_from 'lib/Monitoring/Plugin/Functions.pm';
+author   q{Monitoring Plugin Team <devel@monitoring-plugins.org>};
+license  'perl';
+repository 'https://github.com/monitoring-plugins/monitoring-plugin-perl';
+
+requires 'Params::Validate'   => 0;
+requires 'Class::Accessor'    => 0;
+requires 'Carp'               => 0;
+requires 'Config::Tiny'       => 0;
+requires 'File::Spec'         => 0;
+requires 'File::Basename'     => 0;
+requires 'IO::File'           => 0;
+requires 'Math::Calc::Units'  => 0;           # used in M::P::Performance
+
+
+build_requires 'Test::More'   => 0.62;
+
+auto_install;
+
+WriteAll;

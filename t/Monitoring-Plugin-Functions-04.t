@@ -3,7 +3,7 @@
 use strict;
 use Test::More tests => 8;
 
-BEGIN { use_ok("Nagios::Plugin::Functions", ":all") }
+BEGIN { use_ok("Monitoring::Plugin::Functions", ":all") }
 
 my $new_state = max_state_alt( OK, WARNING );
 

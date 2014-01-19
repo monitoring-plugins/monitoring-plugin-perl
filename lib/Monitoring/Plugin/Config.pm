@@ -1,4 +1,4 @@
-package Nagios::Plugin::Config;
+package Monitoring::Plugin::Config;
 
 use strict;
 use Carp;
@@ -7,10 +7,11 @@ use base qw(Config::Tiny);
 
 my $FILENAME1 = 'plugins.ini';
 my $FILENAME2 = 'nagios-plugins.ini';
+my $FILENAME3 = 'monitoring-plugins.ini';
 my $CURRENT_FILE = undef;
 
 # Config paths ending in nagios (search for $FILENAME1)
-my @NAGIOS_CONFIG_PATH = qw(/etc/nagios /usr/local/nagios/etc /usr/local/etc/nagios /etc/opt/nagios);
+my @MONITORING_CONFIG_PATH = qw(/etc/nagios /usr/local/nagios/etc /usr/local/etc/nagios /etc/opt/nagios);
 # Config paths not ending in nagios (search for $FILENAME2)
 my @CONFIG_PATH = qw(/etc /usr/local/etc /etc/opt);
 
@@ -21,26 +22,30 @@ sub read
 
         unless ($_[0]) {
                 SEARCH: {
-                       if ($ENV{NAGIOS_CONFIG_PATH}) {
-                               for (split /:/, $ENV{NAGIOS_CONFIG_PATH}) {
+                       if ($ENV{MONITORING_CONFIG_PATH} || $ENV{NAGIOS_CONFIG_PATH}) {
+                               for (split /:/, ($ENV{MONITORING_CONFIG_PATH} || $ENV{NAGIOS_CONFIG_PATH})) {
                                        my $file = File::Spec->catfile($_, $FILENAME1);
                                        unshift(@_, $file), last SEARCH if -f $file;
                                        $file = File::Spec->catfile($_, $FILENAME2);
                                        unshift(@_, $file), last SEARCH if -f $file;
+                                       $file = File::Spec->catfile($_, $FILENAME3);
+                                       unshift(@_, $file), last SEARCH if -f $file;
                                }
                        }
-                       for (@NAGIOS_CONFIG_PATH) {
+                       for (@MONITORING_CONFIG_PATH) {
                                my $file = File::Spec->catfile($_, $FILENAME1);
                                unshift(@_, $file), last SEARCH if -f $file;
                        }
                        for (@CONFIG_PATH) {
                                my $file = File::Spec->catfile($_, $FILENAME2);
                                unshift(@_, $file), last SEARCH if -f $file;
+                               $file = File::Spec->catfile($_, $FILENAME3);
+                               unshift(@_, $file), last SEARCH if -f $file;
                        }
                 }
 
                 # Use die instead of croak, so we can pass a clean message downstream
-                die "Cannot find '$FILENAME1' or '$FILENAME2' in any standard location.\n" unless $_[0];
+                die "Cannot find '$FILENAME1', '$FILENAME2' or '$FILENAME3' in any standard location.\n" unless $_[0];
         }
 
         $CURRENT_FILE = $_[0];
@@ -94,15 +99,15 @@ sub np_getfile { return $CURRENT_FILE; }
 
 =head1 NAME
 
-Nagios::Plugin::Config - read nagios plugin .ini style config files
+Monitoring::Plugin::Config - read nagios plugin .ini style config files
 
 =head1 SYNOPSIS
 
     # Read given nagios plugin config file
-    $Config = Nagios::Plugin::Config->read( '/etc/nagios/plugins.ini' );
+    $Config = Monitoring::Plugin::Config->read( '/etc/nagios/plugins.ini' );
 
     # Search for and read default nagios plugin config file
-    $Config = Nagios::Plugin::Config->read();
+    $Config = Monitoring::Plugin::Config->read();
 
     # Access sections and properties (returns scalars or arrayrefs)
     $rootproperty =  $Config->{_}->{rootproperty};
@@ -111,22 +116,22 @@ Nagios::Plugin::Config - read nagios plugin .ini style config files
 
 =head1 DESCRIPTION
 
-Nagios::Plugin::Config is a subclass of the excellent Config::Tiny,
+Monitoring::Plugin::Config is a subclass of the excellent Config::Tiny,
 with the following changes:
 
 =over 4
 
-=item 
+=item
 
 Repeated keys are allowed within sections, returning lists instead of scalars
 
-=item 
+=item
 
 Write functionality has been removed i.e. access is read only
 
-=item 
+=item
 
-Nagios::Plugin::Config searches for a default nagios plugins file if no explicit 
+Monitoring::Plugin::Config searches for a default nagios plugins file if no explicit
 filename is given to C<read()>. The current standard locations checked are:
 
 =over 4
@@ -137,15 +142,15 @@ filename is given to C<read()>. The current standard locations checked are:
 
 =item /usr/local/etc/nagios /etc/opt/nagios/plugins.ini
 
-=item /etc/nagios-plugins.ini 
+=item /etc/nagios-plugins.ini
 
-=item /usr/local/etc/nagios-plugins.ini 
+=item /usr/local/etc/nagios-plugins.ini
 
 =item /etc/opt/nagios-plugins.ini
 
 =back
 
-To use a custom location, set a C<NAGIOS_CONFIG_PATH> environment variable 
+To use a custom location, set a C<NAGIOS_CONFIG_PATH> environment variable
 to the set of directories that should be checked. The first C<plugins.ini> or
 C<nagios-plugins.ini> file found will be used.
 
@@ -154,21 +159,19 @@ C<nagios-plugins.ini> file found will be used.
 
 =head1 SEE ALSO
 
-L<Config::Tiny>, L<Nagios::Plugin>
+L<Config::Tiny>, L<Monitoring::Plugin>
 
 
-=head1 AUTHORS
+=head1 AUTHOR
 
-This code is maintained by the Nagios Plugin Development Team: 
-L<http://nagiosplug.sourceforge.net>.
+This code is maintained by the Monitoring Plugin Development Team: see
+https://monitoring-plugins.org
 
+=head1 COPYRIGHT AND LICENSE
 
-=head1 COPYRIGHT and LICENCE
-
-Copyright (C) 2006-2007 by Nagios Plugin Development Team
+Copyright (C) 2006-2014 Monitoring Plugin Development Team
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 =cut
-

@@ -1,33 +1,33 @@
-# Nagios::Plugin::Getopt basic tests
+# Monitoring::Plugin::Getopt basic tests
 
 use strict;
 
 use Test::More tests => 76;
-BEGIN { use_ok('Nagios::Plugin::Getopt') };
+BEGIN { use_ok('Monitoring::Plugin::Getopt') };
 
 # Needed to get evals to work in testing
-Nagios::Plugin::Functions::_use_die(1);
+Monitoring::Plugin::Functions::_use_die(1);
 
 my %PARAM = (
     version => '0.01',
     url => 'http://www.openfusion.com.au/labs/nagios/',
-    blurb => 'This plugin tests various stuff.', 
-    usage => "Usage: %s -H <host> -w <warning_threshold> 
+    blurb => 'This plugin tests various stuff.',
+    usage => "Usage: %s -H <host> -w <warning_threshold>
   -c <critical threshold>",
     plugin => 'test_plugin',
 );
 
-sub setup 
+sub setup
 {
   # Instantiate object
-  my $ng = Nagios::Plugin::Getopt->new(%PARAM);
+  my $ng = Monitoring::Plugin::Getopt->new(%PARAM);
   ok($ng, 'constructor ok');
 
   # Add argument - short form - arg spec, help text, default, required?
   $ng->arg('warning|w=s' =>
     qq(-w, --warning=INTEGER\n   Exit with WARNING status if less than INTEGER foobars are free),
     5);
-  
+
   # Add argument - named version
   $ng->arg(
     spec => 'critical|c=i',
@@ -147,4 +147,3 @@ like($@, qr/--verbose/, 'help includes default options 2');
 like($@, qr/--warning/, 'help includes custom option 1');
 like($@, qr/-c, --critical=INTEGER/, 'help includes custom option 2, with expanded args');
 unlike($@, qr/Missing arg/, 'no missing arguments');
-

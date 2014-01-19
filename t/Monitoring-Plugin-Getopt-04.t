@@ -1,29 +1,29 @@
-# Nagios::Plugin::Getopt spec-to-help generation tests
+# Monitoring::Plugin::Getopt spec-to-help generation tests
 
 use strict;
 
 use Test::More tests => 11;
-BEGIN { use_ok('Nagios::Plugin::Getopt') };
+BEGIN { use_ok('Monitoring::Plugin::Getopt') };
 
 # Needed to get evals to work in testing
-Nagios::Plugin::Functions::_use_die(1);
+Monitoring::Plugin::Functions::_use_die(1);
 
 my %PARAM = (
     version => '0.01',
     usage => "Don't use this plugin!",
 );
 
-sub setup 
+sub setup
 {
   # Instantiate object
-  my $ng = Nagios::Plugin::Getopt->new(%PARAM);
+  my $ng = Monitoring::Plugin::Getopt->new(%PARAM);
   ok($ng, 'constructor ok');
 
   # Positional args, no short arguments, INTEGER
   $ng->arg('warning=i' =>
     qq(Exit with WARNING status if less than INTEGER foobars are free),
     5);
-  
+
   # Named args, long + short arguments, INTEGER
   $ng->arg(
     spec => 'critical|c=i',
@@ -35,7 +35,7 @@ sub setup
   $ng->arg(
     spec => 'x|y|z=s',
     help => qq(Foobar. Default: %s),
-    default => "XYZ", 
+    default => "XYZ",
   );
 
   # Named args, multiple mixed, no label
@@ -95,4 +95,3 @@ like($@, qr/\n --avatar=AVATAR\n   Avatar\n/, 'avatar ok');
 like($@, qr/\n --disk=BYTES\n   Disk limit in BYTES\n --disk=PERCENT%\n   Disk limit in PERCENT\n --disk=STRING\n   Disk limit in FOOBARS \(Default: 1024\)\n/, 'disk multiline ok');
 like($@, qr/\n --limit=STRING\n   Limit in BYTES\n --limit=PERCENT%\n   Limit in PERCENT\n/, 'limit multiline ok');
 #print $@;
-

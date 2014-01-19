@@ -1,0 +1,21 @@
+.DS_Store
+\.swp
+blib
+tmp
+\.git
+^Makefile$
+Makefile.old
+MANIFEST.bak
+MANIFEST.SKIP
+MYMETA.yml
+MYMETA.json
+pm_to_blib
+.*\.gz
+# does not work for centos without F::C::R installed
+inc/File/Copy/Recursive.pm
+TODO
+build-stamp
+configure-stamp
+nytprof/
+nytprof.out
+.~ko-6.1.3-perllint~

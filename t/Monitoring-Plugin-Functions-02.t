@@ -3,7 +3,7 @@
 use strict;
 use Test::More tests => 37;
 
-BEGIN { use_ok("Nagios::Plugin::Functions", ":all") }
+BEGIN { use_ok("Monitoring::Plugin::Functions", ":all") }
 
 my ($code, $message);
 
@@ -105,11 +105,11 @@ is($message, join(' ', @{$arrays{ok}}), "joined undef (ok) message is $message")
 # -------------------------------------------------------------------------
 # join_all messages
 my $join_all = ' :: ';
-my $msg_all_cwo = join($join_all, map { join(' ', @{$arrays{$_}}) } 
+my $msg_all_cwo = join($join_all, map { join(' ', @{$arrays{$_}}) }
     qw(critical warning ok));
-my $msg_all_cw = join($join_all, map { join(' ', @{$arrays{$_}}) } 
+my $msg_all_cw = join($join_all, map { join(' ', @{$arrays{$_}}) }
     qw(critical warning));
-my $msg_all_wo = join($join_all, map { join(' ', @{$arrays{$_}}) } 
+my $msg_all_wo = join($join_all, map { join(' ', @{$arrays{$_}}) }
     qw(warning ok));
 
 # critical, warning, ok
@@ -175,4 +175,3 @@ ok(! defined eval { ($code, $message) = check_messages(critical => $arrays{criti
 
 ok(defined eval { ($code, $message) = check_messages(critical => $arrays{critical}, warning => $arrays{warning}) },
     "check_messages ok with 'critical' and 'warning' messages");
-

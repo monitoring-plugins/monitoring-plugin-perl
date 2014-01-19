@@ -1,9 +1,9 @@
 #
-# Nagios::Plugin::Getopt - OO perl module providing standardised argument 
+# Monitoring::Plugin::Getopt - OO perl module providing standardised argument
 #   processing for nagios plugins
 #
 
-package Nagios::Plugin::Getopt;
+package Monitoring::Plugin::Getopt;
 
 use strict;
 use File::Basename;
@@ -12,18 +12,18 @@ use Carp;
 use Params::Validate qw(:all);
 use base qw(Class::Accessor);
 
-use Nagios::Plugin::Functions;
-use Nagios::Plugin::Config;
+use Monitoring::Plugin::Functions;
+use Monitoring::Plugin::Config;
 use vars qw($VERSION);
-$VERSION = $Nagios::Plugin::Functions::VERSION;
+$VERSION = $Monitoring::Plugin::Functions::VERSION;
 
 # Standard defaults
 my %DEFAULT = (
   timeout => 15,
   verbose => 0,
   license =>
-"This nagios plugin is free software, and comes with ABSOLUTELY NO WARRANTY. 
-It may be used, redistributed and/or modified under the terms of the GNU 
+"This nagios plugin is free software, and comes with ABSOLUTELY NO WARRANTY.
+It may be used, redistributed and/or modified under the terms of the GNU
 General Public Licence (see http://www.fsf.org/licensing/licenses/gpl.txt).",
 );
 # Standard arguments
@@ -60,7 +60,7 @@ sub _die
   my $self = shift;
   my ($msg) = @_;
   $msg .= "\n" unless substr($msg, -1) eq "\n";
-  Nagios::Plugin::Functions::_nagios_exit(3, $msg);
+  Monitoring::Plugin::Functions::_plugin_exit(3, $msg);
 }
 
 # Return the given attribute, if set, including a final newline
@@ -182,7 +182,7 @@ sub _help
 }
 
 # Return a Getopt::Long-compatible option array from the current set of specs
-sub _process_specs_getopt_long 
+sub _process_specs_getopt_long
 {
   my $self = shift;
 
@@ -217,7 +217,7 @@ sub _check_required_opts
     }
   }
   if (@missing) {
-    $self->_die($self->_usage . "\n" . 
+    $self->_die($self->_usage . "\n" .
         join("\n", map { sprintf "Missing argument: %s", $_ } @missing) . "\n");
   }
 }
@@ -243,7 +243,7 @@ sub _load_config_section
   $section ||= $self->{_attr}->{plugin};
 
   my $Config;
-  eval { $Config = Nagios::Plugin::Config->read($file); };
+  eval { $Config = Monitoring::Plugin::Config->read($file); };
   $self->_die($@) if ($@); #TODO: add test?
 
   # TODO: is this check sane? Does --extra-opts=foo require a [foo] section?
@@ -295,7 +295,7 @@ sub _cmdline
     next if $key =~ m/^_/;
 
     # Skip defaults and internals
-    next if exists $DEFAULT{$key} && $hash->{$key} eq $DEFAULT{$key}; 
+    next if exists $DEFAULT{$key} && $hash->{$key} eq $DEFAULT{$key};
     next if grep { $key eq $_ } qw(help usage version extra-opts);
     next unless defined $hash->{$key};
 
@@ -307,7 +307,7 @@ sub _cmdline
         $value = $self->_cmdline_value($value);
         if (length($key) > 1) {
           push @args, sprintf "--%s=%s", $key, $value;
-        } 
+        }
         else {
           push @args, "-$key", $value;
         }
@@ -445,7 +445,7 @@ sub _init
   my $self = shift;
 
   # Check params
-  my $plugin = basename($ENV{NAGIOS_PLUGIN} || $0);
+  my $plugin = basename($ENV{PLUGIN_NAME} || $ENV{NAGIOS_PLUGIN} || $0);
   my %attr = validate( @_, {
     usage => 1,
     version => 0,
@@ -470,7 +470,7 @@ sub _init
   $self
 }
 
-sub new 
+sub new
 {
   my $class = shift;
   my $self = bless {}, $class;
@@ -485,20 +485,20 @@ __END__
 
 =head1 NAME
 
-Nagios::Plugin::Getopt - OO perl module providing standardised argument 
+Monitoring::Plugin::Getopt - OO perl module providing standardised argument
 processing for Nagios plugins
 
 
 =head1 SYNOPSIS
 
-  use Nagios::Plugin::Getopt;
+  use Monitoring::Plugin::Getopt;
 
   # Instantiate object (usage is mandatory)
-  $ng = Nagios::Plugin::Getopt->new(
+  $ng = Monitoring::Plugin::Getopt->new(
     usage => "Usage: %s -H <host> -w <warning> -c <critical>",
     version => '0.1',
     url => 'http://www.openfusion.com.au/labs/nagios/',
-    blurb => 'This plugin tests various stuff.', 
+    blurb => 'This plugin tests various stuff.',
   );
 
   # Add argument - named parameters (spec and help are mandatory)
@@ -509,7 +509,7 @@ processing for Nagios plugins
     default => 10,
   );
 
-  # Add argument - positional parameters - arg spec, help text, 
+  # Add argument - positional parameters - arg spec, help text,
   #   default value, required? (first two mandatory)
   $ng->arg(
     'warning|w=i',
@@ -528,23 +528,23 @@ processing for Nagios plugins
 
 =head1 DESCRIPTION
 
-Nagios::Plugin::Getopt is an OO perl module providing standardised and 
-simplified argument processing for Nagios plugins. It implements 
-a number of standard arguments itself (--help, --version, 
---usage, --timeout, --verbose, and their short form counterparts), 
-produces standardised nagios plugin help output, and allows 
+Monitoring::Plugin::Getopt is an OO perl module providing standardised and
+simplified argument processing for Nagios plugins. It implements
+a number of standard arguments itself (--help, --version,
+--usage, --timeout, --verbose, and their short form counterparts),
+produces standardised nagios plugin help output, and allows
 additional arguments to be easily defined.
 
 
 =head2 CONSTRUCTOR
 
   # Instantiate object (usage is mandatory)
-  $ng = Nagios::Plugin::Getopt->new(
+  $ng = Monitoring::Plugin::Getopt->new(
     usage => 'Usage: %s --hello',
     version => '0.01',
   );
 
-The Nagios::Plugin::Getopt constructor accepts the following named 
+The Monitoring::Plugin::Getopt constructor accepts the following named
 arguments:
 
 =over 4
@@ -573,7 +573,7 @@ the longer --help output. e.g.
 
 =item url
 
-URL for info about this plugin, included in the --version/-V output, 
+URL for info about this plugin, included in the --version/-V output,
 and in the longer --help output (see preceding 'version' example).
 
 =item blurb
@@ -583,20 +583,20 @@ Short plugin description, included in the longer --help output
 
 =item license
 
-License text, included in the longer --help output (see below for an 
+License text, included in the longer --help output (see below for an
 example). By default, this is set to the standard nagios plugins
 GPL license text:
 
-  This nagios plugin is free software, and comes with ABSOLUTELY 
-  NO WARRANTY. It may be used, redistributed and/or modified under 
-  the terms of the GNU General Public Licence (see 
+  This nagios plugin is free software, and comes with ABSOLUTELY
+  NO WARRANTY. It may be used, redistributed and/or modified under
+  the terms of the GNU General Public Licence (see
   http://www.fsf.org/licensing/licenses/gpl.txt).
 
 Provide your own to replace this text in the help output.
 
 =item extra
 
-Extra text to be appended at the end of the longer --help output. 
+Extra text to be appended at the end of the longer --help output.
 
 =item plugin
 
@@ -605,7 +605,7 @@ usually correct, but you can set it explicitly if not.
 
 =item timeout
 
-Timeout period in seconds, overriding the standard timeout default 
+Timeout period in seconds, overriding the standard timeout default
 (15 seconds).
 
 =back
@@ -630,8 +630,8 @@ example:
   $ ./check_tcp_range -h
   check_tcp_range 0.2 [http://www.openfusion.com.au/labs/nagios/]
 
-  This nagios plugin is free software, and comes with ABSOLUTELY NO WARRANTY. 
-  It may be used, redistributed and/or modified under the terms of the GNU 
+  This nagios plugin is free software, and comes with ABSOLUTELY NO WARRANTY.
+  It may be used, redistributed and/or modified under the terms of the GNU
   General Public Licence (see http://www.fsf.org/licensing/licenses/gpl.txt).
 
   This plugin tests arbitrary ranges/sets of tcp ports for a host.
@@ -647,7 +647,7 @@ example:
      Host name or IP address
    -p, --ports=STRING
      Port numbers to check. Format: comma-separated, colons for ranges,
-     no spaces e.g. 8700:8705,8710:8715,8760 
+     no spaces e.g. 8700:8705,8710:8715,8760
    -t, --timeout=INTEGER
      Seconds before plugin times out (default: 15)
    -v, --verbose
@@ -656,14 +656,14 @@ example:
 
 =head2 ARGUMENTS
 
-You can define arguments for your plugin using the arg() method, which 
+You can define arguments for your plugin using the arg() method, which
 supports both named and positional arguments. In both cases
-the C<spec> and C<help> arguments are required, while the C<label>, 
+the C<spec> and C<help> arguments are required, while the C<label>,
 C<default>, and C<required> arguments are optional:
 
   # Define --hello argument (named parameters)
   $ng->arg(
-    spec => 'hello|h=s', 
+    spec => 'hello|h=s',
     help => "Hello string",
     required => 1,
   );
@@ -710,12 +710,12 @@ The help string is munged in two ways:
 
 =item
 
-First, if the help string does NOT begins with a '-' sign, it is prefixed 
-by an expanded form of the C<spec> argument. For instance, the following 
+First, if the help string does NOT begins with a '-' sign, it is prefixed
+by an expanded form of the C<spec> argument. For instance, the following
 hello argument:
 
   $ng->arg(
-    spec => 'hello|h=s', 
+    spec => 'hello|h=s',
     help => "Hello string",
   );
 
@@ -727,9 +727,9 @@ would be displayed in the help output as:
 where the '-h, --hello=STRING' part is derived from the spec definition
 (by convention with short args first, then long, then label/type, if any).
 
-=item 
+=item
 
-Second, if the string contains a '%s' it will be formatted via 
+Second, if the string contains a '%s' it will be formatted via
 C<sprintf> with the 'default' as the argument i.e.
 
   sprintf($help, $default)
@@ -756,18 +756,18 @@ would be displayed in the help output as:
     Exit with WARNING status if less than PERCENT of disk space is free
 
 Note that in this case we've also specified explicit labels in another
-arrayref corresponding to the C<help> one - if this had been omitted 
-the types would have defaulted to 'STRING', instead of 'BYTES' and 
+arrayref corresponding to the C<help> one - if this had been omitted
+the types would have defaulted to 'STRING', instead of 'BYTES' and
 'PERCENT%'.
 
 
 =item label
 
-The C<label> argument is a scalar or an arrayref (see 'Multi-line help' 
+The C<label> argument is a scalar or an arrayref (see 'Multi-line help'
 description above) that overrides the standard type expansion when generating
-help text from the spec definition. By default, C<spec=i> arguments are 
-labelled as C<=INTEGER> in the help text, and C<spec=s> arguments are labelled 
-as C<=STRING>. By supplying your own C<label> argument you can override these 
+help text from the spec definition. By default, C<spec=i> arguments are
+labelled as C<=INTEGER> in the help text, and C<spec=s> arguments are labelled
+as C<=STRING>. By supplying your own C<label> argument you can override these
 standard 'INTEGER' and 'STRING' designations.
 
 For multi-line help, you can supply an ordered list (arrayref) of labels to
@@ -789,13 +789,13 @@ if none is explicitly supplied.
 
 =item required
 
-The C<required> argument is a boolean used to indicate that this argument 
-is mandatory (Nagios::Plugin::Getopt will exit with your usage message and 
+The C<required> argument is a boolean used to indicate that this argument
+is mandatory (Monitoring::Plugin::Getopt will exit with your usage message and
 a 'Missing argument' indicator if any required arguments are not supplied).
 
 =back
 
-Note that --help lists your arguments in the order they are defined, so 
+Note that --help lists your arguments in the order they are defined, so
 you should order your C<arg()> calls accordingly.
 
 
@@ -809,7 +809,7 @@ method, which takes no arguments:
 
 This parses the command line arguments passed to your plugin using
 Getopt::Long and the builtin and provided argument specifications.
-Flags and argument values are recorded within the object, and can 
+Flags and argument values are recorded within the object, and can
 be accessed either using the generic get() accessor, or using named
 accessors corresponding to your argument names. For example:
 
@@ -824,14 +824,14 @@ accessors corresponding to your argument names. For example:
     # ...
   }
 
-Note that where you have defined alternate argument names, the first is 
-considered the citation form. All the builtin arguments are available 
+Note that where you have defined alternate argument names, the first is
+considered the citation form. All the builtin arguments are available
 using their long variant names.
 
 
 =head2 BUILTIN PROCESSING
 
-The C<getopts()> method also handles processing of the immediate builtin 
+The C<getopts()> method also handles processing of the immediate builtin
 arguments, namely --usage, --version, --help, as well as checking all
 required arguments have been supplied, so you don't have to handle
 those yourself. This means that your plugin will exit from the getopts()
@@ -842,32 +842,28 @@ C<getopts()> also sets up a default ALRM timeout handler so you can use an
 
   alarm $ng->timeout;
 
-around any blocking operations within your plugin (which you are free 
+around any blocking operations within your plugin (which you are free
 to override if you want to use a custom timeout message).
 
 
 =head1 SEE ALSO
 
-Nagios::Plugin, Getopt::Long
+Monitoring::Plugin, Getopt::Long
 
 
 =head1 AUTHOR
 
-Gavin Carr <gavin@openfusion.com.au>
+This code is maintained by the Monitoring Plugin Development Team: see
+https://monitoring-plugins.org
 
+Originally:
+  Gavin Carr <gavin@openfusion.com.au>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006-2007 by the Nagios Plugin Development Team.
+Copyright (C) 2006-2014 Monitoring Plugin Development Team
 
-This module is free software. It may be used, redistributed
-and/or modified under either the terms of the Perl Artistic 
-License (see http://www.perl.com/perl/misc/Artistic.html)
-or the GNU General Public Licence (see 
-http://www.fsf.org/licensing/licenses/gpl.txt).
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 =cut
-
-# arch-tag: c917effc-7400-4ee5-a5d6-baa9316a3abf
-# vim:smartindent:sw=2:et
-

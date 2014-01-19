@@ -1,7 +1,7 @@
-# Functional interface to basic Nagios::Plugin constants, exports, 
+# Functional interface to basic Monitoring::Plugin constants, exports,
 # and functions
 
-package Nagios::Plugin::Functions;
+package Monitoring::Plugin::Functions;
 
 use 5.006;
 
@@ -11,19 +11,19 @@ use File::Basename;
 use Params::Validate qw(:types validate);
 use Math::Calc::Units;
 
-# Remember to update Nagios::Plugins as well
-our $VERSION = "0.36";
+# Remember to update Monitoring::Plugins as well
+our $VERSION = "0.37";
 
 our @STATUS_CODES = qw(OK WARNING CRITICAL UNKNOWN DEPENDENT);
 
 require Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT = (@STATUS_CODES, qw(nagios_exit nagios_die check_messages));
+our @EXPORT = (@STATUS_CODES, qw(plugin_exit plugin_die check_messages));
 our @EXPORT_OK = qw(%ERRORS %STATUS_TEXT @STATUS_CODES get_shortname max_state max_state_alt convert $value_re);
 our %EXPORT_TAGS = (
     all => [ @EXPORT, @EXPORT_OK ],
     codes => [ @STATUS_CODES ],
-    functions => [ qw(nagios_exit nagios_die check_messages max_state max_state_alt convert) ],
+    functions => [ qw(plugin_exit plugin_die check_messages max_state max_state_alt convert) ],
 );
 
 use constant OK         => 0;
@@ -61,7 +61,7 @@ sub get_shortname {
     return $arg->{shortname} if (defined($arg->{shortname}));
     $shortname = $arg->{plugin} if (defined( $arg->{plugin}));
 
-    $shortname = uc basename($shortname || $ENV{NAGIOS_PLUGIN} || $0);
+    $shortname = uc basename($shortname || $ENV{PLUGIN_NAME} || $ENV{NAGIOS_PLUGIN} || $0);
     $shortname =~ s/^CHECK_(?:BY_)?//;     # Remove any leading CHECK_[BY_]
     $shortname =~ s/\..*$//;       # Remove any trailing suffix
     return $shortname;
@@ -85,8 +85,8 @@ sub max_state_alt {
         return UNKNOWN;
 }
 
-# nagios_exit( $code, $message )
-sub nagios_exit {
+# plugin_exit( $code, $message )
+sub plugin_exit {
     my ($code, $message, $arg) = @_;
 
     # Handle named parameters
@@ -124,21 +124,21 @@ sub nagios_exit {
     $output = "$shortname $output" if $shortname;
     if ($arg->{plugin}) {
         my $plugin = $arg->{plugin};
-        $output .= " | ". $plugin->all_perfoutput 
+        $output .= " | ". $plugin->all_perfoutput
             if $plugin->perfdata && $plugin->all_perfoutput;
     }
     $output .= "\n";
 
     # Don't actually exit if _fake_exit set
     if ($_fake_exit) {
-        require Nagios::Plugin::ExitResult;
-        return Nagios::Plugin::ExitResult->new($code, $output);
+        require Monitoring::Plugin::ExitResult;
+        return Monitoring::Plugin::ExitResult->new($code, $output);
     }
 
-    _nagios_exit($code, $output);
+    _plugin_exit($code, $output);
 }
 
-sub _nagios_exit {
+sub _plugin_exit {
     my ($code, $output) = @_;
     # Print output and exit; die if flag set and called via a die in stack backtrace
     if ($_use_die) {
@@ -155,34 +155,34 @@ sub _nagios_exit {
     exit $code;
 }
 
-# nagios_die( $message, [ $code ])   OR   nagios_die( $code, $message )
+# plugin_die( $message, [ $code ])   OR   plugin_die( $code, $message )
 # Default $code: UNKNOWN
-sub nagios_die {
+sub plugin_die {
     my ($arg1, $arg2, $rest) = @_;
 
     # Named parameters
     if (defined $arg1 && ($arg1 eq 'return_code' || $arg1 eq 'message')) {
-        return nagios_exit(@_);
+        return plugin_exit(@_);
     }
 
     # ($code, $message)
     elsif (defined $arg1 && (exists $ERRORS{$arg1} || exists $STATUS_TEXT{$arg1})) {
-        return nagios_exit(@_);
+        return plugin_exit(@_);
     }
 
     # ($message, $code)
     elsif (defined $arg2 && (exists $ERRORS{$arg2} || exists $STATUS_TEXT{$arg2})) {
-        return nagios_exit($arg2, $arg1, $rest);
+        return plugin_exit($arg2, $arg1, $rest);
     }
 
     # Else just assume $arg1 is the message and hope for the best
     else {
-        return nagios_exit( UNKNOWN, $arg1, $arg2 );
+        return plugin_exit( UNKNOWN, $arg1, $arg2 );
     }
 }
 
 # For backwards compatibility
-sub die { nagios_die(@_); }
+sub die { plugin_die(@_); }
 
 
 # ------------------------------------------------------------------------
@@ -197,9 +197,9 @@ sub convert
 }
 
 # ------------------------------------------------------------------------
-# check_messages - return a status and/or message based on a set of 
+# check_messages - return a status and/or message based on a set of
 #   message arrays.
-#   Returns a nagios status code in scalar context. 
+#   Returns a nagios status code in scalar context.
 #   Returns a code and a message in list context.
 #   The message is join($join, @array) for the relevant array for the code,
 #     or join($join_all, $message) for all arrays if $join_all is set.
@@ -222,18 +222,18 @@ sub check_messages {
     # Compose message
     my $message = '';
     if ($arg{join_all}) {
-        $message = join( $arg{join_all}, 
+        $message = join( $arg{join_all},
             map { @$_ ? join( $arg{'join'}, @$_) : () }
-                $arg{critical}, 
+                $arg{critical},
                 $arg{warning},
                 $arg{ok} ? (ref $arg{ok} ? $arg{ok} : [ $arg{ok} ]) : []
         );
     }
 
     else {
-        $message ||= join( $arg{'join'}, @{$arg{critical}} ) 
+        $message ||= join( $arg{'join'}, @{$arg{critical}} )
             if $code == CRITICAL;
-        $message ||= join( $arg{'join'}, @{$arg{warning}} )  
+        $message ||= join( $arg{'join'}, @{$arg{warning}} )
             if $code == WARNING;
         $message ||= ref $arg{ok} ? join( $arg{'join'}, @{$arg{ok}} ) : $arg{ok}
             if $arg{ok};
@@ -252,28 +252,28 @@ __END__
 
 =head1 NAME
 
-Nagios::Plugin::Functions - functions to simplify the creation of 
+Monitoring::Plugin::Functions - functions to simplify the creation of
 Nagios plugins
 
 =head1 SYNOPSIS
 
     # Constants OK, WARNING, CRITICAL, and UNKNOWN exported by default
-    use Nagios::Plugin::Functions;
+    use Monitoring::Plugin::Functions;
 
-    # nagios_exit( CODE, $message ) - exit with error code CODE,
+    # plugin_exit( CODE, $message ) - exit with error code CODE,
     # and message "PLUGIN CODE - $message"
-    nagios_exit( CRITICAL, $critical_error ) if $critical_error;
-    nagios_exit( WARNING, $warning_error )   if $warning_error;
-    nagios_exit( OK, $result );
+    plugin_exit( CRITICAL, $critical_error ) if $critical_error;
+    plugin_exit( WARNING, $warning_error )   if $warning_error;
+    plugin_exit( OK, $result );
 
-    # nagios_die( $message, [$CODE] ) - just like nagios_exit(),
+    # plugin_die( $message, [$CODE] ) - just like plugin_exit(),
     # but CODE is optional, defaulting to UNKNOWN
     do_something()
-      or nagios_die("do_something() failed horribly");
+      or plugin_die("do_something() failed horribly");
     do_something_critical()
-      or nagios_die("do_something_critical() failed", CRITICAL);
+      or plugin_die("do_something_critical() failed", CRITICAL);
 
-    # check_messages - check a set of message arrays, returning a 
+    # check_messages - check a set of message arrays, returning a
     # CODE and/or a result message
     $code = check_messages(critical => \@crit, warning => \@warn);
     ($code, $message) = check_messages(
@@ -281,18 +281,18 @@ Nagios plugins
       ok => \@ok );
 
     # get_shortname - return the default short name for this plugin
-    #   (as used by nagios_exit/die; not exported by default)
+    #   (as used by plugin_exit/die; not exported by default)
     $shortname = get_shortname();
 
 
 =head1 DESCRIPTION
 
-This module is part of the Nagios::Plugin family, a set of modules
+This module is part of the Monitoring::Plugin family, a set of modules
 for simplifying the creation of Nagios plugins. This module exports
-convenience functions for the class methods provided by 
-Nagios::Plugin. It is intended for those who prefer a simpler 
-functional interface, and who do not need the additional 
-functionality of Nagios::Plugin.
+convenience functions for the class methods provided by
+Monitoring::Plugin. It is intended for those who prefer a simpler
+functional interface, and who do not need the additional
+functionality of Monitoring::Plugin.
 
 =head2 EXPORTS
 
@@ -306,8 +306,8 @@ Nagios status code constants are exported by default:
 
 as are the following functions:
 
-    nagios_exit
-    nagios_die
+    plugin_exit
+    plugin_die
     check_messages
 
 The following variables and functions are exported only on request:
@@ -325,14 +325,14 @@ The following functions are supported:
 
 =over 4
 
-=item nagios_exit( <CODE>, $message )
+=item plugin_exit( <CODE>, $message )
 
 Exit with return code CODE, and a standard nagios message of the
 form "PLUGIN CODE - $message".
 
-=item nagios_die( $message, [CODE] )
+=item plugin_die( $message, [CODE] )
 
-Same as nagios_exit(), except that CODE is optional, defaulting
+Same as plugin_exit(), except that CODE is optional, defaulting
 to UNKNOWN.  NOTE: exceptions are not raised by default to calling code.
 Set C<$_use_die> flag if this functionality is required (see test code).
 
@@ -354,7 +354,7 @@ check_messages() accepts the following named arguments:
 
 =item critical => ARRAYREF
 
-An arrayref of critical error messages - check_messages() returns 
+An arrayref of critical error messages - check_messages() returns
 CRITICAL if this arrayref is non-empty. Mandatory.
 
 =item warning => ARRAYREF
@@ -371,7 +371,7 @@ are empty. Optional.
 
 =item join => SCALAR
 
-A string used to join the relevant array to generate the message 
+A string used to join the relevant array to generate the message
 string returned in list context i.e. if the 'critical' array @crit
 is non-empty, check_messages would return:
 
@@ -383,9 +383,9 @@ as the result message. Optional; default: ' ' (space).
 
 By default, only one set of messages are joined and returned in the
 result message i.e. if the result is CRITICAL, only the 'critical'
-messages are included in the result; if WARNING, only the 'warning' 
+messages are included in the result; if WARNING, only the 'warning'
 messages are included; if OK, the 'ok' messages are included (if
-supplied) i.e. the default is to return an 'errors-only' type 
+supplied) i.e. the default is to return an 'errors-only' type
 message.
 
 If join_all is supplied, however, it will be used as a string to
@@ -397,9 +397,9 @@ all messages are joined and returned.
 =item get_shortname
 
 Return the default shortname used for this plugin i.e. the first
-token reported by nagios_exit/nagios_die. The default is basically
+token reported by plugin_exit/plugin_die. The default is basically
 
-    uc basename( $ENV{NAGIOS_PLUGIN} || $0 )
+    uc basename( $ENV{PLUGIN_NAME} || $ENV{NAGIOS_PLUGIN} || $0 )
 
 with any leading 'CHECK_' and trailing file suffixes removed.
 
@@ -427,18 +427,17 @@ internal tests performed can return UNKNOWN.
 
 =head1 SEE ALSO
 
-Nagios::Plugin; the nagios plugin developer guidelines at
-http://nagiosplug.sourceforge.net/developer-guidelines.html.
+Monitoring::Plugin; the nagios plugin developer guidelines at
+https://www.monitoring-plugins.org/doc/guidelines.html.
 
+=head1 AUTHOR
 
-=head1 AUTHORS
-
-This code is maintained by the Nagios Plugin Development Team: http://nagiosplug.sourceforge.net
-
+This code is maintained by the Monitoring Plugin Development Team: see
+https://monitoring-plugins.org
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006 by Nagios Plugin Development Team
+Copyright (C) 2006-2014 Monitoring Plugin Development Team
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

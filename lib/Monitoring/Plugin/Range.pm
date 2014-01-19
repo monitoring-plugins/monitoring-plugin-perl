@@ -1,4 +1,4 @@
-package Nagios::Plugin::Range;
+package Monitoring::Plugin::Range;
 
 use 5.006;
 
@@ -11,8 +11,8 @@ __PACKAGE__->mk_accessors(
     qw(start end start_infinity end_infinity alert_on)
 );
 
-use Nagios::Plugin::Functions qw(:DEFAULT $value_re);
-our ($VERSION) = $Nagios::Plugin::Functions::VERSION;
+use Monitoring::Plugin::Functions qw(:DEFAULT $value_re);
+our ($VERSION) = $Monitoring::Plugin::Functions::VERSION;
 
 use overload
         'eq' => sub { shift->_stringify },
@@ -26,7 +26,7 @@ sub _stringify {
 	my $self = shift;
 	return "" unless $self->is_set;
 	return (($self->alert_on) ? "@" : "") .
-		(($self->start_infinity == 1) ? "~:" : (($self->start == 0)?"":$self->start.":")) . 
+		(($self->start_infinity == 1) ? "~:" : (($self->start == 0)?"":$self->start.":")) .
 		(($self->end_infinity == 1) ? "" : $self->end);
 }
 
@@ -47,7 +47,7 @@ sub _set_range_end {
 	$self->end_infinity(0);
 }
 
-# Returns a N::P::Range object if the string is a conforms to a Nagios Plugin range string, otherwise null
+# Returns a N::P::Range object if the string is a conforms to a Monitoring Plugin range string, otherwise null
 sub parse_range_string {
 	my ($class, $string) = @_;
 	my $valid = 0;
@@ -118,7 +118,7 @@ sub check_range {
 }
 
 # Constructor - map args to hashref for SUPER
-sub new 
+sub new
 {
     shift->SUPER::new({ @_ });
 }
@@ -129,18 +129,18 @@ __END__
 
 =head1 NAME
 
-Nagios::Plugin::Range - class for handling Nagios::Plugin range data.
+Monitoring::Plugin::Range - class for handling Monitoring::Plugin range data.
 
 =head1 SYNOPSIS
 
-    # NB: This is an internal Nagios::Plugin class. 
-    # See Nagios::Plugin itself for public interfaces.
+    # NB: This is an internal Monitoring::Plugin class.
+    # See Monitoring::Plugin itself for public interfaces.
 
     # Instantiate an empty range object
-    $r = Nagios::Plugin::Range->new; 
+    $r = Monitoring::Plugin::Range->new;
 
     # Instantiate by parsing a standard nagios range string
-    $r = Nagios::Plugin::Range->parse_range_string( $range_str );
+    $r = Monitoring::Plugin::Range->parse_range_string( $range_str );
 
     # Returns true if the range is defined/non-empty
     $r->is_set;
@@ -151,17 +151,17 @@ Nagios::Plugin::Range - class for handling Nagios::Plugin range data.
 
 =head1 DESCRIPTION
 
-Internal Nagios::Plugin class for handling common range data. See 
-Nagios::Plugin for public interfaces.
+Internal Monitoring::Plugin class for handling common range data. See
+Monitoring::Plugin for public interfaces.
 
 =head1 AUTHOR
 
-This code is maintained by the Nagios Plugin Development Team: see
-http://nagiosplug.sourceforge.net.
+This code is maintained by the Monitoring Plugin Development Team: see
+https://monitoring-plugins.org
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006-2007 Nagios Plugin Development Team
+Copyright (C) 2006-2014 Monitoring Plugin Development Team
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

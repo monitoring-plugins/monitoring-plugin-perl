@@ -1,4 +1,4 @@
-package Nagios::Plugin::Performance;
+package Monitoring::Plugin::Performance;
 
 use 5.006;
 
@@ -11,15 +11,15 @@ __PACKAGE__->mk_ro_accessors(
     qw(label value uom warning critical min max)
 );
 
-use Nagios::Plugin::Functions;
-use Nagios::Plugin::Threshold;
-use Nagios::Plugin::Range;
-our ($VERSION) = $Nagios::Plugin::Functions::VERSION;
+use Monitoring::Plugin::Functions;
+use Monitoring::Plugin::Threshold;
+use Monitoring::Plugin::Range;
+our ($VERSION) = $Monitoring::Plugin::Functions::VERSION;
 
 sub import {
 	my ($class, %attr) = @_;
 	$_ = $attr{use_die} || 0;
-	Nagios::Plugin::Functions::_use_die($_);
+	Monitoring::Plugin::Functions::_use_die($_);
 }
 
 # This is NOT the same as N::P::Functions::value_re. We leave that to be the strict
@@ -46,7 +46,7 @@ sub _parse {
 		return undef if $not_value;
 	}
     my $p = $class->new(
-        label => $info[0], value => $performance_value, uom => $info[2], warning => $info[3], critical => $info[4], 
+        label => $info[0], value => $performance_value, uom => $info[2], warning => $info[3], critical => $info[4],
         min => $info[5], max => $info[6]
     );
 	return $p;
@@ -128,13 +128,13 @@ sub clean_label {
 sub threshold
 {
     my $self = shift;
-    return Nagios::Plugin::Threshold->set_thresholds(
+    return Monitoring::Plugin::Threshold->set_thresholds(
         warning => $self->warning, critical => $self->critical
     );
 }
 
 # Constructor - unpack thresholds, map args to hashref
-sub new 
+sub new
 {
     my $class = shift;
     my %arg = @_;
@@ -154,15 +154,15 @@ __END__
 
 =head1 NAME
 
-Nagios::Plugin::Performance - class for handling Nagios::Plugin
+Monitoring::Plugin::Performance - class for handling Monitoring::Plugin
 performance data.
 
 =head1 SYNOPSIS
 
-  use Nagios::Plugin::Performance use_die => 1;
+  use Monitoring::Plugin::Performance use_die => 1;
 
   # Constructor (also accepts a 'threshold' obj instead of warning/critical)
-  $p = Nagios::Plugin::Performance->new(
+  $p = Monitoring::Plugin::Performance->new(
       label     => 'size',
       value     => $value,
       uom       => "kB",
@@ -173,9 +173,9 @@ performance data.
   );
 
   # Parser
-  @perf = Nagios::Plugin::Performance->parse_perfstring(
+  @perf = Monitoring::Plugin::Performance->parse_perfstring(
       "/=382MB;15264;15269;; /var=218MB;9443;9448"
-  ) 
+  )
   or warn("Failed to parse perfstring");
 
   # Accessors
@@ -197,14 +197,14 @@ performance data.
 
 =head1 DESCRIPTION
 
-Nagios::Plugin class for handling performance data. This is a public 
-interface because it could be used by performance graphing routines, 
-such as nagiostat (http://nagiostat.sourceforge.net), perfparse 
-(http://perfparse.sourceforge.net), nagiosgraph 
-(http://nagiosgraph.sourceforge.net) or NagiosGrapher 
+Monitoring::Plugin class for handling performance data. This is a public
+interface because it could be used by performance graphing routines,
+such as nagiostat (http://nagiostat.sourceforge.net), perfparse
+(http://perfparse.sourceforge.net), nagiosgraph
+(http://nagiosgraph.sourceforge.net) or NagiosGrapher
 (http://www.nagiosexchange.org/NagiosGrapher.84.0.html).
 
-Nagios::Plugin::Performance offers both a parsing interface (via 
+Monitoring::Plugin::Performance offers both a parsing interface (via
 parse_perfstring), for turning nagios performance output strings into
 their components, and a composition interface (via new), for turning
 components into perfdata strings.
@@ -213,7 +213,7 @@ components into perfdata strings.
 
 If you are using this module for the purposes of parsing perf data, you
 will probably want to set use_die => 1 at use time. This forces
-&Nagios::Plugin::Functions::nagios_exit to call die() - rather than exit() -
+&Monitoring::Plugin::Functions::plugin_exit to call die() - rather than exit() -
 when an error occurs. This is then trappable by an eval. If you don't set use_die,
 then an error in these modules will cause your script to exit
 
@@ -221,14 +221,14 @@ then an error in these modules will cause your script to exit
 
 =over 4
 
-=item Nagios::Plugin::Performance->new(%attributes)
+=item Monitoring::Plugin::Performance->new(%attributes)
 
-Instantiates a new Nagios::Plugin::Performance object with the given 
+Instantiates a new Monitoring::Plugin::Performance object with the given
 attributes.
 
-=item Nagios::Plugin::Performance->parse_perfstring($string)
+=item Monitoring::Plugin::Performance->parse_perfstring($string)
 
-Returns an array of Nagios::Plugin::Performance objects based on the string 
+Returns an array of Monitoring::Plugin::Performance objects based on the string
 entered. If there is an error parsing the string - which may consists of several
 sets of data -  will return an array with all the successfully parsed sets.
 
@@ -247,18 +247,18 @@ These all return scalars. min and max are not well supported yet.
 
 =item threshold
 
-Returns a Nagios::Plugin::Threshold object holding the warning and critical 
+Returns a Monitoring::Plugin::Threshold object holding the warning and critical
 ranges for this performance data (if any).
 
 =item rrdlabel
 
-Returns a string based on 'label' that is suitable for use as dataset name of 
-an RRD i.e. munges label to be 1-19 characters long with only characters 
+Returns a string based on 'label' that is suitable for use as dataset name of
+an RRD i.e. munges label to be 1-19 characters long with only characters
 [a-zA-Z0-9_].
 
 This calls $self->clean_label and then truncates to 19 characters.
 
-There is no guarantee that multiple N:P:Performance objects will have unique 
+There is no guarantee that multiple N:P:Performance objects will have unique
 rrdlabels.
 
 =item clean_label
@@ -270,25 +270,25 @@ It also converts "/" to "root" and "/{name}" to "{name}".
 
 =item perfoutput
 
-Outputs the data in Nagios::Plugin perfdata format i.e. 
+Outputs the data in Monitoring::Plugin perfdata format i.e.
 label=value[uom];[warn];[crit];[min];[max].
 
-=back 
+=back
 
 =head1 SEE ALSO
 
-Nagios::Plugin, Nagios::Plugin::Threshold, http://nagiosplug.sourceforge.net.
+Monitoring::Plugin, Monitoring::Plugin::Threshold, https://www.monitoring-plugins.org/doc/guidelines.html
 
 =head1 AUTHOR
 
-This code is maintained by the Nagios Plugin Development Team: see
-http://nagiosplug.sourceforge.net.
+This code is maintained by the Monitoring Plugin Development Team: see
+https://monitoring-plugins.org
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006-2007 Nagios Plugin Development Team
+Copyright (C) 2006-2014 Monitoring Plugin Development Team
 
 This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself. 
+it under the same terms as Perl itself.
 
 =cut

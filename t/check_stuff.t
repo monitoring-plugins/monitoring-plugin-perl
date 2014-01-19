@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
-# 
+#
 use strict; use warnings;
 #use Test::More qw(no_plan);
 use Test::More tests => 14;
@@ -10,7 +10,7 @@ $s = "$^X -Ilib $s";
 
 my $n = 'STUFF';
 
-# Nagios status strings and exit codes
+# Monitoring status strings and exit codes
 my %e  = qw(
 			 OK           0
 			 WARNING      1
@@ -58,9 +58,3 @@ sub test_expected {
 		like 	$r,		qr/^$n $expected->{$_}/i,	"looks $expected->{$_} with $_";
 	}
 }
-
-
-
-
-
-

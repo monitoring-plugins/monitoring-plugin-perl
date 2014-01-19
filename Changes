@@ -1,4 +1,7 @@
-Revision history for Perl module Nagios::Plugin.
+Revision history for Perl module Monitoring::Plugin.
+
+0.37 20nd January 2014
+  - renamed module due to trademark issues
 
 0.36 22nd December 2011
   - Updated check_threshold to allow multiple check values to be checked at once

@@ -1,32 +1,32 @@
-# Nagios::Plugin original test cases
+# Monitoring::Plugin original test cases
 
 use strict;
 use Test::More tests => 15;
 
-BEGIN { use_ok('Nagios::Plugin') };
+BEGIN { use_ok('Monitoring::Plugin') };
 
-use Nagios::Plugin::Functions;
-Nagios::Plugin::Functions::_fake_exit(1);
+use Monitoring::Plugin::Functions;
+Monitoring::Plugin::Functions::_fake_exit(1);
 
-diag "\nusing Nagios::Plugin revision ". $Nagios::Plugin::VERSION . "\n"
+diag "\nusing Monitoring::Plugin revision ". $Monitoring::Plugin::VERSION . "\n"
   if $ENV{TEST_VERBOSE};
 
-my $p = Nagios::Plugin->new();
-isa_ok( $p, "Nagios::Plugin");
+my $p = Monitoring::Plugin->new();
+isa_ok( $p, "Monitoring::Plugin");
 
 $p->shortname("PAGESIZE");
 is($p->shortname, "PAGESIZE", "shortname explicitly set correctly");
 
-$p = Nagios::Plugin->new();
-is($p->shortname, "NAGIOS-PLUGIN-01", "shortname should default on new");
+$p = Monitoring::Plugin->new();
+is($p->shortname, "MONITORING-PLUGIN-01", "shortname should default on new");
 
-$p = Nagios::Plugin->new( shortname => "SIZE", () );
+$p = Monitoring::Plugin->new( shortname => "SIZE", () );
 is($p->shortname, "SIZE", "shortname set correctly on new");
 
-$p = Nagios::Plugin->new( plugin => "check_stuff", () );
+$p = Monitoring::Plugin->new( plugin => "check_stuff", () );
 is($p->shortname, "STUFF", "shortname uses plugin name as default");
 
-$p = Nagios::Plugin->new(  shortname => "SIZE", plugin => "check_stuff", () );
+$p = Monitoring::Plugin->new(  shortname => "SIZE", plugin => "check_stuff", () );
 is($p->shortname, "SIZE", "shortname is not overriden by default");
 
 diag "warn if < 10, critical if > 25 " if $ENV{TEST_VERBOSE};
@@ -37,10 +37,10 @@ use Data::Dumper;
 #diag "dumping perfdata:  ". Dumper $p->perfdata;
 
 
-$p->add_perfdata( 
-	label => "size", 
-	value => 1, 
-	uom => "kB", 
+$p->add_perfdata(
+	label => "size",
+	value => 1,
+	uom => "kB",
 	threshold => $t,
 	);
 
@@ -69,4 +69,3 @@ foreach (sort {$a<=>$b} keys %$expected) {
 	 qr/$expected->{$_}/,
 	"Output okay. $_ = $expected->{$_}" ;
 }
-

@@ -1,27 +1,27 @@
-# Nagios::Plugin::Getopt timeout tests
+# Monitoring::Plugin::Getopt timeout tests
 
 use strict;
 
 use Test::More tests => 14;
-BEGIN { use_ok('Nagios::Plugin::Getopt') };
+BEGIN { use_ok('Monitoring::Plugin::Getopt') };
 
 # Needed to get evals to work in testing
-Nagios::Plugin::Functions::_use_die(1);
+Monitoring::Plugin::Functions::_use_die(1);
 
 my %PARAM = (
     version => '0.01',
     url => 'http://www.openfusion.com.au/labs/nagios/',
-    blurb => 'This plugin tests various stuff.', 
-    usage => "Usage: %s -H <host> -w <warning_threshold> 
+    blurb => 'This plugin tests various stuff.',
+    usage => "Usage: %s -H <host> -w <warning_threshold>
   -c <critical threshold>",
     plugin => 'test_plugin',
     timeout => 18,
 );
 
-sub setup 
+sub setup
 {
   # Instantiate object
-  my $ng = Nagios::Plugin::Getopt->new(%PARAM);
+  my $ng = Monitoring::Plugin::Getopt->new(%PARAM);
   ok($ng, 'constructor ok');
   return $ng;
 }
@@ -61,4 +61,3 @@ alarm($ng->timeout);
 # Loop
 ok(! defined eval { 1 while 1 }, 'loop timed out');
 like($@, qr/UNKNOWN\b.*\btimed out/, 'default timeout handler ok');
-
