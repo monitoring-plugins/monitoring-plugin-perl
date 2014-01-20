@@ -6,7 +6,7 @@ Icinga, Shinken and other compatible products. It is meant to
 simplify a lot of the common functions required to do checking of a
 particular service.
 This module is maintained by the Monitoring-Plugins team
-(https:://monitoring-plugins.org)
+(https://monitoring-plugins.org)
 
 INSTALLATION
 
@@ -28,7 +28,8 @@ working example of a plugin script.
 
 COPYRIGHT AND LICENCE
 
-Copyright (C) 2006-2014 by Monitoring Plugin Team
+Copyright (C) 2014      by Monitoring Plugin Team
+Copyright (C) 2006-2014 by Nagios Plugin Development Team
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.4 or,

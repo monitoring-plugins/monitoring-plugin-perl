@@ -2,7 +2,7 @@
 
 ###  check_stuff.pl
 
-# an example Monitoring plugin using the Monitoring::Plugin modules.
+# an example plugin using the Monitoring::Plugin module.
 
 # Originally by Nathan Vonnahme, n8v at users dot sourceforge
 # dot net, July 19 2006
@@ -41,7 +41,7 @@ my $p = Monitoring::Plugin->new(
     version => $VERSION,
     blurb => 'This plugin is an example of a monitoring plugin written in Perl using the Monitoring::Plugin modules.  It will generate a random integer between 1 and 20 (though you can specify the number with the -n option for testing), and will output OK, WARNING or CRITICAL if the resulting number is outside the specified thresholds.',
 
-	extra => "
+    extra => "
 
 THRESHOLDs for -w and -c are specified 'min:max' or 'min:' or ':max'
 (or 'max'). If specified '\@min:max', a warning status will be generated
@@ -69,28 +69,28 @@ See more threshold examples at https://www.monitoring-plugins.org/doc/guidelines
 # usage, help, version, timeout and verbose are defined by default.
 
 $p->add_arg(
-	spec => 'warning|w=s',
+    spec => 'warning|w=s',
 
-	help =>
+    help =>
 qq{-w, --warning=INTEGER:INTEGER
    Minimum and maximum number of allowable result, outside of which a
    warning will be generated.  If omitted, no warning is generated.},
 
-#	required => 1,
-#	default => 10,
+#   required => 1,
+#   default => 10,
 );
 
 $p->add_arg(
-	spec => 'critical|c=s',
-	help =>
+    spec => 'critical|c=s',
+    help =>
 qq{-c, --critical=INTEGER:INTEGER
    Minimum and maximum number of the generated result, outside of
    which a critical will be generated. },
 );
 
 $p->add_arg(
-	spec => 'result|r=f',
-	help =>
+    spec => 'result|r=f',
+    help =>
 qq{-r, --result=INTEGER
    Specify the result on the command line rather than generating a
    random number.  For testing.},
@@ -106,7 +106,7 @@ if ( (defined $p->opts->result) && ($p->opts->result < 0 || $p->opts->result > 2
 }
 
 unless ( defined $p->opts->warning || defined $p->opts->critical ) {
-	$p->plugin_die( " you didn't supply a threshold argument " );
+    $p->plugin_die( " you didn't supply a threshold argument " );
 }
 
 
@@ -132,6 +132,6 @@ else {
 # check the result against the defined warning and critical thresholds,
 # output the result and exit
 $p->plugin_exit(
-	 return_code => $p->check_threshold($result),
-	 message => " sample result was $result"
+    return_code => $p->check_threshold($result),
+    message => " sample result was $result"
 );

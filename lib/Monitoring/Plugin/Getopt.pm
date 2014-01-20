@@ -1,11 +1,14 @@
+package Monitoring::Plugin::Getopt;
+
 #
 # Monitoring::Plugin::Getopt - OO perl module providing standardised argument
 #   processing for nagios plugins
 #
 
-package Monitoring::Plugin::Getopt;
-
+use 5.006;
 use strict;
+use warnings;
+
 use File::Basename;
 use Getopt::Long qw(:config no_ignore_case bundling);
 use Carp;
@@ -249,7 +252,7 @@ sub _load_config_section
   # TODO: is this check sane? Does --extra-opts=foo require a [foo] section?
   ## Nevertheless, if we die as UNKNOWN here we should do the same on default
   ## file *added eval/_die above*.
-  $file ||= $Config->np_getfile();
+  $file ||= $Config->mp_getfile();
   $self->_die("Invalid section '$section' in config file '$file'")
     unless exists $Config->{$section};
 
@@ -861,7 +864,8 @@ Originally:
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006-2014 Monitoring Plugin Development Team
+Copyright (C) 2014      by Monitoring Plugin Team
+Copyright (C) 2006-2014 by Nagios Plugin Development Team
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

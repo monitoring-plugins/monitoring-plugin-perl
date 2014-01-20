@@ -1,8 +1,8 @@
 RELEASING
 
-Change version number in lib/Nagios/Plugin.pm and lib/Nagios/Plugin/Functions.pm
+Change version number in lib/Monitoring/Plugin.pm and lib/Monitoring/Plugin/Functions.pm
 Add date to Changes file
-svn commit
+git commit
 
 perl Makefile.PL
 make
@@ -11,5 +11,6 @@ make dist
 
 Upload file to CPAN
 
-Send announcement to nagiosplug-help, nagios-announce
-Add news item to http://nagiosplugins.org
+Send announcement to announce@monitoring-plugins.org, help@monitoring-plugins.org and
+devel@monitoring-plugins.org
+Add news item to https://monitoring-plugins.org

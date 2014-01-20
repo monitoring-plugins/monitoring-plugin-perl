@@ -1,6 +1,9 @@
 package Monitoring::Plugin::Config;
 
+use 5.006;
 use strict;
+use warnings;
+
 use Carp;
 use File::Spec;
 use base qw(Config::Tiny);
@@ -93,9 +96,11 @@ sub read_string
 sub write { croak "Write access not permitted" }
 
 # Return last file used by read();
-sub np_getfile { return $CURRENT_FILE; }
+sub mp_getfile { return $CURRENT_FILE; }
 
 1;
+
+__END__
 
 =head1 NAME
 
@@ -169,7 +174,8 @@ https://monitoring-plugins.org
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006-2014 Monitoring Plugin Development Team
+Copyright (C) 2014      by Monitoring Plugin Team
+Copyright (C) 2006-2014 by Nagios Plugin Development Team
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

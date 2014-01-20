@@ -1,7 +1,6 @@
 package Monitoring::Plugin::Performance;
 
 use 5.006;
-
 use strict;
 use warnings;
 
@@ -286,7 +285,8 @@ https://monitoring-plugins.org
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006-2014 Monitoring Plugin Development Team
+Copyright (C) 2014      by Monitoring Plugin Team
+Copyright (C) 2006-2014 by Nagios Plugin Development Team
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

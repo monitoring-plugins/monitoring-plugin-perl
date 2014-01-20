@@ -1,8 +1,10 @@
-# Tiny helper class to return both output and return_code when testing
-
 package Monitoring::Plugin::ExitResult;
 
+# Tiny helper class to return both output and return_code when testing
+
+use 5.006;
 use strict;
+use warnings;
 
 # Stringify to message
 use overload '""' => sub { shift->{message} };
@@ -63,7 +65,8 @@ Originally:
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006-2014 Monitoring Plugin Development Team
+Copyright (C) 2014      by Monitoring Plugin Team
+Copyright (C) 2006-2014 by Nagios Plugin Development Team
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

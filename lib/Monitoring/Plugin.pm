@@ -1,9 +1,9 @@
-
 package Monitoring::Plugin;
 
 use Monitoring::Plugin::Functions qw(:codes %ERRORS %STATUS_TEXT @STATUS_CODES);
 use Params::Validate qw(:all);
 
+use 5.006;
 use strict;
 use warnings;
 
@@ -703,7 +703,8 @@ Originally by Ton Voon, E<lt>ton.voon@altinity.comE<gt>.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2006-2014 by Monitoring Plugin Team
+Copyright (C) 2014      by Monitoring Plugin Team
+Copyright (C) 2006-2014 by Nagios Plugin Development Team
 
 This library is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself, either Perl version 5.8.4 or, at your
