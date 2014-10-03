@@ -2,7 +2,7 @@
 
 use strict;
 
-use Test::More tests => 11;
+use Test::More tests => 15;
 BEGIN { use_ok('Monitoring::Plugin::Getopt') };
 
 # Needed to get evals to work in testing
@@ -78,6 +78,30 @@ sub setup
     [ undef, 'PERCENT%' ],
   );
 
+  # Named args with *optional* but pre-set value
+  $ng->arg(
+    spec => 'dirport|d:9030',
+    help => 'dirport',
+  );
+
+  # Named args with *optional* string value
+  $ng->arg(
+    spec => 'enablesomething|s:s',
+    help => 'something',
+  );
+
+  # Named args with *optional* integer value (same as ":0")
+  $ng->arg(
+    spec => 'testtimeout|T:i',
+    help => 'testtimeout',
+  );
+
+  # Named args with *optional* but increasing integer value
+  $ng->arg(
+    spec => 'verbosity|v:+',
+    help => 'verbosity',
+  );
+
   return $ng;
 }
 
@@ -94,4 +118,8 @@ like($@, qr/\n -H, --hostname=ADDRESS\n   Hostname\n/, 'hostname ok');
 like($@, qr/\n --avatar=AVATAR\n   Avatar\n/, 'avatar ok');
 like($@, qr/\n --disk=BYTES\n   Disk limit in BYTES\n --disk=PERCENT%\n   Disk limit in PERCENT\n --disk=STRING\n   Disk limit in FOOBARS \(Default: 1024\)\n/, 'disk multiline ok');
 like($@, qr/\n --limit=STRING\n   Limit in BYTES\n --limit=PERCENT%\n   Limit in PERCENT\n/, 'limit multiline ok');
+like($@, qr/\n -d, --dirport=INTEGER/, 'dirport ok');
+like($@, qr/\n -s, --enablesomething=STRING/, 'enablesomething ok');
+like($@, qr/\n -T, --testtimeout=INTEGER/, 'testtimeout ok');
+like($@, qr/\n -v, --verbosity=INTEGER/, 'verbosity ok');
 #print $@;

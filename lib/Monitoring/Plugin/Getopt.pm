@@ -81,7 +81,7 @@ sub _spec_to_help
 {
   my ($self, $spec, $label) = @_;
 
-  my ($opts, $type) = split /=/, $spec, 2;
+  my ($opts, $type) = split /=|:/, $spec, 2;
   my (@short, @long);
   for (split /\|/, $opts) {
     if (length $_ == 1) {
@@ -97,7 +97,7 @@ sub _spec_to_help
       $help .= '=' . $label;
     }
     else {
-      $help .= $type eq 'i' ? '=INTEGER' : '=STRING';
+      $help .= ($type eq 'i' || $type eq '+' || $type =~ /\d+/) ? '=INTEGER' : '=STRING';
     }
   }
   elsif ($label) {
