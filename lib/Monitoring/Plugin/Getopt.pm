@@ -524,8 +524,8 @@ processing for Nagios plugins
   $ng->getopts;
 
   # Access arguments using named accessors or or via the generic get()
-  print $ng->warning;
-  print $ng->get('critical');
+  print $ng->opts->warning;
+  print $ng->opts->get('critical');
 
 
 
