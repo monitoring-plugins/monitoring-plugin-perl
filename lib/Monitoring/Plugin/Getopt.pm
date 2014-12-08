@@ -41,7 +41,7 @@ my @ARGS = ({
     help => "-V, --version\n   Print version information",
   }, {
     spec => 'extra-opts:s@',
-    help => "--extra-opts=[section][\@file]\n   Read options from an ini file. See http://nagiosplugins.org/extra-opts\n   for usage and examples.",
+    help => "--extra-opts=[section][\@file]\n   Read options from an ini file. See https://www.monitoring-plugins.org/doc/extra-opts.html\n   for usage and examples.",
   }, {
     spec => 'timeout|t=i',
     help => "-t, --timeout=INTEGER\n   Seconds before plugin times out (default: %s)",
