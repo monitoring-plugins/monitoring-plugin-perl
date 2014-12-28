@@ -33,4 +33,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: https://github.com/monitoring-plugins/monitoring-plugin-perl
-version: 0.37
+version: 0.38
