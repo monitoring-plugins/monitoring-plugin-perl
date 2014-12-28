@@ -1,5 +1,8 @@
 Revision history for Perl module Monitoring::Plugin.
 
+0.39
+  - fix help formating when using colons (Evgeni Golov)
+
 0.38 28th December 2014
   - fix getopt test on windows system
 
