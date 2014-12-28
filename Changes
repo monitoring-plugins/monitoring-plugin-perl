@@ -1,5 +1,8 @@
 Revision history for Perl module Monitoring::Plugin.
 
+0.38
+  - fix getopt test on windows system
+
 0.37 20nd January 2014
   - renamed module due to trademark issues
 
