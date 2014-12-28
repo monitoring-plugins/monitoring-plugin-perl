@@ -97,7 +97,10 @@ for my $infile (glob File::Spec->catfile($tdir, 'input', $glob)) {
       if ($@) {
         chomp $@;
         ok($infile =~ m/_(dies?|catch)$/, "$infile ($@)");
-        is($@, $EXPECTED{$infile}, $infile) if ($infile =~ m/_catch$/);
+        my $expect = $EXPECTED{$infile};
+        # windows expects backslashes fixes rt.cpan #100708
+        $expect =~ s#/#\\#gmx if $^O =~ m/^MSWin/;
+        is($@, $expect, $infile) if ($infile =~ m/_catch$/);
       }
       else {
         is($plugin . ' ' . $ng->_cmdline, $EXPECTED{$infile}, $infile);
