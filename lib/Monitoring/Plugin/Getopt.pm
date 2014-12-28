@@ -81,7 +81,8 @@ sub _spec_to_help
 {
   my ($self, $spec, $label) = @_;
 
-  my ($opts, $type) = split /=/, $spec, 2;
+  my ($opts, $type) = split /=|:/, $spec, 2;
+  my $optional = ($spec =~ m/:/);
   my (@short, @long);
   for (split /\|/, $opts) {
     if (length $_ == 1) {
@@ -93,11 +94,20 @@ sub _spec_to_help
 
   my $help = join(', ', @short, @long);
   if ($type) {
-    if ($label) {
-      $help .= '=' . $label;
+    if (!$label) {
+      if ($type eq 'i' || $type eq '+' || $type =~ /\d+/) {
+        $label = 'INTEGER';
+      }
+      else {
+        $label = 'STRING';
+      }
+    }
+
+    if ($optional) {
+      $help .= '[=' . $label . ']';
     }
     else {
-      $help .= $type eq 'i' ? '=INTEGER' : '=STRING';
+      $help .= '=' . $label;
     }
   }
   elsif ($label) {
