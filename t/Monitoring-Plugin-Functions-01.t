@@ -19,7 +19,7 @@ foreach my $m ("", qw(::Threshold ::Getopt ::Performance ::Range)) {
 is(get_shortname, "MONITORING-PLUGIN-FUNCTIONS-01", "get_shortname ok");
 
 # Hardcoded checks of constants
-ok(%ERRORS, '%ERRORS defined');
+ok(defined %ERRORS, '%ERRORS defined');
 is(OK,          $ERRORS{OK},            "OK        => $ERRORS{OK}");
 is(WARNING,     $ERRORS{WARNING},       "WARNING   => $ERRORS{WARNING}");
 is(CRITICAL,    $ERRORS{CRITICAL},      "CRITICAL  => $ERRORS{CRITICAL}");
