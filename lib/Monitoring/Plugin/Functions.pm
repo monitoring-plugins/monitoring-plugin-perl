@@ -12,7 +12,7 @@ use Params::Validate qw(:types validate);
 use Math::Calc::Units;
 
 # Remember to update Monitoring::Plugins as well
-our $VERSION = "0.38";
+our $VERSION = "0.39";
 
 our @STATUS_CODES = qw(OK WARNING CRITICAL UNKNOWN DEPENDENT);
 
