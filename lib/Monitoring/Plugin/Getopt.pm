@@ -152,9 +152,10 @@ sub _options
     # Add help_string to @options
     if ($help_string =~ m/%s/) {
       my $default = defined $arg->{default} ? $arg->{default} : '';
-      # We only handle '%s' formats here, so escape everything else
-      $help_string =~ s/%(?!s)/%%/g;
-      push @options, sprintf($help_string, $default, $default, $default, $default);
+      # We only handle '%s' formats here
+      my $replaced = $help_string;
+      $replaced =~ s|%s|$default|gmx;
+      push @options, $replaced;
     } else {
       push @options, $help_string;
     }
@@ -164,10 +165,11 @@ sub _options
 }
 
 # Output for plugin -? (or missing/invalid args)
-sub _usage
-{
-  my $self = shift;
-  sprintf $self->_attr('usage'), $self->{_attr}->{plugin};
+sub _usage {
+  my $self  = shift;
+  my $usage = $self->_attr('usage');
+  $usage    =~ s|%s|$self->{_attr}->{plugin}|gmx;
+  return($usage);
 }
 
 # Output for plugin -V
