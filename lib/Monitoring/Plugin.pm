@@ -412,6 +412,32 @@ following options:
 
 =back
 
+=head2 GETTER/SETTER
+
+The following internal variables can be retrieved or set by calling a
+method with the respective name. Expect for C<shortname>, don't change
+values unless you know what you're doing.
+
+Examples:
+
+  use Data::Dumper;
+  print Dumper($plugin->perfdata);
+  $plugin->shortname('DifferentName');
+
+=over
+
+=item shortname
+
+=item perfdata
+
+=item messages
+
+=item opts
+
+=item threshold
+
+=back
+
 =head2 OPTION HANDLING METHODS
 
 C<Monitoring::Plugin> provides these methods for accessing the functionality in C<Monitoring::Plugin::Getopt>.
