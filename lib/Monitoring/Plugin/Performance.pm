@@ -64,9 +64,16 @@ sub perfoutput {
 	if ($label =~ / /) {
 		$label = "'$label'";
 	}
+	
+	my $value = $self->value;
+	# To prevent invalid output, we change empty value to value "U"
+	if ($value eq '') {
+		$value = 'U';
+    }
+    
     my $out = sprintf "%s=%s%s;%s;%s;%s;%s",
         $label,
-        $self->value,
+        $value,
         $self->_nvl($self->uom),
         $self->_nvl($self->warning),
         $self->_nvl($self->critical),
