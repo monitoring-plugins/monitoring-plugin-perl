@@ -118,7 +118,10 @@ sub plugin_exit {
 
     # Setup output
     my $output = "$STATUS_TEXT{$code}";
-    $output .= " - $message" if defined $message && $message ne '';
+    if (defined $message && $message ne '') {
+        $output .= " - " unless $message =~ /^[ \f\r\t\w]*\n/;
+        $output .= $message;
+    }
     my $shortname = ($arg->{plugin} ? $arg->{plugin}->shortname : undef);
     $shortname ||= get_shortname(); # Should happen only if funnctions are called directly
     $output = "$shortname $output" if $shortname;
