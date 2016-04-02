@@ -2,6 +2,7 @@ Revision history for Perl module Monitoring::Plugin.
 
 next:
   - convert empty perfdata values to 'U' (daku3649)
+  - fix output when there is only long plugin output (pdugas)
 
 0.39 11th April 2015
   - fix help formating when using colons (Evgeni Golov)
