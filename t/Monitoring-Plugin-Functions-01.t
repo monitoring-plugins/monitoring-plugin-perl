@@ -1,6 +1,6 @@
 
 use strict;
-use Test::More tests => 113;
+use Test::More tests => 116;
 
 BEGIN { use_ok("Monitoring::Plugin::Functions", ":all"); }
 Monitoring::Plugin::Functions::_fake_exit(1);
@@ -86,6 +86,19 @@ for (@ugly2) {
     like($r->message, qr/CRITICAL\b.*\b$display2$/,
         sprintf('plugin_exit(%s, $msg) output matched "%s"',
             $display1, "CRITICAL.*$display2"));
+}
+
+# plugin_exit message with longoutput
+my @ugly3 = (
+    [ "MSG\nLONGOUTPUT", " - MSG\nLONGOUTPUT" ],
+    [ "\nLONGOUTPUT",    "\nLONGOUTPUT" ],
+    [ "   \nLONGOUTPUT", "   \nLONGOUTPUT" ],
+);
+for (@ugly3) {
+    $r = plugin_exit(CRITICAL, $_->[0]);
+    like($r->message, qr/CRITICAL$_->[1]$/,
+         sprintf('plugin_exit(CRITICAL, $msg) output matched "%s"',
+                 "CRITICAL$_->[1]"));
 }
 
 # Test plugin_die( $msg )
