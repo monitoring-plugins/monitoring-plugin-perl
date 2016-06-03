@@ -503,15 +503,15 @@ Again, see L<Monitoring::Plugin::Getopt>.
 Exit with return code CODE, and a standard nagios message of the
 form "SHORTNAME CODE - $message".
 
+=item nagios_exit( <CODE>, $message )
+
+Alias for plugin_exit(). Deprecated.
+
 =item plugin_die( $message, [<CODE>] )
 
 Same as plugin_exit(), except that CODE is optional, defaulting
 to UNKNOWN.  NOTE: exceptions are not raised by default to calling code.
 Set C<$_use_die> flag if this functionality is required (see test code).
-
-=item nagios_exit( <CODE>, $message )
-
-Alias for plugin_die(). Deprecated.
 
 =item nagios_die( $message, [<CODE>] )
 
