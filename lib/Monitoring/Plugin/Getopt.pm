@@ -445,7 +445,7 @@ sub getopts
   # Setup default alarm handler for alarm($ng->timeout) in plugin
   $SIG{ALRM} = sub {
     my $plugin = uc $self->{_attr}->{plugin};
-    $plugin =~ s/^CHECK[-_]//;
+    $plugin =~ s/^CHECK[-_]//i;
     $self->_die(
       sprintf("%s UNKNOWN - plugin timed out (timeout %ss)",
         $plugin, $self->timeout));
