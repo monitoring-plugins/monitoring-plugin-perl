@@ -2,7 +2,7 @@
 
 use strict;
 
-use Test::More tests => 76;
+use Test::More tests => 81;
 BEGIN { use_ok('Monitoring::Plugin::Getopt') };
 
 # Needed to get evals to work in testing
@@ -35,6 +35,13 @@ sub setup
     required => 1,
   );
 
+  # Add argument - boolean, supporting --no-prefix
+  $ng->arg(
+    spec => 'perfdata!',
+    help => qq(Provide performance data),
+    default => 1,
+  );
+
   return $ng;
 }
 
@@ -47,6 +54,13 @@ $ng->getopts;
 is($ng->warning, 3, 'warning set to 3');
 is($ng->critical, 10, 'critical set to 10');
 is($ng->timeout, 12, 'timeout set to 12');
+is($ng->perfdata, 1, 'perfdata set to default of 1');
+
+# Disable perfdata
+@ARGV = qw(--critical 10 --no-perfdata);
+$ng = setup;
+$ng->getopts;
+is($ng->perfdata, 0, 'perfdata set to 0');
 
 # Check multiple verbose flags
 @ARGV = qw(-w 3 --critical 10 -v -v -v);
@@ -131,6 +145,7 @@ like($@, qr/--version/, 'help includes default options 1');
 like($@, qr/--verbose/, 'help includes default options 2');
 like($@, qr/--warning/, 'help includes custom option 1');
 like($@, qr/--critical/, 'help includes custom option 2');
+like($@, qr/--\[no-\]perfdata\n/, 'help includes custom option 3');
 unlike($@, qr/Missing arg/, 'no missing arguments');
 
 @ARGV = ( '--help' );
@@ -146,4 +161,5 @@ like($@, qr/--version/, 'help includes default options 1');
 like($@, qr/--verbose/, 'help includes default options 2');
 like($@, qr/--warning/, 'help includes custom option 1');
 like($@, qr/-c, --critical=INTEGER/, 'help includes custom option 2, with expanded args');
+like($@, qr/--\[no-\]perfdata\n/, 'help includes custom option 3');
 unlike($@, qr/Missing arg/, 'no missing arguments');

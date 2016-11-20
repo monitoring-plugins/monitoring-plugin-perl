@@ -81,14 +81,15 @@ sub _spec_to_help
 {
   my ($self, $spec, $label) = @_;
 
-  my ($opts, $type) = split /=|:/, $spec, 2;
+  my ($opts, $type) = split /=|:|!/, $spec, 2;
   my $optional = ($spec =~ m/:/);
+  my $boolean = ($spec =~ m/!/);
   my (@short, @long);
   for (split /\|/, $opts) {
     if (length $_ == 1) {
       push @short, "-$_";
     } else {
-      push @long, "--$_";
+      push @long, $boolean ? "--[no-]$_" : "--$_";
     }
   }
 
@@ -207,7 +208,7 @@ sub _process_specs_getopt_long
     # Setup names and defaults
     my $spec = $arg->{spec};
     # Use first arg as name (like Getopt::Long does)
-    $spec =~ s/[=:].*$//;
+    $spec =~ s/[=:!].*$//;
     my $name = (split /\s*\|\s*/, $spec)[0];
     $arg->{name} = $name;
     if (defined $self->{$name}) {
@@ -697,7 +698,8 @@ but basically it is a series of one or more argument names for this argument
 (separated by '|'), suffixed with an '=<type>' indicator if the argument
 takes a value. '=s' indicates a string argument; '=i' indicates an integer
 argument; appending an '@' indicates multiple such arguments are accepted;
-and so on. The following are some examples:
+appending an '!' indicates negation using '--no'-prefix is possible; and so on.
+The following are some examples:
 
 =over 4
 
@@ -708,6 +710,8 @@ and so on. The following are some examples:
 =item ports|port|p=i
 
 =item exclude|X=s@
+
+=item perfdata!
 
 =item verbose|v+
 
