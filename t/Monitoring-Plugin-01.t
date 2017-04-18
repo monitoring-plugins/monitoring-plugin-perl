@@ -30,7 +30,7 @@ $p = Monitoring::Plugin->new(  shortname => "SIZE", plugin => "check_stuff", () 
 is($p->shortname, "SIZE", "shortname is not overriden by default");
 
 diag "warn if < 10, critical if > 25 " if $ENV{TEST_VERBOSE};
-my $t = $p->set_thresholds( warning => "10:25", critical => "~:25" );
+my $t = $p->set_thresholds( warning => "10:", critical => "~:25" );
 
 use Data::Dumper;
 #diag "dumping p:  ". Dumper $p;
@@ -44,7 +44,7 @@ $p->add_perfdata(
 	threshold => $t,
 	);
 
-cmp_ok( $p->all_perfoutput, 'eq', "size=1kB;10:25;~:25", "Perfdata correct");
+cmp_ok( $p->all_perfoutput, 'eq', "size=1kB;10:;~:25", "Perfdata correct");
 #diag "dumping perfdata:  ". Dumper ($p->perfdata);
 
 $p->add_perfdata(
@@ -53,7 +53,7 @@ $p->add_perfdata(
 	threshold => $t,
 	);
 
-is( $p->all_perfoutput, "size=1kB;10:25;~:25 time=3.52;10:25;~:25", "Perfdata correct when no uom specified");
+is( $p->all_perfoutput, "size=1kB;10:;~:25 time=3.52;10:;~:25", "Perfdata correct when no uom specified");
 
 my $expected = {qw(
 		   -1    WARNING
@@ -64,8 +64,13 @@ my $expected = {qw(
 		   30    CRITICAL
 		   )};
 
-foreach (sort {$a<=>$b} keys %$expected) {
-    like  $p->die( return_code => $t->get_status($_), message => "page size at http://... was ${_}kB" ),
-	 qr/$expected->{$_}/,
-	"Output okay. $_ = $expected->{$_}" ;
+foreach ( sort { $a <=> $b } keys %$expected ) {
+  like(
+    $p->die(
+      return_code => $t->get_status($_),
+      message     => "page size at http://... was ${_}kB"
+    ),
+    qr/$expected->{$_}/,
+    "Output okay. $_ = $expected->{$_}"
+  );
 }

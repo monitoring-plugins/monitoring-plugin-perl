@@ -75,9 +75,9 @@ sub parse_range_string {
 	}
 	if ($string =~ /^($value_re)$/) {   # 'x:10' or '10'
 	    $range->_set_range_end($string);
+      $range->end_infinity(0);
 	    $valid++;
 	}
-
 	if ($valid && ($range->start_infinity == 1 || $range->end_infinity == 1 || $range->start <= $range->end)) {
 		return $range;
 	}
@@ -86,35 +86,52 @@ sub parse_range_string {
 
 # Returns 1 if an alert should be raised, otherwise 0
 sub check_range {
-	my ($self, $value) = @_;
-	my $false = 0;
-	my $true = 1;
-	if ($self->alert_on == INSIDE) {
-		$false = 1;
-		$true = 0;
-	}
-	if ($self->end_infinity == 0 && $self->start_infinity == 0) {
-		if ($self->start <= $value && $value <= $self->end) {
-			return $false;
-		} else {
-			return $true;
-		}
-	} elsif ($self->start_infinity == 0 && $self->end_infinity == 1) {
-		if ( $value >= $self->start ) {
-			return $false;
-		} else {
-			return $true;
-		}
-	} elsif ($self->start_infinity == 1 && $self->end_infinity == 0) {
-		if ($value <= $self->end) {
-			return $false;
-		} else {
-			return $true;
-		}
-	} else {
-		return $false;
-	}
+  my ( $self, $value ) = @_;
+  my ( $eval_string, $op );
+
+  # this could be a from-to or equality check
+  if ( $self->end_infinity == 0 && $self->start_infinity == 0 ) {
+
+    # this could be a test for exclusion (outside the range)
+    # or inclusion (inside the range)
+    my $left_op  = $self->alert_on == INSIDE ? '>=' : '<';
+    my $right_op = $self->alert_on == INSIDE ? '<=' : '>';
+    my $cmp      = $self->alert_on == INSIDE ? '&&' : '||';
+    $eval_string = sprintf(
+      "%s %s %s %s %s %s %s",
+      $value, $left_op,  $self->start, $cmp,
+      $value, $right_op, $self->end
+    );
+  }
+  else {
+    my $check;
+
+    # there is a start value, testing to infinity
+    if ( $self->start_infinity == 0 && $self->end_infinity == 1 ) {
+
+      # if we are checking for a value inside the range
+      # it will be >= the start value
+      $op = $self->alert_on == INSIDE ? '>=' : '<';
+      $check = $self->start;
+    }
+
+    # there is an end value, testing from negative infinity
+    elsif ( $self->start_infinity == 1 && $self->end_infinity == 0 ) {
+
+      # if we are checking for a value inside the range
+      # it will be <= the start value
+      $op = $self->alert_on == INSIDE ? '<=' : '>'
+      $check = $self->end;
+    }
+    else {
+      return 0;
+    }
+    $eval_string = "$value $op $check";
+  }
+
+  return int( eval $eval_string );
 }
+
 
 # Constructor - map args to hashref for SUPER
 sub new

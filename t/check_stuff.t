@@ -39,9 +39,9 @@ like 	$r,		qr/UNKNOWN.+invalid/i,	"UNKNOWN (warning: invalid -r) with $args";
 
 
 my $expected = {
-	" -w 10:15 -c~:15 -r 0"     =>  'WARNING',
-	" -w 10:15 -c~:15 -r 11"     =>  'OK',
-	" -w 10:15 -c~:15 -r 15.8"   =>  'CRITICAL',
+	" -w \@10:15 -c~:15 -r 0"     =>  'OK',
+	" -w \@10:15 -c~:15 -r 11"     =>  'WARNING',
+	" -c~:15 -r 15.8"   =>  'CRITICAL',
 };
 
 test_expected( $s, $expected );
