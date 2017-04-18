@@ -48,46 +48,65 @@ sub _set_range_end {
 
 # Returns a N::P::Range object if the string is a conforms to a Monitoring Plugin range string, otherwise null
 sub parse_range_string {
-	my ($class, $string) = @_;
-	my $valid = 0;
-	my $range = $class->new( start => 0, start_infinity => 0, end => 0, end_infinity => 1, alert_on => OUTSIDE);
+  my ( $class, $string ) = @_;
+  my $valid = 0;
+  my $range = $class->new(
+    start        => 0, start_infinity => 0, end => 0,
+    end_infinity => 1, alert_on       => OUTSIDE
+  );
 
-	$string =~ s/\s//g;  # strip out any whitespace
-	# check for valid range definition
-	unless ( $string =~ /[\d~]/ && $string =~ m/^\@?($value_re|~)?(:($value_re)?)?$/ ) {
-	    carp "invalid range definition '$string'";
-	    return undef;
-	}
+  $string =~ s/\s//g;       # strip out any whitespace
+                            # check for valid range definition
+  unless ( $string =~ /[\d~]/
+    && $string =~ m/^\@?($value_re|~)?(:($value_re)?)?$/ ) {
+    carp "invalid range definition '$string'";
+    return undef;
+  }
 
-	if ($string =~ s/^\@//) {
-	    $range->alert_on(INSIDE);
-	}
+  if ( $string =~ s/^\@// ) {
+    $range->alert_on(INSIDE);
+  }
 
-	if ($string =~ s/^~//) {  # '~:x'
-	    $range->start_infinity(1);
-	}
-	if ( $string =~ m/^($value_re)?:/ ) {     # '10:'
-		my $start = $1;
-	    $range->_set_range_start($start) if defined $start;
-		$range->end_infinity(1);  # overridden below if there's an end specified
-	    $string =~ s/^($value_re)?://;
-	    $valid++;
-	}
-	if ($string =~ /^($value_re)$/) {   # 'x:10' or '10'
-	    $range->_set_range_end($string);
-      $range->end_infinity(0);
-	    $valid++;
-	}
-	if ($valid && ($range->start_infinity == 1 || $range->end_infinity == 1 || $range->start <= $range->end)) {
-		return $range;
-	}
-	return undef;
+  if ( $string =~ s/^~// ) {    # '~:x'
+    $range->start_infinity(1);
+  }
+  if ( $string =~ m/^($value_re)?:/ ) {    # '10:'
+    my $start = $1;
+    $range->_set_range_start($start) if defined $start;
+    $range->end_infinity(1);    # overridden below if there's an end specified
+    $string =~ s/^($value_re)?://;
+    $valid++;
+  }
+  if ( $string =~ /^($value_re)$/ ) {    # 'x:10' or '10'
+    $range->_set_range_end($string);
+    $range->end_infinity(0);
+    $valid++;
+  }
+  if (
+    $valid
+    && ( $range->start_infinity == 1
+      || $range->end_infinity == 1
+      || $range->start <= $range->end )
+    ) {
+    return $range;
+  }
+  return undef;
 }
+
 
 # Returns 1 if an alert should be raised, otherwise 0
 sub check_range {
   my ( $self, $value ) = @_;
   my ( $eval_string, $op );
+
+  # untaint
+  if ($value =~ /($value_re)/) {
+    $value = $1;
+  }
+  else {
+    carp "invalid value '$value'";
+    return undef;
+  }
 
   # this could be a from-to or equality check
   if ( $self->end_infinity == 0 && $self->start_infinity == 0 ) {
@@ -120,7 +139,7 @@ sub check_range {
 
       # if we are checking for a value inside the range
       # it will be <= the start value
-      $op = $self->alert_on == INSIDE ? '<=' : '>'
+      $op = $self->alert_on == INSIDE ? '<=' : '>';
       $check = $self->end;
     }
     else {
