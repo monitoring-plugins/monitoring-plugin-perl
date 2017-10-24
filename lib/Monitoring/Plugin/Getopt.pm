@@ -383,7 +383,7 @@ sub arg
   my %args;
 
   # Named args
-  if ($_[0] =~ m/^(spec|help|required|default)$/ && scalar(@_) % 2 == 0) {
+  if ($_[0] =~ m/^(spec|help|required|default|label)$/ && scalar(@_) % 2 == 0) {
     %args = validate( @_, {
       spec => 1,
       help => 1,
