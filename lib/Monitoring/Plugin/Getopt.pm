@@ -392,7 +392,7 @@ sub arg
   );
 
   # Named args
-  if ($_[0] =~ m/^(spec|help|required|default|label)$/ && scalar(@_) % 2 == 0) {
+  if (exists $params{$_[0]} && scalar(@_) % 2 == 0) {
     %args = validate( @_, { %params });
   }
 
