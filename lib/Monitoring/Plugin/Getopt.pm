@@ -382,15 +382,18 @@ sub arg
   my $self = shift;
   my %args;
 
+  # Param name to required boolean
+  my %params = (
+      spec     => 1,
+      help     => 1,
+      default  => 0,
+      required => 0,
+      label    => 0,
+  );
+
   # Named args
   if ($_[0] =~ m/^(spec|help|required|default|label)$/ && scalar(@_) % 2 == 0) {
-    %args = validate( @_, {
-      spec => 1,
-      help => 1,
-      default => 0,
-      required => 0,
-      label => 0,
-    });
+    %args = validate( @_, { %params });
   }
 
   # Positional args
