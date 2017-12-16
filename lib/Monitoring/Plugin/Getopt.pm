@@ -398,14 +398,8 @@ sub arg
 
   # Positional args
   else {
-    my @args = validate_pos(@_, 1, 1, 0, 0, 0);
-    %args = (
-      spec      => $args[0],
-      help      => $args[1],
-      default   => $args[2],
-      required  => $args[3],
-      label     => $args[4],
-    );
+    my @order = qw(spec help default required label);
+    @args{@order} = validate_pos(@_, @params{@order});
   }
 
   # Add to private args arrayref
