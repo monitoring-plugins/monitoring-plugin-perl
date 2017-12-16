@@ -393,7 +393,7 @@ sub arg
 
   # Named args
   if (exists $params{$_[0]} && scalar @_ % 2 == 0) {
-    %args = validate( @_, { %params });
+    %args = validate( @_, \%params );
   }
 
   # Positional args
