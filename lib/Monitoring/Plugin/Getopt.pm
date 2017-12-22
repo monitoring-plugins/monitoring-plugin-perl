@@ -382,27 +382,24 @@ sub arg
   my $self = shift;
   my %args;
 
-  # Named args
-  if ($_[0] =~ m/^(spec|help|required|default|label)$/ && scalar(@_) % 2 == 0) {
-    %args = validate( @_, {
-      spec => 1,
-      help => 1,
-      default => 0,
+  # Param name to required boolean
+  my %params = (
+      spec     => 1,
+      help     => 1,
+      default  => 0,
       required => 0,
-      label => 0,
-    });
+      label    => 0,
+  );
+
+  # Named args
+  if (exists $params{$_[0]} && @_ % 2 == 0) {
+    %args = validate( @_, \%params );
   }
 
   # Positional args
   else {
-    my @args = validate_pos(@_, 1, 1, 0, 0, 0);
-    %args = (
-      spec      => $args[0],
-      help      => $args[1],
-      default   => $args[2],
-      required  => $args[3],
-      label     => $args[4],
-    );
+    my @order = qw(spec help default required label);
+    @args{@order} = validate_pos(@_, @params{@order});
   }
 
   # Add to private args arrayref
