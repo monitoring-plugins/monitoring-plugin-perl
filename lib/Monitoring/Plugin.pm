@@ -287,8 +287,7 @@ Icinga or Shinken (and compatible) plugins.
    );
    $np->plugin_exit( $code, "Threshold check failed" ) if $code != OK;
 
-
-   # Message methods (EXPERIMENTAL AND SUBJECT TO CHANGE) -
+   # Message methods
    #   add_message( CODE, $message ); check_messages()
    for (@collection) {
      if (m/Error/) {
@@ -579,8 +578,6 @@ need to do that from a plugin script.
 =back
 
 =head2 MESSAGE METHODS
-
-EXPERIMENTAL AND SUBJECT TO CHANGE
 
 add_messages and check_messages are higher-level convenience methods to add
 and then check a set of messages, returning an appropriate return code
