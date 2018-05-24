@@ -260,7 +260,9 @@ sub _load_config_section
 
   my $Config;
   eval { $Config = Monitoring::Plugin::Config->read($file); };
-  $self->_die($@) if ($@); #TODO: add test?
+  $self->_die($@) if ($@);
+  defined $Config
+      or $self->_die(Monitoring::Plugin::Config->errstr);
 
   # TODO: is this check sane? Does --extra-opts=foo require a [foo] section?
   ## Nevertheless, if we die as UNKNOWN here we should do the same on default
