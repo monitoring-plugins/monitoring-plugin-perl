@@ -1,7 +1,13 @@
 Revision history for Perl module Monitoring::Plugin.
 
 next:
-  - convert empty perfdata values to 'U' (daku3649)
+  - improve --extra-opts error handling (#18)
+  - fix handling named arguments (#17)
+  - Allow negation of command line arguments using '--no'-prefix (#13)
+  - Fix plugin-name processing in ALRM handler. (#12)
+  - Fixed regex in plugin_exit() that handles hyphen for LONGOUTPUT (#11)
+  - Support LONGTEXT output in plugin_exit (#10)
+  - convert empty perfdata values to 'U' (daku3649 #5)
   - fix output when there is only long plugin output (pdugas)
 
 0.39 11th April 2015
