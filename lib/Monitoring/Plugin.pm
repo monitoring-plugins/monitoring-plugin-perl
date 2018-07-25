@@ -26,7 +26,7 @@ our @EXPORT_OK = qw(%ERRORS %STATUS_TEXT);
 # CPAN stupidly won't index this module without a literal $VERSION here,
 #   so we're forced to duplicate it explicitly
 # Make sure you update $Monitoring::Plugin::Functions::VERSION too
-our $VERSION = "0.39";
+our $VERSION = "0.40";
 
 sub new {
 	my $class = shift;

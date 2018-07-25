@@ -1,6 +1,7 @@
 Revision history for Perl module Monitoring::Plugin.
 
 next:
+0.40 25th July 2018
   - improve --extra-opts error handling (#18)
   - fix handling named arguments (#17)
   - Allow negation of command line arguments using '--no'-prefix (#13)
