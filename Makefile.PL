@@ -1,7 +1,7 @@
 use inc::Module::Install;
 
 name        'Monitoring-Plugin';
-all_from    'lib/Monitoring/Plugin/Functions.pm';
+all_from    'lib/Monitoring/Plugin.pm';
 author      'Monitoring Plugin Team <devel@monitoring-plugins.org>';
 license     'perl';
 repository  'https://github.com/monitoring-plugins/monitoring-plugin-perl';
