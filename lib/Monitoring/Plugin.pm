@@ -131,8 +131,7 @@ sub check_threshold {
 
 	# in order of preference, get warning and critical from
 	#  1.  explicit arguments to check_threshold
-	#  2.  previously explicitly set threshold object
-	#  3.  implicit options from Getopts object
+	#  2.  previously explicitly set threshold object or implicit theshold object created by warning and critical
 	if ( exists $args{warning} || exists $args{critical} ) {
 		$self->set_thresholds(
 			warning  => $args{warning},
@@ -141,12 +140,6 @@ sub check_threshold {
 	}
 	elsif ( defined $self->threshold ) {
 		# noop
-	}
-	elsif ( defined $self->opts ) {
-		$self->set_thresholds(
-			warning  => $self->opts->warning,
-			critical => $self->opts->critical,
-		);
 	}
 	else {
 		return UNKNOWN;
@@ -163,6 +156,10 @@ sub add_arg {
 sub getopts {
     my $self = shift;
 	$self->opts->getopts(@_) if $self->_check_for_opts;
+	$self->set_thresholds(
+		warning  => $self->opts->warning,
+		critical => $self->opts->critical,
+	) if ( defined $self->opts->warning && defined $self->opts->critical );
 }
 
 sub _check_for_opts {
