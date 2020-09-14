@@ -159,7 +159,7 @@ sub getopts {
 	$self->set_thresholds(
 		warning  => $self->opts->warning,
 		critical => $self->opts->critical,
-	) if ( defined $self->opts->warning && defined $self->opts->critical );
+	) if ( defined $self->opts->warning || defined $self->opts->critical );
 }
 
 sub _check_for_opts {
