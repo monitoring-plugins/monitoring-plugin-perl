@@ -1,6 +1,6 @@
 
 use strict;
-use Test::More tests => 116;
+use Test::More tests => 117;
 
 BEGIN { use_ok("Monitoring::Plugin::Functions", ":all"); }
 Monitoring::Plugin::Functions::_fake_exit(1);
@@ -90,15 +90,14 @@ for (@ugly2) {
 
 # plugin_exit message with longoutput
 my @ugly3 = (
-    [ "MSG\nLONGOUTPUT", " - MSG\nLONGOUTPUT" ],
-    [ "\nLONGOUTPUT",    "\nLONGOUTPUT" ],
-    [ "   \nLONGOUTPUT", "   \nLONGOUTPUT" ],
+    [ "MSG\nLONGOUTPUT", "MONITORING-PLUGIN-FUNCTIONS-01 CRITICAL - MSG\nLONGOUTPUT\n" ],
+    [ "\nLONGOUTPUT",    "MONITORING-PLUGIN-FUNCTIONS-01 CRITICAL\nLONGOUTPUT\n" ],
+    [ "   \nLONGOUTPUT", "MONITORING-PLUGIN-FUNCTIONS-01 CRITICAL   \nLONGOUTPUT\n" ],
+    [ "LONGOUTPUT\n\n    blah.", "MONITORING-PLUGIN-FUNCTIONS-01 CRITICAL - LONGOUTPUT\n\n    blah.\n" ],
 );
 for (@ugly3) {
     $r = plugin_exit(CRITICAL, $_->[0]);
-    like($r->message, qr/CRITICAL$_->[1]$/,
-         sprintf('plugin_exit(CRITICAL, $msg) output matched "%s"',
-                 "CRITICAL$_->[1]"));
+    is($r->message, $_->[1], "plugin_exit() output as expected");
 }
 
 # Test plugin_die( $msg )
