@@ -119,7 +119,7 @@ sub plugin_exit {
     # Setup output
     my $output = "$STATUS_TEXT{$code}";
     if (defined $message && $message ne '') {
-        $output .= " - " unless $message =~ /^\s*\n/mxs;
+        $output .= " - " unless $message =~ /^\s*[\n\r]/;
         $output .= $message;
     }
     my $shortname = ($arg->{plugin} ? $arg->{plugin}->shortname : undef);
